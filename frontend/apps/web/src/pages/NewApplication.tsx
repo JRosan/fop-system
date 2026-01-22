@@ -1,5 +1,24 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useApplicationWizard } from '@fop/core';
-import { Check, Info, FileText, Clock, AlertCircle, Plane, Building2, Calendar } from 'lucide-react';
+import { applicationsApi, operatorsApi, feesApi } from '@fop/api';
+import { useNotificationStore } from '@fop/core';
+import type { ApplicationType, FlightPurpose, CreateApplicationRequest } from '@fop/types';
+import {
+  Check,
+  Info,
+  FileText,
+  Clock,
+  AlertCircle,
+  Plane,
+  Building2,
+  Calendar,
+  Upload,
+  X,
+  Search,
+} from 'lucide-react';
+import { formatMoney } from '../utils/date';
 
 const steps = [
   { id: 1, name: 'Permit Type', icon: FileText },
@@ -19,35 +38,19 @@ const stepInfo: Record<number, { title: string; tips: string[]; requirements?: s
       'Blanket permits allow multiple flights over a period',
       'Emergency permits have expedited processing',
     ],
-    requirements: [
-      'Valid Air Operator Certificate (AOC)',
-      'Current insurance coverage',
-    ],
   },
   2: {
     title: 'Operator Requirements',
     tips: [
       'Operator must have a valid AOC from their home country',
       'Contact information must be current and accurate',
-      'International operators need ICAO designator',
-    ],
-    requirements: [
-      'Air Operator Certificate',
-      'Company registration documents',
-      'Designated contact person',
     ],
   },
   3: {
     title: 'Aircraft Information',
     tips: [
       'Aircraft must be registered and airworthy',
-      'Noise certificate may be required for certain airports',
       'MTOW affects fee calculation',
-    ],
-    requirements: [
-      'Certificate of Registration',
-      'Certificate of Airworthiness',
-      'Insurance certificate covering BVI operations',
     ],
   },
   4: {
@@ -55,7 +58,6 @@ const stepInfo: Record<number, { title: string; tips: string[]; requirements?: s
     tips: [
       'Specify all BVI airports you plan to use',
       'Include accurate passenger/cargo estimates',
-      'Charter flights require additional documentation',
     ],
   },
   5: {
@@ -63,14 +65,12 @@ const stepInfo: Record<number, { title: string; tips: string[]; requirements?: s
     tips: [
       'One-Time permits are valid for the specific flight dates',
       'Blanket permits can be valid up to 12 months',
-      'Allow sufficient processing time before operations',
     ],
   },
   6: {
     title: 'Document Requirements',
     tips: [
       'All documents must be in English or translated',
-      'Ensure documents are current and not expired',
       'PDF format is preferred for all uploads',
     ],
     requirements: [
@@ -78,28 +78,109 @@ const stepInfo: Record<number, { title: string; tips: string[]; requirements?: s
       'Certificate of Airworthiness',
       'Certificate of Registration',
       'Insurance Certificate',
-      'Noise Certificate (if applicable)',
     ],
   },
   7: {
     title: 'Final Review',
     tips: [
       'Double-check all information before submitting',
-      'Ensure all required documents are uploaded',
       'Application cannot be edited after submission',
     ],
   },
 };
 
 export function NewApplication() {
-  const { currentStep, totalSteps, nextStep, prevStep, canProceed } =
-    useApplicationWizard();
+  const navigate = useNavigate();
+  const { success, error: showError } = useNotificationStore();
+  const wizard = useApplicationWizard();
+  const { currentStep, totalSteps, nextStep, prevStep, canProceed, reset } = wizard;
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
+  // Reset wizard on mount
+  useEffect(() => {
+    reset();
+  }, []);
+
+  // Fee calculation
+  const { data: feeData } = useQuery({
+    queryKey: ['feeEstimate', wizard.applicationType, wizard.aircraft?.seatCapacity, wizard.aircraft?.mtow?.value],
+    queryFn: () =>
+      feesApi.calculate(
+        wizard.applicationType!,
+        wizard.aircraft?.seatCapacity || 0,
+        wizard.aircraft?.mtow?.value || 0
+      ),
+    enabled: !!wizard.applicationType && !!wizard.aircraft?.seatCapacity && !!wizard.aircraft?.mtow?.value,
+  });
+
+  // Submit mutation
+  const submitMutation = useMutation({
+    mutationFn: async () => {
+      const request: CreateApplicationRequest = {
+        type: wizard.applicationType!,
+        operator: wizard.isNewOperator ? {
+          name: wizard.operator?.name || '',
+          registrationNumber: wizard.operator?.registrationNumber || '',
+          country: wizard.operator?.country || '',
+          address: wizard.operator?.address || { street: '', city: '', country: '' },
+          contactInfo: wizard.operator?.contactInfo || { email: '', phone: '' },
+          authorizedRepresentative: wizard.operator?.authorizedRepresentative || { name: '', title: '', email: '', phone: '' },
+          aocNumber: wizard.operator?.aocNumber || '',
+          aocIssuingAuthority: wizard.operator?.aocIssuingAuthority || '',
+          aocExpiryDate: wizard.operator?.aocExpiryDate || '',
+        } : undefined,
+        operatorId: wizard.isNewOperator ? undefined : wizard.operatorId || undefined,
+        aircraft: wizard.isNewAircraft ? {
+          registrationNumber: wizard.aircraft?.registrationNumber || '',
+          manufacturer: wizard.aircraft?.manufacturer || '',
+          model: wizard.aircraft?.model || '',
+          serialNumber: wizard.aircraft?.serialNumber || '',
+          yearOfManufacture: wizard.aircraft?.yearOfManufacture || new Date().getFullYear(),
+          mtow: wizard.aircraft?.mtow || { value: 0, unit: 'KG' },
+          seatCapacity: wizard.aircraft?.seatCapacity || 0,
+          category: wizard.aircraft?.category || 'FIXED_WING',
+          countryOfRegistration: wizard.aircraft?.countryOfRegistration || '',
+        } : undefined,
+        aircraftId: wizard.isNewAircraft ? undefined : wizard.aircraftId || undefined,
+        flightDetails: {
+          purpose: wizard.flightPurpose!,
+          purposeDescription: wizard.flightPurposeDescription || undefined,
+          arrivalAirport: wizard.arrivalAirport,
+          departureAirport: wizard.departureAirport,
+          estimatedFlightDate: wizard.estimatedFlightDate,
+          numberOfPassengers: wizard.numberOfPassengers || undefined,
+          cargoDescription: wizard.cargoDescription || undefined,
+        },
+        requestedPeriod: {
+          startDate: wizard.requestedStartDate,
+          endDate: wizard.requestedEndDate,
+        },
+      };
+      return applicationsApi.create(request);
+    },
+    onSuccess: (application) => {
+      success('Application Created', `Application ${application.applicationNumber} has been created successfully.`);
+      reset();
+      navigate(`/applications/${application.id}`);
+    },
+    onError: (err: Error) => {
+      showError('Failed to Create Application', err.message);
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!termsAccepted) {
+      showError('Terms Required', 'Please accept the terms and conditions to submit.');
+      return;
+    }
+    submitMutation.mutate();
+  };
 
   const currentStepInfo = stepInfo[currentStep];
 
   return (
     <div className="w-full">
-      {/* Fixed Progress Stepper */}
+      {/* Progress Stepper */}
       <div className="sticky top-0 z-10 bg-white border-b border-neutral-200 shadow-sm -mx-6 -mt-6 px-6 py-4 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -123,7 +204,6 @@ export function NewApplication() {
 
             return (
               <div key={step.id} className="flex-1 flex flex-col items-center relative">
-                {/* Connector Line - Before circle */}
                 {index !== 0 && (
                   <div
                     className={`absolute top-5 right-1/2 w-full h-0.5 -translate-y-1/2 ${
@@ -131,7 +211,6 @@ export function NewApplication() {
                     }`}
                   />
                 )}
-                {/* Connector Line - After circle */}
                 {index !== steps.length - 1 && (
                   <div
                     className={`absolute top-5 left-1/2 w-full h-0.5 -translate-y-1/2 ${
@@ -139,7 +218,6 @@ export function NewApplication() {
                     }`}
                   />
                 )}
-                {/* Circle */}
                 <div
                   className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                     isCompleted
@@ -149,20 +227,11 @@ export function NewApplication() {
                         : 'bg-neutral-100 text-neutral-400'
                   }`}
                 >
-                  {isCompleted ? (
-                    <Check className="w-5 h-5" />
-                  ) : (
-                    <StepIcon className="w-5 h-5" />
-                  )}
+                  {isCompleted ? <Check className="w-5 h-5" /> : <StepIcon className="w-5 h-5" />}
                 </div>
-                {/* Label below circle */}
                 <span
                   className={`mt-2 text-xs font-medium text-center hidden sm:block ${
-                    isCompleted
-                      ? 'text-green-600'
-                      : isCurrent
-                        ? 'text-primary-600'
-                        : 'text-neutral-400'
+                    isCompleted ? 'text-green-600' : isCurrent ? 'text-primary-600' : 'text-neutral-400'
                   }`}
                 >
                   {step.name}
@@ -173,15 +242,14 @@ export function NewApplication() {
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Form Content - Takes 2 columns */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-6">
-            <StepContent step={currentStep} />
+            <StepContent step={currentStep} wizard={wizard} termsAccepted={termsAccepted} setTermsAccepted={setTermsAccepted} feeData={feeData} />
           </div>
 
-          {/* Navigation Buttons */}
+          {/* Navigation */}
           <div className="flex justify-between mt-6">
             <button
               onClick={prevStep}
@@ -192,10 +260,11 @@ export function NewApplication() {
             </button>
             {currentStep === totalSteps ? (
               <button
-                disabled={!canProceed()}
+                onClick={handleSubmit}
+                disabled={!canProceed() || !termsAccepted || submitMutation.isPending}
                 className="px-6 py-3 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Submit Application
+                {submitMutation.isPending ? 'Submitting...' : 'Submit Application'}
               </button>
             ) : (
               <button
@@ -209,9 +278,8 @@ export function NewApplication() {
           </div>
         </div>
 
-        {/* Information Sidebar - Takes 1 column */}
+        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Tips Card */}
           <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
             <div className="flex items-center gap-2 mb-3">
               <Info className="w-5 h-5 text-blue-600" />
@@ -227,7 +295,6 @@ export function NewApplication() {
             </ul>
           </div>
 
-          {/* Requirements Card */}
           {currentStepInfo.requirements && (
             <div className="bg-amber-50 rounded-xl border border-amber-200 p-5">
               <div className="flex items-center gap-2 mb-3">
@@ -245,48 +312,35 @@ export function NewApplication() {
             </div>
           )}
 
-          {/* Fee Estimate Card */}
+          {/* Fee Estimate */}
           <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-5">
             <h3 className="font-semibold text-neutral-900 mb-3">Fee Estimate</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-neutral-600">
-                <span>Base Fee</span>
-                <span>$150.00</span>
-              </div>
-              <div className="flex justify-between text-neutral-600">
-                <span>Seat Fee</span>
-                <span>--</span>
-              </div>
-              <div className="flex justify-between text-neutral-600">
-                <span>Weight Fee</span>
-                <span>--</span>
-              </div>
-              <div className="border-t border-neutral-200 pt-2 mt-2">
-                <div className="flex justify-between font-semibold text-neutral-900">
-                  <span>Estimated Total</span>
-                  <span>$150.00+</span>
+            {feeData ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-neutral-600">
+                  <span>Base Fee</span>
+                  <span>{formatMoney(feeData.baseFee.amount, feeData.baseFee.currency)}</span>
+                </div>
+                <div className="flex justify-between text-neutral-600">
+                  <span>Seat Fee</span>
+                  <span>{formatMoney(feeData.seatFee.amount, feeData.seatFee.currency)}</span>
+                </div>
+                <div className="flex justify-between text-neutral-600">
+                  <span>Weight Fee</span>
+                  <span>{formatMoney(feeData.weightFee.amount, feeData.weightFee.currency)}</span>
+                </div>
+                <div className="border-t border-neutral-200 pt-2 mt-2">
+                  <div className="flex justify-between font-semibold text-neutral-900">
+                    <span>Estimated Total</span>
+                    <span>{formatMoney(feeData.totalFee.amount, feeData.totalFee.currency)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <p className="text-xs text-neutral-500 mt-3">
-              Final fee calculated after aircraft selection
-            </p>
-          </div>
-
-          {/* Help Card */}
-          <div className="bg-neutral-50 rounded-xl border border-neutral-200 p-5">
-            <h3 className="font-semibold text-neutral-900 mb-2">Need Help?</h3>
-            <p className="text-sm text-neutral-600 mb-3">
-              Contact the BVI Civil Aviation Department for assistance.
-            </p>
-            <div className="space-y-1 text-sm">
-              <p className="text-neutral-600">
-                <span className="font-medium">Email:</span> info@bvicad.gov.vg
-              </p>
-              <p className="text-neutral-600">
-                <span className="font-medium">Phone:</span> +1 (284) 555-0123
-              </p>
-            </div>
+            ) : (
+              <div className="space-y-2 text-sm text-neutral-500">
+                <p>Enter aircraft details to calculate fees</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -294,152 +348,182 @@ export function NewApplication() {
   );
 }
 
-function StepContent({ step }: { step: number }) {
+interface StepContentProps {
+  step: number;
+  wizard: ReturnType<typeof useApplicationWizard>;
+  termsAccepted: boolean;
+  setTermsAccepted: (v: boolean) => void;
+  feeData: any;
+}
+
+function StepContent({ step, wizard, termsAccepted, setTermsAccepted, feeData }: StepContentProps) {
   switch (step) {
     case 1:
-      return <PermitTypeStep />;
+      return <PermitTypeStep wizard={wizard} />;
     case 2:
-      return <OperatorStep />;
+      return <OperatorStep wizard={wizard} />;
     case 3:
-      return <AircraftStep />;
+      return <AircraftStep wizard={wizard} />;
     case 4:
-      return <FlightDetailsStep />;
+      return <FlightDetailsStep wizard={wizard} />;
     case 5:
-      return <PermitPeriodStep />;
+      return <PermitPeriodStep wizard={wizard} />;
     case 6:
-      return <DocumentsStep />;
+      return <DocumentsStep wizard={wizard} />;
     case 7:
-      return <ReviewStep />;
+      return <ReviewStep wizard={wizard} termsAccepted={termsAccepted} setTermsAccepted={setTermsAccepted} feeData={feeData} />;
     default:
       return null;
   }
 }
 
-function PermitTypeStep() {
-  const { applicationType, setApplicationType } = useApplicationWizard();
+function PermitTypeStep({ wizard }: { wizard: ReturnType<typeof useApplicationWizard> }) {
+  const { applicationType, setApplicationType } = wizard;
 
-  const types = [
+  const types: { id: ApplicationType; name: string; description: string; multiplier: string; processing: string }[] = [
     {
       id: 'ONE_TIME',
       name: 'One-Time Permit',
       description: 'For a single flight operation to or from the British Virgin Islands',
       multiplier: '1.0x',
-      fee: 'Standard fee',
       processing: '3-5 business days',
-      icon: Plane,
     },
     {
       id: 'BLANKET',
       name: 'Blanket Permit',
       description: 'For multiple flights over an extended period (up to 12 months)',
       multiplier: '2.5x',
-      fee: 'Premium fee',
       processing: '5-7 business days',
-      icon: Calendar,
     },
     {
       id: 'EMERGENCY',
       name: 'Emergency Permit',
       description: 'For urgent humanitarian, medical, or emergency flights',
       multiplier: '0.5x',
-      fee: 'Reduced fee',
       processing: '24-48 hours',
-      icon: AlertCircle,
     },
-  ] as const;
+  ];
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-neutral-900 mb-2">
-        Select Permit Type
-      </h2>
-      <p className="text-neutral-500 mb-6">
-        Choose the type of Foreign Operator Permit that best suits your operation needs.
-      </p>
+      <h2 className="text-xl font-semibold text-neutral-900 mb-2">Select Permit Type</h2>
+      <p className="text-neutral-500 mb-6">Choose the type of permit that best suits your operation.</p>
 
       <div className="grid gap-4">
-        {types.map((type) => {
-          const TypeIcon = type.icon;
-          return (
-            <label
-              key={type.id}
-              className={`relative flex items-start p-5 rounded-xl border-2 cursor-pointer transition-all ${
-                applicationType === type.id
-                  ? 'border-primary-600 bg-primary-50 shadow-md'
-                  : 'border-neutral-200 hover:border-neutral-300 hover:shadow-sm'
-              }`}
-            >
-              <input
-                type="radio"
-                name="permitType"
-                value={type.id}
-                checked={applicationType === type.id}
-                onChange={() => setApplicationType(type.id)}
-                className="sr-only"
-              />
-              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mr-4 ${
-                applicationType === type.id
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-neutral-100 text-neutral-500'
-              }`}>
-                <TypeIcon className="w-6 h-6" />
+        {types.map((type) => (
+          <label
+            key={type.id}
+            className={`relative flex items-start p-5 rounded-xl border-2 cursor-pointer transition-all ${
+              applicationType === type.id
+                ? 'border-primary-600 bg-primary-50 shadow-md'
+                : 'border-neutral-200 hover:border-neutral-300 hover:shadow-sm'
+            }`}
+          >
+            <input
+              type="radio"
+              name="permitType"
+              value={type.id}
+              checked={applicationType === type.id}
+              onChange={() => setApplicationType(type.id)}
+              className="sr-only"
+            />
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-neutral-900">{type.name}</p>
+                <span className="px-3 py-1 rounded-full text-sm font-medium bg-neutral-100 text-neutral-600">
+                  {type.multiplier} fee
+                </span>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold text-neutral-900">{type.name}</p>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    applicationType === type.id
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-neutral-100 text-neutral-600'
-                  }`}>
-                    {type.multiplier} base fee
-                  </span>
-                </div>
-                <p className="text-sm text-neutral-500 mt-1">{type.description}</p>
-                <div className="flex items-center gap-4 mt-3 text-xs text-neutral-500">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {type.processing}
-                  </span>
-                </div>
+              <p className="text-sm text-neutral-500 mt-1">{type.description}</p>
+              <div className="flex items-center gap-1 mt-3 text-xs text-neutral-500">
+                <Clock className="w-3 h-3" />
+                {type.processing}
               </div>
-              {applicationType === type.id && (
-                <div className="absolute top-4 right-4">
-                  <div className="w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center">
-                    <Check className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-              )}
-            </label>
-          );
-        })}
+            </div>
+            {applicationType === type.id && (
+              <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center">
+                <Check className="w-4 h-4 text-white" />
+              </div>
+            )}
+          </label>
+        ))}
       </div>
     </div>
   );
 }
 
-function OperatorStep() {
+function OperatorStep({ wizard }: { wizard: ReturnType<typeof useApplicationWizard> }) {
+  const { operatorId, operator, isNewOperator, setOperator } = wizard;
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const { data: operatorsData } = useQuery({
+    queryKey: ['operators', 'search', searchTerm],
+    queryFn: () => operatorsApi.getAll({ search: searchTerm, pageSize: 5 }),
+    enabled: searchTerm.length >= 2,
+  });
+
+  const handleSelectExisting = (op: { id: string; name: string; country: string; aocNumber: string }) => {
+    setOperator(op.id, { name: op.name, country: op.country, aocNumber: op.aocNumber }, false);
+  };
+
+  const handleNewOperator = () => {
+    setOperator(null, operator || {}, true);
+  };
+
+  const updateOperator = (field: string, value: string) => {
+    setOperator(null, { ...operator, [field]: value }, true);
+  };
+
   return (
     <div>
-      <h2 className="text-xl font-semibold text-neutral-900 mb-2">
-        Operator Information
-      </h2>
-      <p className="text-neutral-500 mb-6">
-        Select an existing operator or register a new one for this application.
-      </p>
+      <h2 className="text-xl font-semibold text-neutral-900 mb-2">Operator Information</h2>
+      <p className="text-neutral-500 mb-6">Select an existing operator or register a new one.</p>
 
       <div className="space-y-6">
-        {/* Search existing operators */}
+        {/* Search existing */}
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Search Existing Operators
-          </label>
-          <input
-            type="text"
-            placeholder="Search by name or ICAO code..."
-            className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-          />
+          <label className="label">Search Existing Operators</label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name or AOC number..."
+              className="input pl-10"
+            />
+          </div>
+          {operatorsData && operatorsData.items.length > 0 && (
+            <div className="mt-2 border border-neutral-200 rounded-lg divide-y">
+              {operatorsData.items.map((op) => (
+                <button
+                  key={op.id}
+                  type="button"
+                  onClick={() => handleSelectExisting(op)}
+                  className={`w-full text-left px-4 py-3 hover:bg-neutral-50 ${
+                    operatorId === op.id ? 'bg-primary-50' : ''
+                  }`}
+                >
+                  <p className="font-medium">{op.name}</p>
+                  <p className="text-sm text-neutral-500">{op.country} - AOC: {op.aocNumber}</p>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
+        {operatorId && !isNewOperator && (
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="font-medium text-green-900">Selected: {operator?.name}</p>
+            <button
+              type="button"
+              onClick={() => setOperator(null, {}, true)}
+              className="text-sm text-green-700 underline mt-1"
+            >
+              Clear selection
+            </button>
+          </div>
+        )}
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -450,47 +534,65 @@ function OperatorStep() {
           </div>
         </div>
 
-        {/* New operator form fields */}
+        {/* New operator form */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Operator Name *
-            </label>
+            <label className="label">Operator Name *</label>
             <input
               type="text"
+              value={operator?.name || ''}
+              onChange={(e) => { handleNewOperator(); updateOperator('name', e.target.value); }}
               placeholder="e.g., Caribbean Air Services"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="input"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              ICAO Designator
-            </label>
+            <label className="label">Country *</label>
             <input
               type="text"
-              placeholder="e.g., CAS"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              value={operator?.country || ''}
+              onChange={(e) => { handleNewOperator(); updateOperator('country', e.target.value); }}
+              placeholder="e.g., United States"
+              className="input"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Country of Registration *
-            </label>
-            <select className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-              <option value="">Select country...</option>
-              <option value="US">United States</option>
-              <option value="GB">United Kingdom</option>
-              <option value="CA">Canada</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              AOC Number *
-            </label>
+            <label className="label">AOC Number *</label>
             <input
               type="text"
+              value={operator?.aocNumber || ''}
+              onChange={(e) => { handleNewOperator(); updateOperator('aocNumber', e.target.value); }}
               placeholder="Air Operator Certificate number"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="label">AOC Issuing Authority *</label>
+            <input
+              type="text"
+              value={operator?.aocIssuingAuthority || ''}
+              onChange={(e) => { handleNewOperator(); updateOperator('aocIssuingAuthority', e.target.value); }}
+              placeholder="e.g., FAA"
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="label">AOC Expiry Date *</label>
+            <input
+              type="date"
+              value={operator?.aocExpiryDate || ''}
+              onChange={(e) => { handleNewOperator(); updateOperator('aocExpiryDate', e.target.value); }}
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="label">Registration Number</label>
+            <input
+              type="text"
+              value={operator?.registrationNumber || ''}
+              onChange={(e) => { handleNewOperator(); updateOperator('registrationNumber', e.target.value); }}
+              placeholder="Company registration"
+              className="input"
             />
           </div>
         </div>
@@ -499,286 +601,417 @@ function OperatorStep() {
   );
 }
 
-function AircraftStep() {
+function AircraftStep({ wizard }: { wizard: ReturnType<typeof useApplicationWizard> }) {
+  const { aircraft, isNewAircraft, setAircraft } = wizard;
+
+  const updateAircraft = (field: string, value: any) => {
+    setAircraft(null, { ...aircraft, [field]: value }, true);
+  };
+
   return (
     <div>
-      <h2 className="text-xl font-semibold text-neutral-900 mb-2">
-        Aircraft Information
-      </h2>
-      <p className="text-neutral-500 mb-6">
-        Select or register the aircraft that will be used for this operation.
-      </p>
-
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Registration Number *
-            </label>
-            <input
-              type="text"
-              placeholder="e.g., N12345"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Aircraft Type *
-            </label>
-            <input
-              type="text"
-              placeholder="e.g., Boeing 737-800"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              MTOW (kg) *
-            </label>
-            <input
-              type="number"
-              placeholder="Maximum takeoff weight"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Number of Seats *
-            </label>
-            <input
-              type="number"
-              placeholder="Passenger capacity"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FlightDetailsStep() {
-  return (
-    <div>
-      <h2 className="text-xl font-semibold text-neutral-900 mb-2">
-        Flight Details
-      </h2>
-      <p className="text-neutral-500 mb-6">
-        Provide details about the planned flight operation.
-      </p>
-
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Flight Purpose *
-          </label>
-          <select className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-            <option value="">Select purpose...</option>
-            <option value="CHARTER">Charter</option>
-            <option value="SCHEDULED">Scheduled Service</option>
-            <option value="CARGO">Cargo</option>
-            <option value="PRIVATE">Private</option>
-            <option value="MEDICAL">Medical/Emergency</option>
-          </select>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Departure Airport *
-            </label>
-            <input
-              type="text"
-              placeholder="ICAO code (e.g., KJFK)"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Arrival Airport *
-            </label>
-            <input
-              type="text"
-              placeholder="ICAO code (e.g., TUPJ)"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Expected Passengers
-            </label>
-            <input
-              type="number"
-              placeholder="Number of passengers"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Cargo Weight (kg)
-            </label>
-            <input
-              type="number"
-              placeholder="Cargo weight if applicable"
-              className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PermitPeriodStep() {
-  return (
-    <div>
-      <h2 className="text-xl font-semibold text-neutral-900 mb-2">
-        Permit Period
-      </h2>
-      <p className="text-neutral-500 mb-6">
-        Select the validity period for your permit.
-      </p>
+      <h2 className="text-xl font-semibold text-neutral-900 mb-2">Aircraft Information</h2>
+      <p className="text-neutral-500 mb-6">Enter the aircraft details for this operation.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            Start Date *
-          </label>
+          <label className="label">Registration Number *</label>
           <input
-            type="date"
-            className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            type="text"
+            value={aircraft?.registrationNumber || ''}
+            onChange={(e) => updateAircraft('registrationNumber', e.target.value)}
+            placeholder="e.g., N12345"
+            className="input"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-2">
-            End Date *
-          </label>
+          <label className="label">Manufacturer *</label>
+          <input
+            type="text"
+            value={aircraft?.manufacturer || ''}
+            onChange={(e) => updateAircraft('manufacturer', e.target.value)}
+            placeholder="e.g., Boeing"
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label">Model *</label>
+          <input
+            type="text"
+            value={aircraft?.model || ''}
+            onChange={(e) => updateAircraft('model', e.target.value)}
+            placeholder="e.g., 737-800"
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label">Serial Number *</label>
+          <input
+            type="text"
+            value={aircraft?.serialNumber || ''}
+            onChange={(e) => updateAircraft('serialNumber', e.target.value)}
+            placeholder="Aircraft serial number"
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label">MTOW (kg) *</label>
+          <input
+            type="number"
+            value={aircraft?.mtow?.value || ''}
+            onChange={(e) => updateAircraft('mtow', { value: parseInt(e.target.value) || 0, unit: 'KG' })}
+            placeholder="Maximum takeoff weight"
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label">Seat Capacity *</label>
+          <input
+            type="number"
+            value={aircraft?.seatCapacity || ''}
+            onChange={(e) => updateAircraft('seatCapacity', parseInt(e.target.value) || 0)}
+            placeholder="Number of seats"
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label">Country of Registration *</label>
+          <input
+            type="text"
+            value={aircraft?.countryOfRegistration || ''}
+            onChange={(e) => updateAircraft('countryOfRegistration', e.target.value)}
+            placeholder="e.g., United States"
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label">Year of Manufacture</label>
+          <input
+            type="number"
+            value={aircraft?.yearOfManufacture || ''}
+            onChange={(e) => updateAircraft('yearOfManufacture', parseInt(e.target.value) || 0)}
+            placeholder="e.g., 2015"
+            className="input"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FlightDetailsStep({ wizard }: { wizard: ReturnType<typeof useApplicationWizard> }) {
+  const { flightPurpose, setFlightDetails, arrivalAirport, departureAirport, estimatedFlightDate, numberOfPassengers, cargoDescription, flightPurposeDescription } = wizard;
+
+  const purposes: { value: FlightPurpose; label: string }[] = [
+    { value: 'CHARTER', label: 'Charter Flight' },
+    { value: 'CARGO', label: 'Cargo Operations' },
+    { value: 'TECHNICAL_LANDING', label: 'Technical Landing' },
+    { value: 'MEDEVAC', label: 'Medical Evacuation' },
+    { value: 'PRIVATE', label: 'Private Flight' },
+    { value: 'OTHER', label: 'Other' },
+  ];
+
+  return (
+    <div>
+      <h2 className="text-xl font-semibold text-neutral-900 mb-2">Flight Details</h2>
+      <p className="text-neutral-500 mb-6">Provide details about the planned flight operation.</p>
+
+      <div className="space-y-4">
+        <div>
+          <label className="label">Flight Purpose *</label>
+          <select
+            value={flightPurpose || ''}
+            onChange={(e) => setFlightDetails({ flightPurpose: e.target.value as FlightPurpose })}
+            className="input"
+          >
+            <option value="">Select purpose...</option>
+            {purposes.map((p) => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {flightPurpose === 'OTHER' && (
+          <div>
+            <label className="label">Purpose Description</label>
+            <input
+              type="text"
+              value={flightPurposeDescription}
+              onChange={(e) => setFlightDetails({ flightPurposeDescription: e.target.value })}
+              placeholder="Describe the flight purpose"
+              className="input"
+            />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="label">Departure Airport *</label>
+            <input
+              type="text"
+              value={departureAirport}
+              onChange={(e) => setFlightDetails({ departureAirport: e.target.value })}
+              placeholder="ICAO code (e.g., KJFK)"
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="label">Arrival Airport *</label>
+            <input
+              type="text"
+              value={arrivalAirport}
+              onChange={(e) => setFlightDetails({ arrivalAirport: e.target.value })}
+              placeholder="ICAO code (e.g., TUPJ)"
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="label">Estimated Flight Date *</label>
+            <input
+              type="date"
+              value={estimatedFlightDate}
+              onChange={(e) => setFlightDetails({ estimatedFlightDate: e.target.value })}
+              className="input"
+            />
+          </div>
+          <div>
+            <label className="label">Number of Passengers</label>
+            <input
+              type="number"
+              value={numberOfPassengers || ''}
+              onChange={(e) => setFlightDetails({ numberOfPassengers: parseInt(e.target.value) || null })}
+              placeholder="Expected passengers"
+              className="input"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="label">Cargo Description</label>
+          <textarea
+            value={cargoDescription}
+            onChange={(e) => setFlightDetails({ cargoDescription: e.target.value })}
+            placeholder="Describe cargo if applicable"
+            className="input min-h-[80px]"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PermitPeriodStep({ wizard }: { wizard: ReturnType<typeof useApplicationWizard> }) {
+  const { requestedStartDate, requestedEndDate, setPermitPeriod, applicationType } = wizard;
+
+  return (
+    <div>
+      <h2 className="text-xl font-semibold text-neutral-900 mb-2">Permit Period</h2>
+      <p className="text-neutral-500 mb-6">Select the validity period for your permit.</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="label">Start Date *</label>
           <input
             type="date"
-            className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            value={requestedStartDate}
+            onChange={(e) => setPermitPeriod(e.target.value, requestedEndDate)}
+            min={new Date().toISOString().split('T')[0]}
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label">End Date *</label>
+          <input
+            type="date"
+            value={requestedEndDate}
+            onChange={(e) => setPermitPeriod(requestedStartDate, e.target.value)}
+            min={requestedStartDate || new Date().toISOString().split('T')[0]}
+            className="input"
           />
         </div>
       </div>
 
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <p className="text-sm text-blue-800">
-          <strong>Note:</strong> One-Time permits are valid for the specific flight dates only.
-          Blanket permits can be valid for up to 12 months from the start date.
+          <strong>Note:</strong>{' '}
+          {applicationType === 'ONE_TIME'
+            ? 'One-Time permits are valid for the specific flight dates only.'
+            : applicationType === 'BLANKET'
+            ? 'Blanket permits can be valid for up to 12 months from the start date.'
+            : 'Emergency permits are processed within 24-48 hours.'}
         </p>
       </div>
     </div>
   );
 }
 
-function DocumentsStep() {
-  const documents = [
-    { id: 'aoc', name: 'Air Operator Certificate (AOC)', required: true, uploaded: false },
-    { id: 'coa', name: 'Certificate of Airworthiness', required: true, uploaded: false },
-    { id: 'cor', name: 'Certificate of Registration', required: true, uploaded: false },
-    { id: 'insurance', name: 'Insurance Certificate', required: true, uploaded: false },
-    { id: 'noise', name: 'Noise Certificate', required: false, uploaded: false },
+function DocumentsStep({ wizard }: { wizard: ReturnType<typeof useApplicationWizard> }) {
+  const { documents, addDocument, removeDocument } = wizard;
+
+  const requiredDocs = [
+    { type: 'CERTIFICATE_OF_AIRWORTHINESS' as const, name: 'Certificate of Airworthiness', required: true },
+    { type: 'CERTIFICATE_OF_REGISTRATION' as const, name: 'Certificate of Registration', required: true },
+    { type: 'AIR_OPERATOR_CERTIFICATE' as const, name: 'Air Operator Certificate', required: true },
+    { type: 'INSURANCE_CERTIFICATE' as const, name: 'Insurance Certificate', required: true },
+    { type: 'NOISE_CERTIFICATE' as const, name: 'Noise Certificate', required: false },
   ];
+
+  const handleFileSelect = (type: typeof requiredDocs[0]['type'], file: File) => {
+    addDocument({ type, file });
+  };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-neutral-900 mb-2">
-        Required Documents
-      </h2>
-      <p className="text-neutral-500 mb-6">
-        Upload the required documents for your application. All documents must be valid and in PDF format.
-      </p>
+      <h2 className="text-xl font-semibold text-neutral-900 mb-2">Required Documents</h2>
+      <p className="text-neutral-500 mb-6">Upload the required documents. All documents must be valid and in PDF format.</p>
 
       <div className="space-y-4">
-        {documents.map((doc) => (
-          <div
-            key={doc.id}
-            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:border-neutral-300 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                doc.uploaded ? 'bg-green-100 text-green-600' : 'bg-neutral-100 text-neutral-400'
-              }`}>
-                <FileText className="w-5 h-5" />
+        {requiredDocs.map((doc) => {
+          const uploaded = documents.find((d) => d.type === doc.type);
+          return (
+            <div
+              key={doc.type}
+              className="flex items-center justify-between p-4 rounded-lg border border-neutral-200"
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  uploaded ? 'bg-green-100 text-green-600' : 'bg-neutral-100 text-neutral-400'
+                }`}>
+                  {uploaded ? <Check className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                </div>
+                <div>
+                  <p className="font-medium text-neutral-900">
+                    {doc.name}
+                    {doc.required && <span className="text-red-500 ml-1">*</span>}
+                  </p>
+                  <p className="text-sm text-neutral-500">
+                    {uploaded ? uploaded.file.name : 'Not uploaded'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium text-neutral-900">
-                  {doc.name}
-                  {doc.required && <span className="text-red-500 ml-1">*</span>}
-                </p>
-                <p className="text-sm text-neutral-500">
-                  {doc.uploaded ? 'Uploaded' : 'Not uploaded'}
-                </p>
+              <div className="flex items-center gap-2">
+                {uploaded && (
+                  <button
+                    type="button"
+                    onClick={() => removeDocument(doc.type)}
+                    className="p-2 text-neutral-400 hover:text-red-500"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                <label className="px-4 py-2 rounded-lg border border-primary-600 text-primary-600 text-sm font-medium hover:bg-primary-50 cursor-pointer">
+                  {uploaded ? 'Replace' : 'Upload'}
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect(doc.type, file);
+                    }}
+                  />
+                </label>
               </div>
             </div>
-            <button className="px-4 py-2 rounded-lg border border-primary-600 text-primary-600 text-sm font-medium hover:bg-primary-50 transition-colors">
-              {doc.uploaded ? 'Replace' : 'Upload'}
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function ReviewStep() {
+interface ReviewStepProps {
+  wizard: ReturnType<typeof useApplicationWizard>;
+  termsAccepted: boolean;
+  setTermsAccepted: (v: boolean) => void;
+  feeData: any;
+}
+
+function ReviewStep({ wizard, termsAccepted, setTermsAccepted, feeData }: ReviewStepProps) {
+  const { applicationType, operator, aircraft, flightPurpose, departureAirport, arrivalAirport, requestedStartDate, requestedEndDate, documents } = wizard;
+
+  const typeLabels: Record<ApplicationType, string> = {
+    ONE_TIME: 'One-Time Permit',
+    BLANKET: 'Blanket Permit',
+    EMERGENCY: 'Emergency Permit',
+  };
+
   return (
     <div>
-      <h2 className="text-xl font-semibold text-neutral-900 mb-2">
-        Review Application
-      </h2>
-      <p className="text-neutral-500 mb-6">
-        Please review all information before submitting your application.
-      </p>
+      <h2 className="text-xl font-semibold text-neutral-900 mb-2">Review Application</h2>
+      <p className="text-neutral-500 mb-6">Please review all information before submitting.</p>
 
       <div className="space-y-6">
-        {/* Permit Type Summary */}
         <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
           <h3 className="font-semibold text-neutral-900 mb-2">Permit Type</h3>
-          <p className="text-neutral-600">One-Time Permit</p>
+          <p className="text-neutral-600">{applicationType ? typeLabels[applicationType] : '--'}</p>
         </div>
 
-        {/* Operator Summary */}
         <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
           <h3 className="font-semibold text-neutral-900 mb-2">Operator</h3>
-          <p className="text-neutral-600">--</p>
+          <p className="text-neutral-600">{operator?.name || '--'}</p>
+          <p className="text-sm text-neutral-500">{operator?.country} - AOC: {operator?.aocNumber}</p>
         </div>
 
-        {/* Aircraft Summary */}
         <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
           <h3 className="font-semibold text-neutral-900 mb-2">Aircraft</h3>
-          <p className="text-neutral-600">--</p>
+          <p className="text-neutral-600">{aircraft?.registrationNumber || '--'}</p>
+          <p className="text-sm text-neutral-500">
+            {aircraft?.manufacturer} {aircraft?.model} - {aircraft?.seatCapacity} seats, {aircraft?.mtow?.value?.toLocaleString()} kg MTOW
+          </p>
         </div>
 
-        {/* Fee Summary */}
-        <div className="p-4 rounded-lg bg-primary-50 border border-primary-200">
-          <h3 className="font-semibold text-primary-900 mb-2">Fee Summary</h3>
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between text-primary-700">
-              <span>Base Fee</span>
-              <span>$150.00</span>
-            </div>
-            <div className="flex justify-between text-primary-700">
-              <span>Seat Fee</span>
-              <span>--</span>
-            </div>
-            <div className="flex justify-between text-primary-700">
-              <span>Weight Fee</span>
-              <span>--</span>
-            </div>
-            <div className="border-t border-primary-200 pt-2 mt-2">
-              <div className="flex justify-between font-semibold text-primary-900">
-                <span>Total Fee</span>
-                <span>$150.00+</span>
+        <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
+          <h3 className="font-semibold text-neutral-900 mb-2">Flight Details</h3>
+          <p className="text-neutral-600">{flightPurpose?.replace(/_/g, ' ') || '--'}</p>
+          <p className="text-sm text-neutral-500">{departureAirport} → {arrivalAirport}</p>
+        </div>
+
+        <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
+          <h3 className="font-semibold text-neutral-900 mb-2">Permit Period</h3>
+          <p className="text-neutral-600">{requestedStartDate} to {requestedEndDate}</p>
+        </div>
+
+        <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
+          <h3 className="font-semibold text-neutral-900 mb-2">Documents</h3>
+          <p className="text-neutral-600">{documents.length} document(s) uploaded</p>
+        </div>
+
+        {feeData && (
+          <div className="p-4 rounded-lg bg-primary-50 border border-primary-200">
+            <h3 className="font-semibold text-primary-900 mb-2">Fee Summary</h3>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between text-primary-700">
+                <span>Base Fee</span>
+                <span>{formatMoney(feeData.baseFee.amount, feeData.baseFee.currency)}</span>
+              </div>
+              <div className="flex justify-between text-primary-700">
+                <span>Seat Fee</span>
+                <span>{formatMoney(feeData.seatFee.amount, feeData.seatFee.currency)}</span>
+              </div>
+              <div className="flex justify-between text-primary-700">
+                <span>Weight Fee</span>
+                <span>{formatMoney(feeData.weightFee.amount, feeData.weightFee.currency)}</span>
+              </div>
+              <div className="border-t border-primary-200 pt-2 mt-2">
+                <div className="flex justify-between font-semibold text-primary-900">
+                  <span>Total Fee</span>
+                  <span>{formatMoney(feeData.totalFee.amount, feeData.totalFee.currency)}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Terms Agreement */}
         <label className="flex items-start gap-3 p-4 rounded-lg border border-neutral-200 cursor-pointer hover:bg-neutral-50">
-          <input type="checkbox" className="mt-1 w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500" />
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            className="mt-1 w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
+          />
           <span className="text-sm text-neutral-600">
-            I confirm that all information provided is accurate and complete. I understand that providing false information may result in the rejection of this application and potential legal consequences.
+            I confirm that all information provided is accurate and complete. I understand that providing false information may result in the rejection of this application.
           </span>
         </label>
       </div>
