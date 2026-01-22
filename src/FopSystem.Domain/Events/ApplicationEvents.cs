@@ -120,3 +120,9 @@ public sealed record DocumentVerificationFailedDueToExpiryEvent(
     DocumentType DocumentType,
     DateOnly ExpiryDate,
     string AttemptedBy) : DomainEvent;
+
+public sealed record PaymentVerifiedEvent(
+    Guid ApplicationId,
+    Guid PaymentId,
+    string VerifiedBy,
+    string? Notes) : DomainEvent;

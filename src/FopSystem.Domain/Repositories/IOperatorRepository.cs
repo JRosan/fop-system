@@ -16,4 +16,6 @@ public interface IOperatorRepository : IRepository<Operator, Guid>
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsAsync(string registrationNumber, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Operator>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
 }

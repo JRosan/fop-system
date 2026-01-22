@@ -69,7 +69,9 @@ public sealed class GetApplicationQueryHandler : IQueryHandler<GetApplicationQue
                     new MoneyDto(app.Payment.Amount.Amount, app.Payment.Amount.Currency.ToString()),
                     app.Payment.Method, app.Payment.Status, app.Payment.TransactionReference,
                     app.Payment.PaymentDate, app.Payment.ReceiptNumber, app.Payment.ReceiptUrl,
-                    app.Payment.FailureReason, app.Payment.CreatedAt, app.Payment.UpdatedAt)
+                    app.Payment.FailureReason, app.Payment.IsVerified, app.Payment.VerifiedBy,
+                    app.Payment.VerifiedAt, app.Payment.VerificationNotes,
+                    app.Payment.CreatedAt, app.Payment.UpdatedAt)
                 : null,
             app.SubmittedAt,
             app.ReviewedAt,

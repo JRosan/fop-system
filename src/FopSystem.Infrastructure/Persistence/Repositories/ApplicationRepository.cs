@@ -152,4 +152,17 @@ public class ApplicationRepository : IApplicationRepository
 
         return (items, totalCount);
     }
+
+    public async Task<IReadOnlyList<FopApplication>> GetWithPaymentsInPeriodAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Applications
+            .Include(a => a.Payment)
+            .Where(a => a.Payment != null &&
+                        (a.Payment.PaymentDate >= startDate && a.Payment.PaymentDate <= endDate ||
+                         a.Payment.CreatedAt >= startDate && a.Payment.CreatedAt <= endDate))
+            .ToListAsync(cancellationToken);
+    }
 }

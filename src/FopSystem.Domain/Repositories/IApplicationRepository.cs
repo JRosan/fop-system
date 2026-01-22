@@ -24,4 +24,9 @@ public interface IApplicationRepository : IRepository<FopApplication, Guid>
         int pageSize = 20,
         bool? isFlagged = null,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<FopApplication>> GetWithPaymentsInPeriodAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken cancellationToken = default);
 }

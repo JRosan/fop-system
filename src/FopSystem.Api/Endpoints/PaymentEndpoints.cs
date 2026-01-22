@@ -1,5 +1,6 @@
 using FopSystem.Application.Applications.Commands;
 using FopSystem.Application.DTOs;
+using FopSystem.Application.Payments.Commands;
 using FopSystem.Domain.Enums;
 using FopSystem.Domain.Repositories;
 using MediatR;
@@ -31,6 +32,14 @@ public static class PaymentEndpoints
             .WithName("GetPaymentReceipt")
             .WithSummary("Get payment receipt for an application")
             .Produces<PaymentReceiptDto>()
+            .Produces(404);
+
+        group.MapPost("/{applicationId:guid}/verify", VerifyPayment)
+            .WithName("VerifyPayment")
+            .WithSummary("Finance officer verifies a completed payment")
+            .RequireAuthorization("FinanceOfficer")
+            .Produces(200)
+            .Produces<ProblemDetails>(400)
             .Produces(404);
     }
 
@@ -79,6 +88,10 @@ public static class PaymentEndpoints
             payment.ReceiptNumber,
             payment.ReceiptUrl,
             payment.FailureReason,
+            payment.IsVerified,
+            payment.VerifiedBy,
+            payment.VerifiedAt,
+            payment.VerificationNotes,
             payment.CreatedAt,
             payment.UpdatedAt);
 
@@ -117,7 +130,34 @@ public static class PaymentEndpoints
 
         return Results.Ok(receipt);
     }
+
+    private static async Task<IResult> VerifyPayment(
+        [FromServices] IMediator mediator,
+        Guid applicationId,
+        [FromBody] VerifyPaymentRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var command = new VerifyPaymentCommand(
+            applicationId,
+            request.VerifiedBy,
+            request.Notes);
+
+        var result = await mediator.Send(command, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Results.Ok(new { message = "Payment verified successfully" });
+        }
+
+        return result.Error?.Code == "Error.NotFound"
+            ? Results.NotFound()
+            : Results.Problem(result.Error!.Message, statusCode: 400);
+    }
 }
+
+public sealed record VerifyPaymentRequest(
+    string VerifiedBy,
+    string? Notes = null);
 
 public sealed record ProcessPaymentRequest(
     Guid ApplicationId,

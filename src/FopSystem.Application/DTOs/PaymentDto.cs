@@ -13,6 +13,10 @@ public sealed record PaymentDto(
     string? ReceiptNumber,
     string? ReceiptUrl,
     string? FailureReason,
+    bool IsVerified,
+    string? VerifiedBy,
+    DateTime? VerifiedAt,
+    string? VerificationNotes,
     DateTime CreatedAt,
     DateTime UpdatedAt);
 

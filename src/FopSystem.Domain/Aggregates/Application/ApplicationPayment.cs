@@ -16,6 +16,12 @@ public class ApplicationPayment : Entity<Guid>
     public string? ReceiptUrl { get; private set; }
     public string? FailureReason { get; private set; }
 
+    // Finance officer verification
+    public bool IsVerified { get; private set; }
+    public string? VerifiedBy { get; private set; }
+    public DateTime? VerifiedAt { get; private set; }
+    public string? VerificationNotes { get; private set; }
+
     private ApplicationPayment() { }
 
     public static ApplicationPayment Create(
@@ -93,6 +99,27 @@ public class ApplicationPayment : Entity<Guid>
             throw new InvalidOperationException($"Cannot cancel payment in {Status} status");
 
         Status = PaymentStatus.Cancelled;
+        SetUpdatedAt();
+    }
+
+    /// <summary>
+    /// Finance officer verifies the payment receipt has been received and is valid.
+    /// </summary>
+    public void Verify(string verifiedBy, string? notes = null)
+    {
+        if (string.IsNullOrWhiteSpace(verifiedBy))
+            throw new ArgumentException("Verified by is required", nameof(verifiedBy));
+
+        if (Status != PaymentStatus.Completed)
+            throw new InvalidOperationException($"Cannot verify payment in {Status} status. Payment must be completed first.");
+
+        if (IsVerified)
+            throw new InvalidOperationException("Payment has already been verified");
+
+        IsVerified = true;
+        VerifiedBy = verifiedBy;
+        VerifiedAt = DateTime.UtcNow;
+        VerificationNotes = notes;
         SetUpdatedAt();
     }
 }

@@ -1,3 +1,4 @@
+using FopSystem.Application.DTOs;
 using FopSystem.Application.Payments.Commands;
 using FopSystem.Application.Reports.Queries;
 using FopSystem.Domain.Enums;
@@ -32,6 +33,12 @@ public static class FinanceEndpoints
             .WithName("GetRevenueSummary")
             .WithSummary("Get revenue summary by date range")
             .Produces<FinancialSummaryDto>()
+            .Produces<ProblemDetails>(400);
+
+        group.MapGet("/reports/reconciliation", GetReconciliationReport)
+            .WithName("GetReconciliationReport")
+            .WithSummary("Get accounts reconciliation report with verified/unverified payment breakdown")
+            .Produces<ReconciliationReportDto>()
             .Produces<ProblemDetails>(400);
     }
 
@@ -90,6 +97,23 @@ public static class FinanceEndpoints
         }
 
         return Results.Problem(result.Error!.Message, statusCode: 400);
+    }
+
+    private static async Task<IResult> GetReconciliationReport(
+        [FromServices] IMediator mediator,
+        [FromQuery] DateOnly? periodStart = null,
+        [FromQuery] DateOnly? periodEnd = null,
+        CancellationToken cancellationToken = default)
+    {
+        var start = periodStart ?? DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(-1));
+        var end = periodEnd ?? DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var query = new GetReconciliationReportQuery(start, end);
+        var result = await mediator.Send(query, cancellationToken);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : Results.Problem(result.Error!.Message, statusCode: 400);
     }
 }
 

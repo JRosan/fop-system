@@ -100,4 +100,14 @@ public class OperatorRepository : IOperatorRepository
         return await _context.Operators
             .AnyAsync(o => o.RegistrationNumber == registrationNumber, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Operator>> GetByIdsAsync(
+        IEnumerable<Guid> ids,
+        CancellationToken cancellationToken = default)
+    {
+        var idList = ids.ToList();
+        return await _context.Operators
+            .Where(o => idList.Contains(o.Id))
+            .ToListAsync(cancellationToken);
+    }
 }

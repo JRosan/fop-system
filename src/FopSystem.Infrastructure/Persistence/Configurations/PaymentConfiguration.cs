@@ -46,9 +46,21 @@ public class PaymentConfiguration : IEntityTypeConfiguration<ApplicationPayment>
         builder.Property(p => p.FailureReason)
             .HasMaxLength(500);
 
+        // Verification fields
+        builder.Property(p => p.IsVerified)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(p => p.VerifiedBy)
+            .HasMaxLength(100);
+
+        builder.Property(p => p.VerificationNotes)
+            .HasMaxLength(1000);
+
         builder.HasIndex(p => p.ApplicationId)
             .IsUnique();
 
         builder.HasIndex(p => p.Status);
+        builder.HasIndex(p => p.IsVerified);
     }
 }
