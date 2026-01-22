@@ -1,5 +1,6 @@
 using FluentValidation;
 using FopSystem.Application.Common;
+using FopSystem.Domain.Exceptions;
 using FopSystem.Domain.Repositories;
 
 namespace FopSystem.Application.Applications.Commands;
@@ -54,6 +55,12 @@ public sealed class VerifyDocumentCommandHandler : ICommandHandler<VerifyDocumen
             }
 
             return Result.Success();
+        }
+        catch (DocumentExpiredException ex)
+        {
+            return Result.Failure(Error.Custom(
+                "Document.Expired",
+                $"Cannot verify document: {ex.DocumentType} expired on {ex.ExpiryDate:yyyy-MM-dd}. Please request an updated document from the applicant."));
         }
         catch (InvalidOperationException ex)
         {

@@ -2,6 +2,7 @@ using FluentAssertions;
 using FopSystem.Domain.Aggregates.Application;
 using FopSystem.Domain.Enums;
 using FopSystem.Domain.Events;
+using FopSystem.Domain.Exceptions;
 using FopSystem.Domain.ValueObjects;
 using Xunit;
 
@@ -173,6 +174,108 @@ public class FopApplicationTests
         // Assert
         action.Should().Throw<InvalidOperationException>()
             .WithMessage("*Cannot cancel*");
+    }
+
+    [Fact]
+    public void VerifyDocument_WhenDocumentIsExpired_ShouldThrowDocumentExpiredException()
+    {
+        // Arrange
+        var application = CreateValidApplication();
+        var expiredDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-30));
+        var document = ApplicationDocument.Create(
+            application.Id,
+            DocumentType.InsuranceCertificate,
+            "insurance.pdf",
+            1024,
+            "application/pdf",
+            "https://storage.test/insurance.pdf",
+            "uploader@test.com",
+            expiredDate);
+        application.AddDocument(document);
+
+        // Act
+        var action = () => application.VerifyDocument(document.Id, "reviewer@test.com");
+
+        // Assert
+        action.Should().Throw<DocumentExpiredException>()
+            .Which.DocumentType.Should().Be(DocumentType.InsuranceCertificate);
+    }
+
+    [Fact]
+    public void VerifyDocument_WhenDocumentIsExpired_ShouldRaiseVerificationFailedEvent()
+    {
+        // Arrange
+        var application = CreateValidApplication();
+        var expiredDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-30));
+        var document = ApplicationDocument.Create(
+            application.Id,
+            DocumentType.InsuranceCertificate,
+            "insurance.pdf",
+            1024,
+            "application/pdf",
+            "https://storage.test/insurance.pdf",
+            "uploader@test.com",
+            expiredDate);
+        application.AddDocument(document);
+        application.ClearDomainEvents();
+
+        // Act
+        try { application.VerifyDocument(document.Id, "reviewer@test.com"); } catch { }
+
+        // Assert
+        application.DomainEvents.Should().ContainSingle()
+            .Which.Should().BeOfType<DocumentVerificationFailedDueToExpiryEvent>();
+    }
+
+    [Fact]
+    public void VerifyDocument_WhenDocumentIsExpiringSoon_ShouldRaiseExpiringSoonEvent()
+    {
+        // Arrange
+        var application = CreateValidApplication();
+        var soonExpiringDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15));
+        var document = ApplicationDocument.Create(
+            application.Id,
+            DocumentType.InsuranceCertificate,
+            "insurance.pdf",
+            1024,
+            "application/pdf",
+            "https://storage.test/insurance.pdf",
+            "uploader@test.com",
+            soonExpiringDate);
+        application.AddDocument(document);
+        application.ClearDomainEvents();
+
+        // Act
+        application.VerifyDocument(document.Id, "reviewer@test.com");
+
+        // Assert
+        application.DomainEvents.Should().Contain(e => e is DocumentExpiringSoonEvent);
+        var expiringSoonEvent = application.DomainEvents.OfType<DocumentExpiringSoonEvent>().Single();
+        expiringSoonEvent.DaysUntilExpiry.Should().Be(15);
+    }
+
+    [Fact]
+    public void VerifyDocument_WhenDocumentHasNoExpiryDate_ShouldNotRaiseExpiringSoonEvent()
+    {
+        // Arrange
+        var application = CreateValidApplication();
+        var document = ApplicationDocument.Create(
+            application.Id,
+            DocumentType.CertificateOfRegistration,
+            "registration.pdf",
+            1024,
+            "application/pdf",
+            "https://storage.test/registration.pdf",
+            "uploader@test.com",
+            expiryDate: null);
+        application.AddDocument(document);
+        application.ClearDomainEvents();
+
+        // Act
+        application.VerifyDocument(document.Id, "reviewer@test.com");
+
+        // Assert
+        application.DomainEvents.Should().NotContain(e => e is DocumentExpiringSoonEvent);
     }
 
     private static FopApplication CreateValidApplication()

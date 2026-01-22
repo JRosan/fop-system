@@ -1,5 +1,6 @@
 using FopSystem.Domain.Entities;
 using FopSystem.Domain.Enums;
+using FopSystem.Domain.Exceptions;
 
 namespace FopSystem.Domain.Aggregates.Application;
 
@@ -67,12 +68,34 @@ public class ApplicationDocument : Entity<Guid>
         if (string.IsNullOrWhiteSpace(verifiedBy))
             throw new ArgumentException("Verified by is required", nameof(verifiedBy));
 
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        // Check if document is expired
+        if (IsExpired(today))
+        {
+            throw new DocumentExpiredException(Type, ExpiryDate!.Value);
+        }
+
         Status = DocumentStatus.Verified;
         VerifiedAt = DateTime.UtcNow;
         VerifiedBy = verifiedBy;
         RejectionReason = null;
         SetUpdatedAt();
     }
+
+    /// <summary>
+    /// Checks if the document is expiring within the specified number of days.
+    /// </summary>
+    public bool IsExpiringSoon(DateOnly asOfDate, int warningDays = 30) =>
+        ExpiryDate.HasValue &&
+        !IsExpired(asOfDate) &&
+        ExpiryDate.Value <= asOfDate.AddDays(warningDays);
+
+    /// <summary>
+    /// Gets the number of days until expiry, or null if no expiry date.
+    /// </summary>
+    public int? DaysUntilExpiry(DateOnly asOfDate) =>
+        ExpiryDate.HasValue ? ExpiryDate.Value.DayNumber - asOfDate.DayNumber : null;
 
     public void Reject(string rejectionReason, string rejectedBy)
     {

@@ -106,3 +106,17 @@ public sealed record ApplicationUnflaggedEvent(
     Guid ApplicationId,
     string PreviousReason,
     string UnflaggedBy) : DomainEvent;
+
+public sealed record DocumentExpiringSoonEvent(
+    Guid ApplicationId,
+    Guid DocumentId,
+    DocumentType DocumentType,
+    DateOnly ExpiryDate,
+    int DaysUntilExpiry) : DomainEvent;
+
+public sealed record DocumentVerificationFailedDueToExpiryEvent(
+    Guid ApplicationId,
+    Guid DocumentId,
+    DocumentType DocumentType,
+    DateOnly ExpiryDate,
+    string AttemptedBy) : DomainEvent;

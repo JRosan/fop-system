@@ -200,10 +200,28 @@ public class FopApplication : AggregateRoot<Guid>
         var document = _documents.FirstOrDefault(d => d.Id == documentId)
             ?? throw new InvalidOperationException($"Document {documentId} not found");
 
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        // Check if document is expired before attempting verification
+        if (document.IsExpired(today))
+        {
+            RaiseDomainEvent(new DocumentVerificationFailedDueToExpiryEvent(
+                Id, documentId, document.Type, document.ExpiryDate!.Value, verifiedBy));
+            throw new Exceptions.DocumentExpiredException(document.Type, document.ExpiryDate!.Value);
+        }
+
         document.Verify(verifiedBy);
         SetUpdatedAt();
 
         RaiseDomainEvent(new DocumentVerifiedEvent(Id, documentId, document.Type, verifiedBy));
+
+        // Warn if document is expiring soon (within 30 days)
+        if (document.IsExpiringSoon(today, 30))
+        {
+            var daysUntilExpiry = document.DaysUntilExpiry(today)!.Value;
+            RaiseDomainEvent(new DocumentExpiringSoonEvent(
+                Id, documentId, document.Type, document.ExpiryDate!.Value, daysUntilExpiry));
+        }
 
         if (AllDocumentsVerified() && Status == ApplicationStatus.PendingDocuments)
         {
