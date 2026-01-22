@@ -9,6 +9,7 @@ import {
   DollarSign,
   Settings,
   ShieldCheck,
+  Receipt,
   Menu,
   X,
 } from 'lucide-react';
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Applications', href: '/applications', icon: FileText },
   { name: 'Review Queue', href: '/review', icon: ClipboardCheck },
   { name: 'Finance', href: '/finance', icon: DollarSign },
+  { name: 'Fee Waivers', href: '/waivers', icon: Receipt },
   { name: 'Permits', href: '/permits', icon: Award },
   { name: 'Verify Permit', href: '/verify', icon: ShieldCheck },
   { name: 'Operators', href: '/operators', icon: Building2 },

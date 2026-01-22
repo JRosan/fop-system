@@ -12,6 +12,7 @@ import { FinanceDashboard } from './pages/FinanceDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { PermitDetails } from './pages/PermitDetails';
 import { VerifyPermit } from './pages/VerifyPermit';
+import { Waivers } from './pages/Waivers';
 import { NotificationContainer } from './components/NotificationContainer';
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="fee-calculator" element={<FeeCalculator />} />
           <Route path="review" element={<ReviewerDashboard />} />
           <Route path="finance" element={<FinanceDashboard />} />
+          <Route path="waivers" element={<Waivers />} />
           <Route path="admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
