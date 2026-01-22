@@ -157,7 +157,7 @@ public class FeeWaiverTests
 
         // Assert
         action.Should().Throw<InvalidOperationException>()
-            .WithMessage("*Pending*");
+            .WithMessage("*Cannot approve waiver*");
     }
 
     [Fact]
@@ -203,7 +203,7 @@ public class FeeWaiverTests
 
         // Assert
         action.Should().Throw<InvalidOperationException>()
-            .WithMessage("*Pending*");
+            .WithMessage("*Cannot reject waiver*");
     }
 
     [Theory]
