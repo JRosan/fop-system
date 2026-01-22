@@ -1,5 +1,6 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using FopSystem.Application.Interfaces;
 using FopSystem.Domain.Repositories;
 using FopSystem.Infrastructure.BackgroundJobs;
 using FopSystem.Infrastructure.Persistence;
@@ -38,6 +39,9 @@ public static class DependencyInjection
         services.AddScoped<IOperatorRepository, OperatorRepository>();
         services.AddScoped<IAircraftRepository, AircraftRepository>();
         services.AddScoped<IPermitRepository, PermitRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+        services.AddScoped<IFeeConfigurationRepository, FeeConfigurationRepository>();
 
         // Azure Blob Storage
         var storageConnectionString = configuration["AzureStorage:ConnectionString"];
@@ -61,6 +65,10 @@ public static class DependencyInjection
         // Email Service
         services.Configure<EmailSettings>(configuration.GetSection("Email"));
         services.AddScoped<IEmailService, EmailService>();
+
+        // Officer Notification Service
+        services.Configure<OfficerNotificationSettings>(configuration.GetSection("OfficerNotifications"));
+        services.AddScoped<IOfficerNotificationService, OfficerNotificationService>();
 
         // Background Jobs
         services.AddHostedService<InsuranceExpiryMonitoringJob>();

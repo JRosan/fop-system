@@ -28,11 +28,19 @@ public class FopApplication : AggregateRoot<Guid>
     public string? ApprovedBy { get; private set; }
     public string? RejectionReason { get; private set; }
 
+    // Fee override tracking
+    public string? FeeOverrideJustification { get; private set; }
+    public string? FeeOverriddenBy { get; private set; }
+    public DateTime? FeeOverriddenAt { get; private set; }
+
     private readonly List<ApplicationDocument> _documents = [];
     public IReadOnlyList<ApplicationDocument> Documents => _documents.AsReadOnly();
 
     private ApplicationPayment? _payment;
     public ApplicationPayment? Payment => _payment;
+
+    private readonly List<FeeWaiver> _waivers = [];
+    public IReadOnlyList<FeeWaiver> Waivers => _waivers.AsReadOnly();
 
     // Navigation properties (set by EF Core)
     public Operator.Operator? Operator { get; private set; }
@@ -285,6 +293,91 @@ public class FopApplication : AggregateRoot<Guid>
         _payment?.Cancel();
         SetUpdatedAt();
     }
+
+    public void RefundPayment(string refundedBy, string reason)
+    {
+        if (_payment is null)
+            throw new InvalidOperationException("No payment exists for this application");
+
+        if (string.IsNullOrWhiteSpace(refundedBy))
+            throw new ArgumentException("Refunded by is required", nameof(refundedBy));
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new ArgumentException("Refund reason is required", nameof(reason));
+
+        var amount = _payment.Amount;
+        _payment.Refund();
+        SetUpdatedAt();
+
+        RaiseDomainEvent(new Events.PaymentRefundedEvent(Id, _payment.Id, amount, refundedBy, reason));
+    }
+
+    public void OverrideFee(Money newFee, string overriddenBy, string justification)
+    {
+        if (Status != ApplicationStatus.Draft && Status != ApplicationStatus.UnderReview)
+            throw new InvalidOperationException($"Cannot override fee in {Status} status");
+
+        if (string.IsNullOrWhiteSpace(overriddenBy))
+            throw new ArgumentException("Overridden by is required", nameof(overriddenBy));
+        if (string.IsNullOrWhiteSpace(justification))
+            throw new ArgumentException("Justification is required", nameof(justification));
+
+        var originalFee = CalculatedFee;
+        CalculatedFee = newFee;
+        FeeOverrideJustification = justification;
+        FeeOverriddenBy = overriddenBy;
+        FeeOverriddenAt = DateTime.UtcNow;
+        SetUpdatedAt();
+
+        RaiseDomainEvent(new Events.FeeOverriddenEvent(Id, originalFee, newFee, overriddenBy, justification));
+    }
+
+    public FeeWaiver RequestWaiver(WaiverType type, string reason, string requestedBy)
+    {
+        if (Status != ApplicationStatus.Draft && Status != ApplicationStatus.UnderReview && Status != ApplicationStatus.PendingPayment)
+            throw new InvalidOperationException($"Cannot request waiver in {Status} status");
+
+        // Check if there's already a pending waiver
+        var pendingWaiver = _waivers.FirstOrDefault(w => w.Status == WaiverStatus.Pending);
+        if (pendingWaiver is not null)
+            throw new InvalidOperationException("A pending waiver request already exists for this application");
+
+        var waiver = FeeWaiver.Create(Id, type, reason, requestedBy);
+        _waivers.Add(waiver);
+        SetUpdatedAt();
+
+        RaiseDomainEvent(new WaiverRequestedEvent(Id, waiver.Id, type.ToString(), requestedBy, reason));
+
+        return waiver;
+    }
+
+    public void ApproveWaiver(Guid waiverId, string approvedBy, decimal waiverPercentage)
+    {
+        var waiver = _waivers.FirstOrDefault(w => w.Id == waiverId)
+            ?? throw new InvalidOperationException($"Waiver {waiverId} not found");
+
+        var waivedAmount = Money.Create(CalculatedFee.Amount * (waiverPercentage / 100), CalculatedFee.Currency);
+        waiver.Approve(approvedBy, waivedAmount, waiverPercentage);
+
+        // Adjust the calculated fee
+        var newFee = CalculatedFee.Subtract(waivedAmount);
+        CalculatedFee = newFee;
+        SetUpdatedAt();
+
+        RaiseDomainEvent(new WaiverApprovedEvent(Id, waiver.Id, approvedBy, waivedAmount));
+    }
+
+    public void RejectWaiver(Guid waiverId, string rejectedBy, string reason)
+    {
+        var waiver = _waivers.FirstOrDefault(w => w.Id == waiverId)
+            ?? throw new InvalidOperationException($"Waiver {waiverId} not found");
+
+        waiver.Reject(rejectedBy, reason);
+        SetUpdatedAt();
+
+        RaiseDomainEvent(new WaiverRejectedEvent(Id, waiver.Id, rejectedBy, reason));
+    }
+
+    public FeeWaiver? GetPendingWaiver() => _waivers.FirstOrDefault(w => w.Status == WaiverStatus.Pending);
 
     private void EnsureStatus(ApplicationStatus expectedStatus)
     {

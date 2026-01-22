@@ -145,6 +145,12 @@ app.MapDocumentEndpoints();
 app.MapPaymentEndpoints();
 app.MapPermitEndpoints();
 app.MapFeeEndpoints();
+app.MapFinanceEndpoints();
+app.MapWaiverEndpoints();
+app.MapUserEndpoints();
+app.MapAuditEndpoints();
+app.MapFeeConfigurationEndpoints();
+app.MapDashboardEndpoints();
 
 app.Run();
 

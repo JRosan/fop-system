@@ -1,6 +1,8 @@
+using FopSystem.Application.Applications.Commands;
 using FopSystem.Application.Applications.Queries;
 using FopSystem.Application.DTOs;
 using FopSystem.Domain.Enums;
+using FopSystem.Domain.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +27,14 @@ public static class FeeEndpoints
             .WithSummary("Calculate the fee for an FOP application")
             .Produces<FeeCalculationResultDto>()
             .Produces<ProblemDetails>(400);
+
+        group.MapPost("/override", OverrideFee)
+            .WithName("OverrideFee")
+            .WithSummary("Override the calculated fee for an application (requires reviewer role)")
+            .RequireAuthorization("Reviewer")
+            .Produces<FeeOverrideResultDto>()
+            .Produces<ProblemDetails>(400)
+            .Produces(404);
     }
 
     private static async Task<IResult> CalculateFee(
@@ -54,9 +64,40 @@ public static class FeeEndpoints
             ? Results.Ok(result.Value)
             : Results.Problem(result.Error!.Message, statusCode: 400);
     }
+
+    private static async Task<IResult> OverrideFee(
+        [FromServices] IMediator mediator,
+        [FromBody] OverrideFeeRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var command = new OverrideFeeCommand(
+            request.ApplicationId,
+            request.NewFeeAmount,
+            request.Currency,
+            request.OverriddenBy,
+            request.Justification);
+
+        var result = await mediator.Send(command, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Results.Ok(result.Value);
+        }
+
+        return result.Error?.Code == "Error.NotFound"
+            ? Results.NotFound()
+            : Results.Problem(result.Error!.Message, statusCode: 400);
+    }
 }
 
 public sealed record CalculateFeeRequest(
     ApplicationType Type,
     int SeatCount,
     decimal MtowKg);
+
+public sealed record OverrideFeeRequest(
+    Guid ApplicationId,
+    decimal NewFeeAmount,
+    Currency Currency,
+    string OverriddenBy,
+    string Justification);

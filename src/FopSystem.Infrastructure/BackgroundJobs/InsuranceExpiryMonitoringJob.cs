@@ -1,6 +1,6 @@
+using FopSystem.Application.Interfaces;
 using FopSystem.Domain.Enums;
 using FopSystem.Domain.Repositories;
-using FopSystem.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

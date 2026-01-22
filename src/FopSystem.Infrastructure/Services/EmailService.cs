@@ -1,41 +1,8 @@
+using FopSystem.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FopSystem.Infrastructure.Services;
-
-public interface IEmailService
-{
-    Task SendEmailAsync(
-        string to,
-        string subject,
-        string body,
-        bool isHtml = true,
-        CancellationToken cancellationToken = default);
-
-    Task SendApplicationSubmittedEmailAsync(
-        string operatorEmail,
-        string applicationNumber,
-        CancellationToken cancellationToken = default);
-
-    Task SendApplicationApprovedEmailAsync(
-        string operatorEmail,
-        string applicationNumber,
-        string permitNumber,
-        CancellationToken cancellationToken = default);
-
-    Task SendApplicationRejectedEmailAsync(
-        string operatorEmail,
-        string applicationNumber,
-        string reason,
-        CancellationToken cancellationToken = default);
-
-    Task SendInsuranceExpiryWarningEmailAsync(
-        string operatorEmail,
-        string permitNumber,
-        DateOnly expiryDate,
-        int daysUntilExpiry,
-        CancellationToken cancellationToken = default);
-}
 
 public class EmailSettings
 {
@@ -173,5 +140,36 @@ public class EmailService : IEmailService
             """;
 
         await SendEmailAsync(operatorEmail, subject, body, true, cancellationToken);
+    }
+
+    public async Task SendOfficerNewApplicationNotificationAsync(
+        IEnumerable<string> officerEmails,
+        string applicationNumber,
+        string applicationType,
+        string operatorName,
+        decimal feeAmount,
+        CancellationToken cancellationToken = default)
+    {
+        var subject = $"New FOP Application Submitted: {applicationNumber}";
+        var body = $"""
+            <html>
+            <body>
+            <h2>New Application Requires Review</h2>
+            <p>A new Foreign Operator Permit application has been submitted and requires review.</p>
+            <p><strong>Application Number:</strong> {applicationNumber}</p>
+            <p><strong>Application Type:</strong> {applicationType}</p>
+            <p><strong>Operator:</strong> {operatorName}</p>
+            <p><strong>Calculated Fee:</strong> ${feeAmount:N2} USD</p>
+            <p>Please log in to the FOP System to review this application.</p>
+            <br/>
+            <p>Best regards,<br/>{_settings.SenderName}</p>
+            </body>
+            </html>
+            """;
+
+        foreach (var email in officerEmails)
+        {
+            await SendEmailAsync(email, subject, body, true, cancellationToken);
+        }
     }
 }

@@ -63,3 +63,36 @@ public sealed record InsuranceExpiringEvent(
     string OperatorEmail,
     DateOnly ExpiryDate,
     int DaysUntilExpiry) : DomainEvent;
+
+public sealed record PaymentRefundedEvent(
+    Guid ApplicationId,
+    Guid PaymentId,
+    Money RefundedAmount,
+    string RefundedBy,
+    string Reason) : DomainEvent;
+
+public sealed record FeeOverriddenEvent(
+    Guid ApplicationId,
+    Money OriginalFee,
+    Money NewFee,
+    string OverriddenBy,
+    string Justification) : DomainEvent;
+
+public sealed record WaiverRequestedEvent(
+    Guid ApplicationId,
+    Guid WaiverId,
+    string WaiverType,
+    string RequestedBy,
+    string Reason) : DomainEvent;
+
+public sealed record WaiverApprovedEvent(
+    Guid ApplicationId,
+    Guid WaiverId,
+    string ApprovedBy,
+    Money WaivedAmount) : DomainEvent;
+
+public sealed record WaiverRejectedEvent(
+    Guid ApplicationId,
+    Guid WaiverId,
+    string RejectedBy,
+    string Reason) : DomainEvent;

@@ -2,6 +2,7 @@ using FopSystem.Domain.Aggregates.Aircraft;
 using FopSystem.Domain.Aggregates.Application;
 using FopSystem.Domain.Aggregates.Operator;
 using FopSystem.Domain.Aggregates.Permit;
+using FopSystem.Domain.Aggregates.User;
 using FopSystem.Domain.Entities;
 using FopSystem.Domain.Events;
 using FopSystem.Domain.Repositories;
@@ -20,6 +21,9 @@ public class FopDbContext : DbContext, IUnitOfWork
     public DbSet<Permit> Permits => Set<Permit>();
     public DbSet<ApplicationDocument> Documents => Set<ApplicationDocument>();
     public DbSet<ApplicationPayment> Payments => Set<ApplicationPayment>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<FeeConfiguration> FeeConfigurations => Set<FeeConfiguration>();
 
     public FopDbContext(DbContextOptions<FopDbContext> options) : base(options)
     {
