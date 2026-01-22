@@ -8,6 +8,7 @@ import {
   ClipboardCheck,
   DollarSign,
   Settings,
+  ShieldCheck,
   Menu,
   X,
 } from 'lucide-react';
@@ -19,6 +20,7 @@ const navigation = [
   { name: 'Review Queue', href: '/review', icon: ClipboardCheck },
   { name: 'Finance', href: '/finance', icon: DollarSign },
   { name: 'Permits', href: '/permits', icon: Award },
+  { name: 'Verify Permit', href: '/verify', icon: ShieldCheck },
   { name: 'Operators', href: '/operators', icon: Building2 },
   { name: 'Fee Calculator', href: '/fee-calculator', icon: Calculator },
   { name: 'Admin', href: '/admin', icon: Settings },

@@ -35,4 +35,26 @@ export const permitsApi = {
   async suspend(id: string, reason: string, suspendUntil?: string): Promise<void> {
     await apiClient.post(`/permits/${id}/suspend`, { reason, suspendUntil });
   },
+
+  async reinstate(id: string, notes?: string): Promise<void> {
+    await apiClient.post(`/permits/${id}/reinstate`, { notes });
+  },
+
+  async extend(id: string, newEndDate: string, reason: string): Promise<void> {
+    await apiClient.post(`/permits/${id}/extend`, { newEndDate, reason });
+  },
+
+  async downloadDocument(id: string): Promise<Blob> {
+    const { data } = await apiClient.get(`/permits/${id}/document`, {
+      responseType: 'blob',
+    });
+    return data;
+  },
+
+  async getExpiringSoon(days: number = 30): Promise<PermitSummary[]> {
+    const { data } = await apiClient.get('/permits', {
+      params: { expiringWithinDays: days, status: ['ACTIVE'] },
+    });
+    return data.items || data;
+  },
 };

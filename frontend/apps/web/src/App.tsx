@@ -10,6 +10,8 @@ import { FeeCalculator } from './pages/FeeCalculator';
 import { ReviewerDashboard } from './pages/ReviewerDashboard';
 import { FinanceDashboard } from './pages/FinanceDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { PermitDetails } from './pages/PermitDetails';
+import { VerifyPermit } from './pages/VerifyPermit';
 import { NotificationContainer } from './components/NotificationContainer';
 
 export default function App() {
@@ -23,6 +25,8 @@ export default function App() {
           <Route path="applications/new" element={<NewApplication />} />
           <Route path="applications/:id" element={<ApplicationDetails />} />
           <Route path="permits" element={<Permits />} />
+          <Route path="permits/:id" element={<PermitDetails />} />
+          <Route path="verify" element={<VerifyPermit />} />
           <Route path="operators" element={<Operators />} />
           <Route path="fee-calculator" element={<FeeCalculator />} />
           <Route path="review" element={<ReviewerDashboard />} />

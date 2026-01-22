@@ -201,7 +201,7 @@ export function Permits() {
                   <div className="flex items-center gap-4 ml-4">
                     <span className={`badge ${statusColors[permit.status]}`}>{permit.status}</span>
                     <Link
-                      to={`/applications/${permit.id}`}
+                      to={`/permits/${permit.id}`}
                       className="p-2 rounded-lg hover:bg-neutral-100"
                       title="View details"
                     >
