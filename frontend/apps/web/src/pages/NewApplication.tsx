@@ -115,49 +115,58 @@ export function NewApplication() {
         </div>
 
         {/* Progress Bar */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-start">
           {steps.map((step, index) => {
             const StepIcon = step.icon;
             const isCompleted = step.id < currentStep;
             const isCurrent = step.id === currentStep;
 
             return (
-              <div key={step.id} className="flex items-center flex-1">
-                <div className="flex items-center">
+              <div key={step.id} className="flex-1 flex flex-col items-center relative">
+                {/* Connector Line - Before circle */}
+                {index !== 0 && (
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                      isCompleted
-                        ? 'bg-green-600 text-white'
-                        : isCurrent
-                          ? 'bg-primary-600 text-white ring-4 ring-primary-100'
-                          : 'bg-neutral-100 text-neutral-400'
+                    className={`absolute top-5 right-1/2 w-full h-0.5 -translate-y-1/2 ${
+                      step.id <= currentStep ? 'bg-green-600' : 'bg-neutral-200'
                     }`}
-                  >
-                    {isCompleted ? (
-                      <Check className="w-5 h-5" />
-                    ) : (
-                      <StepIcon className="w-5 h-5" />
-                    )}
-                  </div>
-                  <span
-                    className={`ml-2 text-sm font-medium hidden lg:block ${
-                      isCompleted
-                        ? 'text-green-600'
-                        : isCurrent
-                          ? 'text-primary-600'
-                          : 'text-neutral-400'
-                    }`}
-                  >
-                    {step.name}
-                  </span>
-                </div>
+                  />
+                )}
+                {/* Connector Line - After circle */}
                 {index !== steps.length - 1 && (
                   <div
-                    className={`flex-1 h-1 mx-3 rounded-full transition-all ${
+                    className={`absolute top-5 left-1/2 w-full h-0.5 -translate-y-1/2 ${
                       isCompleted ? 'bg-green-600' : 'bg-neutral-200'
                     }`}
                   />
                 )}
+                {/* Circle */}
+                <div
+                  className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                    isCompleted
+                      ? 'bg-green-600 text-white'
+                      : isCurrent
+                        ? 'bg-primary-600 text-white ring-4 ring-primary-100'
+                        : 'bg-neutral-100 text-neutral-400'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <StepIcon className="w-5 h-5" />
+                  )}
+                </div>
+                {/* Label below circle */}
+                <span
+                  className={`mt-2 text-xs font-medium text-center hidden sm:block ${
+                    isCompleted
+                      ? 'text-green-600'
+                      : isCurrent
+                        ? 'text-primary-600'
+                        : 'text-neutral-400'
+                  }`}
+                >
+                  {step.name}
+                </span>
               </div>
             );
           })}
