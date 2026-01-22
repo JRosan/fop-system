@@ -55,6 +55,22 @@ public static class ApplicationEndpoints
             .Produces<ProblemDetails>(400)
             .Produces(404)
             .RequireAuthorization("Reviewer");
+
+        group.MapPost("/{id:guid}/flag", FlagApplication)
+            .WithName("FlagApplication")
+            .WithSummary("Flag an application for special review")
+            .Produces(204)
+            .Produces<ProblemDetails>(400)
+            .Produces(404)
+            .RequireAuthorization("Reviewer");
+
+        group.MapPost("/{id:guid}/unflag", UnflagApplication)
+            .WithName("UnflagApplication")
+            .WithSummary("Remove flag from an application")
+            .Produces(204)
+            .Produces<ProblemDetails>(400)
+            .Produces(404)
+            .RequireAuthorization("Approver");
     }
 
     private static async Task<IResult> GetApplications(
@@ -166,6 +182,41 @@ public static class ApplicationEndpoints
                 ? Results.NotFound()
                 : Results.Problem(result.Error!.Message, statusCode: 400);
     }
+
+    private static async Task<IResult> FlagApplication(
+        [FromServices] IMediator mediator,
+        HttpContext httpContext,
+        Guid id,
+        [FromBody] FlagApplicationRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = httpContext.User.Identity?.Name ?? "system";
+        var command = new FlagApplicationCommand(id, request.Reason, userId);
+        var result = await mediator.Send(command, cancellationToken);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error?.Code == "Error.NotFound"
+                ? Results.NotFound()
+                : Results.Problem(result.Error!.Message, statusCode: 400);
+    }
+
+    private static async Task<IResult> UnflagApplication(
+        [FromServices] IMediator mediator,
+        HttpContext httpContext,
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = httpContext.User.Identity?.Name ?? "system";
+        var command = new UnflagApplicationCommand(id, userId);
+        var result = await mediator.Send(command, cancellationToken);
+
+        return result.IsSuccess
+            ? Results.NoContent()
+            : result.Error?.Code == "Error.NotFound"
+                ? Results.NotFound()
+                : Results.Problem(result.Error!.Message, statusCode: 400);
+    }
 }
 
 public sealed record CreateApplicationRequest(
@@ -184,3 +235,5 @@ public sealed record CreateApplicationRequest(
 
 public sealed record ApproveApplicationRequest(string? Notes);
 public sealed record RejectApplicationRequest(string Reason);
+public sealed record FlagApplicationRequest(string Reason);
+public sealed record UnflagApplicationRequest();

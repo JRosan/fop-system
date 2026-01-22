@@ -33,6 +33,12 @@ public class FopApplication : AggregateRoot<Guid>
     public string? FeeOverriddenBy { get; private set; }
     public DateTime? FeeOverriddenAt { get; private set; }
 
+    // Flagging for special review
+    public bool IsFlagged { get; private set; }
+    public string? FlagReason { get; private set; }
+    public string? FlaggedBy { get; private set; }
+    public DateTime? FlaggedAt { get; private set; }
+
     private readonly List<ApplicationDocument> _documents = [];
     public IReadOnlyList<ApplicationDocument> Documents => _documents.AsReadOnly();
 
@@ -378,6 +384,39 @@ public class FopApplication : AggregateRoot<Guid>
     }
 
     public FeeWaiver? GetPendingWaiver() => _waivers.FirstOrDefault(w => w.Status == WaiverStatus.Pending);
+
+    public void Flag(string reason, string flaggedBy)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new ArgumentException("Flag reason is required", nameof(reason));
+        if (string.IsNullOrWhiteSpace(flaggedBy))
+            throw new ArgumentException("Flagged by is required", nameof(flaggedBy));
+
+        IsFlagged = true;
+        FlagReason = reason;
+        FlaggedBy = flaggedBy;
+        FlaggedAt = DateTime.UtcNow;
+        SetUpdatedAt();
+
+        RaiseDomainEvent(new ApplicationFlaggedEvent(Id, reason, flaggedBy));
+    }
+
+    public void Unflag(string unflaggedBy)
+    {
+        if (!IsFlagged)
+            throw new InvalidOperationException("Application is not flagged");
+        if (string.IsNullOrWhiteSpace(unflaggedBy))
+            throw new ArgumentException("Unflagged by is required", nameof(unflaggedBy));
+
+        var previousReason = FlagReason;
+        IsFlagged = false;
+        FlagReason = null;
+        FlaggedBy = null;
+        FlaggedAt = null;
+        SetUpdatedAt();
+
+        RaiseDomainEvent(new ApplicationUnflaggedEvent(Id, previousReason!, unflaggedBy));
+    }
 
     private void EnsureStatus(ApplicationStatus expectedStatus)
     {

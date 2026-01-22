@@ -96,3 +96,13 @@ public sealed record WaiverRejectedEvent(
     Guid WaiverId,
     string RejectedBy,
     string Reason) : DomainEvent;
+
+public sealed record ApplicationFlaggedEvent(
+    Guid ApplicationId,
+    string Reason,
+    string FlaggedBy) : DomainEvent;
+
+public sealed record ApplicationUnflaggedEvent(
+    Guid ApplicationId,
+    string PreviousReason,
+    string UnflaggedBy) : DomainEvent;

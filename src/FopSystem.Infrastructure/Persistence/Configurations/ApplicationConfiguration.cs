@@ -94,6 +94,17 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<FopApplication>
         builder.Property(a => a.RejectionReason)
             .HasMaxLength(2000);
 
+        // Flagging fields
+        builder.Property(a => a.IsFlagged)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(a => a.FlagReason)
+            .HasMaxLength(2000);
+
+        builder.Property(a => a.FlaggedBy)
+            .HasMaxLength(100);
+
         builder.HasMany(a => a.Documents)
             .WithOne()
             .HasForeignKey(d => d.ApplicationId)
@@ -122,5 +133,6 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<FopApplication>
         builder.HasIndex(a => a.Status);
         builder.HasIndex(a => a.OperatorId);
         builder.HasIndex(a => a.SubmittedAt);
+        builder.HasIndex(a => a.IsFlagged);
     }
 }
