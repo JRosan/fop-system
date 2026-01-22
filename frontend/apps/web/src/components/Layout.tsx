@@ -5,6 +5,9 @@ import {
   Award,
   Building2,
   Calculator,
+  ClipboardCheck,
+  DollarSign,
+  Settings,
   Menu,
   X,
 } from 'lucide-react';
@@ -13,9 +16,12 @@ import { useState } from 'react';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Applications', href: '/applications', icon: FileText },
+  { name: 'Review Queue', href: '/review', icon: ClipboardCheck },
+  { name: 'Finance', href: '/finance', icon: DollarSign },
   { name: 'Permits', href: '/permits', icon: Award },
   { name: 'Operators', href: '/operators', icon: Building2 },
   { name: 'Fee Calculator', href: '/fee-calculator', icon: Calculator },
+  { name: 'Admin', href: '/admin', icon: Settings },
 ];
 
 export function Layout() {

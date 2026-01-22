@@ -7,6 +7,9 @@ import { ApplicationDetails } from './pages/ApplicationDetails';
 import { Permits } from './pages/Permits';
 import { Operators } from './pages/Operators';
 import { FeeCalculator } from './pages/FeeCalculator';
+import { ReviewerDashboard } from './pages/ReviewerDashboard';
+import { FinanceDashboard } from './pages/FinanceDashboard';
+import { AdminDashboard } from './pages/AdminDashboard';
 import { NotificationContainer } from './components/NotificationContainer';
 
 export default function App() {
@@ -22,6 +25,9 @@ export default function App() {
           <Route path="permits" element={<Permits />} />
           <Route path="operators" element={<Operators />} />
           <Route path="fee-calculator" element={<FeeCalculator />} />
+          <Route path="review" element={<ReviewerDashboard />} />
+          <Route path="finance" element={<FinanceDashboard />} />
+          <Route path="admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
       <NotificationContainer />

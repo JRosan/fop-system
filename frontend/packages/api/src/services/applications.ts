@@ -39,4 +39,26 @@ export const applicationsApi = {
   async startReview(id: string): Promise<void> {
     await apiClient.post(`/applications/${id}/review`);
   },
+
+  async flag(id: string, reason: string): Promise<void> {
+    await apiClient.post(`/applications/${id}/flag`, { reason });
+  },
+
+  async unflag(id: string): Promise<void> {
+    await apiClient.post(`/applications/${id}/unflag`);
+  },
+
+  async requestDocuments(id: string, documentTypes: string[], message?: string): Promise<void> {
+    await apiClient.post(`/applications/${id}/request-documents`, { documentTypes, message });
+  },
+
+  async getPendingReview(filter?: ApplicationFilter): Promise<PaginatedResponse<ApplicationSummary>> {
+    const { data } = await apiClient.get('/applications', {
+      params: {
+        ...filter,
+        status: ['SUBMITTED', 'UNDER_REVIEW', 'PENDING_DOCUMENTS'],
+      },
+    });
+    return data;
+  },
 };
