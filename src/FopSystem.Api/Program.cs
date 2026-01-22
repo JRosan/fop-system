@@ -3,6 +3,7 @@ using FopSystem.Api.Endpoints;
 using FopSystem.Application;
 using FopSystem.Infrastructure;
 using FopSystem.Infrastructure.Persistence;
+using FopSystem.Infrastructure.Persistence.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ if (builder.Configuration.GetSection("AzureAd").Exists())
         .AddPolicy("Reviewer", policy => policy.RequireRole("Reviewer", "Approver", "Admin"))
         .AddPolicy("Approver", policy => policy.RequireRole("Approver", "Admin"))
         .AddPolicy("FinanceOfficer", policy => policy.RequireRole("FinanceOfficer", "Admin"))
+        .AddPolicy("Finance", policy => policy.RequireRole("FinanceOfficer", "Admin"))
         .AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 }
 else
@@ -118,6 +120,10 @@ if (app.Environment.IsDevelopment())
     try
     {
         await db.Database.MigrateAsync();
+
+        // Seed BVIAA fee rates
+        var seeder = scope.ServiceProvider.GetRequiredService<BviaFeeRateSeeder>();
+        await seeder.SeedAsync();
     }
     catch (Exception)
     {
@@ -151,6 +157,7 @@ app.MapUserEndpoints();
 app.MapAuditEndpoints();
 app.MapFeeConfigurationEndpoints();
 app.MapDashboardEndpoints();
+app.MapBviaRevenueEndpoints();
 
 app.Run();
 

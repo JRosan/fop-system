@@ -172,4 +172,59 @@ public class EmailService : IEmailService
             await SendEmailAsync(email, subject, body, true, cancellationToken);
         }
     }
+
+    public async Task SendBviaPaymentConfirmationEmailAsync(
+        string operatorEmail,
+        string invoiceNumber,
+        decimal amount,
+        CancellationToken cancellationToken = default)
+    {
+        var subject = $"BVIAA Payment Confirmation - Invoice {invoiceNumber}";
+        var body = $"""
+            <html>
+            <body>
+            <h2>Payment Confirmation</h2>
+            <p>Thank you for your payment to the BVI Airports Authority.</p>
+            <p><strong>Invoice Number:</strong> {invoiceNumber}</p>
+            <p><strong>Amount Paid:</strong> ${amount:N2} USD</p>
+            <p>This payment has been recorded and applied to your account.</p>
+            <p>If you have any questions about your invoice or payment, please contact the BVIAA Finance Department.</p>
+            <br/>
+            <p>Best regards,<br/>BVI Airports Authority</p>
+            </body>
+            </html>
+            """;
+
+        await SendEmailAsync(operatorEmail, subject, body, true, cancellationToken);
+    }
+
+    public async Task SendBviaInvoiceOverdueEmailAsync(
+        string operatorEmail,
+        string invoiceNumber,
+        decimal balanceDue,
+        int daysOverdue,
+        CancellationToken cancellationToken = default)
+    {
+        var urgency = daysOverdue >= 30 ? "URGENT: " : "";
+        var subject = $"{urgency}BVIAA Invoice Overdue - {invoiceNumber}";
+        var body = $"""
+            <html>
+            <body>
+            <h2>Invoice Overdue Notice</h2>
+            <p>This is to notify you that the following BVIAA invoice is overdue.</p>
+            <p><strong>Invoice Number:</strong> {invoiceNumber}</p>
+            <p><strong>Outstanding Balance:</strong> ${balanceDue:N2} USD</p>
+            <p><strong>Days Overdue:</strong> {daysOverdue} days</p>
+            <p><strong>Important:</strong> Overdue accounts may affect your eligibility for Foreign Operator Permit issuance.
+            Interest charges of 1.5% per month will be applied to invoices overdue more than 30 days.</p>
+            <p>Please remit payment as soon as possible to avoid additional charges and permit processing delays.</p>
+            <p>If you have any questions or believe this is an error, please contact the BVIAA Finance Department immediately.</p>
+            <br/>
+            <p>Best regards,<br/>BVI Airports Authority</p>
+            </body>
+            </html>
+            """;
+
+        await SendEmailAsync(operatorEmail, subject, body, true, cancellationToken);
+    }
 }

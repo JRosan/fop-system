@@ -5,6 +5,7 @@ using FopSystem.Domain.Repositories;
 using FopSystem.Infrastructure.BackgroundJobs;
 using FopSystem.Infrastructure.Persistence;
 using FopSystem.Infrastructure.Persistence.Repositories;
+using FopSystem.Infrastructure.Persistence.Seeders;
 using FopSystem.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -43,6 +44,11 @@ public static class DependencyInjection
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddScoped<IFeeConfigurationRepository, FeeConfigurationRepository>();
 
+        // BVIAA Revenue Repositories
+        services.AddScoped<IBviaInvoiceRepository, BviaInvoiceRepository>();
+        services.AddScoped<IBviaFeeRateRepository, BviaFeeRateRepository>();
+        services.AddScoped<IOperatorAccountBalanceRepository, OperatorAccountBalanceRepository>();
+
         // Azure Blob Storage
         var storageConnectionString = configuration["AzureStorage:ConnectionString"];
         if (!string.IsNullOrEmpty(storageConnectionString))
@@ -72,6 +78,10 @@ public static class DependencyInjection
 
         // Background Jobs
         services.AddHostedService<InsuranceExpiryMonitoringJob>();
+        services.AddHostedService<InvoiceOverdueProcessingJob>();
+
+        // Data Seeders
+        services.AddScoped<BviaFeeRateSeeder>();
 
         return services;
     }

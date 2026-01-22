@@ -4,6 +4,7 @@ using FopSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FopSystem.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(FopDbContext))]
-    partial class FopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260122210611_AddBviaRevenueEntities")]
+    partial class AddBviaRevenueEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

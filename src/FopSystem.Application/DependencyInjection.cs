@@ -20,7 +20,12 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(assembly);
 
+        // FOP Fee Services
         services.AddScoped<IFeeCalculationService, FeeCalculationService>();
+
+        // BVIAA Revenue Services
+        services.AddScoped<IBviaFeeCalculationService, BviaFeeCalculationService>();
+        services.AddScoped<IAviationRevenueEngine, AviationRevenueEngine>();
 
         return services;
     }

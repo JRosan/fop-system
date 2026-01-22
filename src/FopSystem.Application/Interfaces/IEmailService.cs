@@ -40,4 +40,17 @@ public interface IEmailService
         string operatorName,
         decimal feeAmount,
         CancellationToken cancellationToken = default);
+
+    Task SendBviaPaymentConfirmationEmailAsync(
+        string operatorEmail,
+        string invoiceNumber,
+        decimal amount,
+        CancellationToken cancellationToken = default);
+
+    Task SendBviaInvoiceOverdueEmailAsync(
+        string operatorEmail,
+        string invoiceNumber,
+        decimal balanceDue,
+        int daysOverdue,
+        CancellationToken cancellationToken = default);
 }

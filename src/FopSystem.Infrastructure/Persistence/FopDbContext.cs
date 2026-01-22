@@ -2,6 +2,7 @@ using FopSystem.Domain.Aggregates.Aircraft;
 using FopSystem.Domain.Aggregates.Application;
 using FopSystem.Domain.Aggregates.Operator;
 using FopSystem.Domain.Aggregates.Permit;
+using FopSystem.Domain.Aggregates.Revenue;
 using FopSystem.Domain.Aggregates.User;
 using FopSystem.Domain.Entities;
 using FopSystem.Domain.Events;
@@ -24,6 +25,13 @@ public class FopDbContext : DbContext, IUnitOfWork
     public DbSet<User> Users => Set<User>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<FeeConfiguration> FeeConfigurations => Set<FeeConfiguration>();
+
+    // BVIAA Revenue entities
+    public DbSet<BviaInvoice> BviaInvoices => Set<BviaInvoice>();
+    public DbSet<BviaInvoiceLineItem> BviaInvoiceLineItems => Set<BviaInvoiceLineItem>();
+    public DbSet<BviaPayment> BviaPayments => Set<BviaPayment>();
+    public DbSet<BviaFeeRate> BviaFeeRates => Set<BviaFeeRate>();
+    public DbSet<OperatorAccountBalance> OperatorAccountBalances => Set<OperatorAccountBalance>();
 
     public FopDbContext(DbContextOptions<FopDbContext> options) : base(options)
     {
