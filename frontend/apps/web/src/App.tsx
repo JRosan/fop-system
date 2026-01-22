@@ -13,6 +13,7 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { PermitDetails } from './pages/PermitDetails';
 import { VerifyPermit } from './pages/VerifyPermit';
 import { Waivers } from './pages/Waivers';
+import { AuditLogs } from './pages/AuditLogs';
 import { NotificationContainer } from './components/NotificationContainer';
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="review" element={<ReviewerDashboard />} />
           <Route path="finance" element={<FinanceDashboard />} />
           <Route path="waivers" element={<Waivers />} />
+          <Route path="audit" element={<AuditLogs />} />
           <Route path="admin" element={<AdminDashboard />} />
         </Route>
       </Routes>

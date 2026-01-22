@@ -10,6 +10,7 @@ import {
   Settings,
   ShieldCheck,
   Receipt,
+  History,
   Menu,
   X,
 } from 'lucide-react';
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Verify Permit', href: '/verify', icon: ShieldCheck },
   { name: 'Operators', href: '/operators', icon: Building2 },
   { name: 'Fee Calculator', href: '/fee-calculator', icon: Calculator },
+  { name: 'Audit Logs', href: '/audit', icon: History },
   { name: 'Admin', href: '/admin', icon: Settings },
 ];
 

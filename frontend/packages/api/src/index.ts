@@ -9,3 +9,4 @@ export * from './services/permits';
 export * from './services/fees';
 export * from './services/dashboard';
 export * from './services/waivers';
+export * from './services/audit';

@@ -6,4 +6,5 @@ export * from './payment';
 export * from './permit';
 export * from './user';
 export * from './waiver';
+export * from './audit';
 export * from './common';
