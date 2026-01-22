@@ -114,6 +114,11 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<FopApplication>
             .HasForeignKey(a => a.AircraftId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasMany(a => a.Waivers)
+            .WithOne()
+            .HasForeignKey(w => w.ApplicationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(a => a.Status);
         builder.HasIndex(a => a.OperatorId);
         builder.HasIndex(a => a.SubmittedAt);
