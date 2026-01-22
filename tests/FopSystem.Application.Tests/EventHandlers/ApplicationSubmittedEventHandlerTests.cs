@@ -226,6 +226,29 @@ public class ApplicationSubmittedEventHandlerTests
             DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
             Money.Usd(1000m));
 
+        // Add required documents before submission
+        var requiredDocTypes = new[]
+        {
+            DocumentType.CertificateOfAirworthiness,
+            DocumentType.CertificateOfRegistration,
+            DocumentType.AirOperatorCertificate,
+            DocumentType.InsuranceCertificate
+        };
+
+        foreach (var docType in requiredDocTypes)
+        {
+            var document = ApplicationDocument.Create(
+                application.Id,
+                docType,
+                $"{docType}.pdf",
+                1024,
+                "application/pdf",
+                $"https://storage.test/docs/{docType}.pdf",
+                "test-user",
+                DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1)));
+            application.AddDocument(document);
+        }
+
         application.Submit();
         return application;
     }

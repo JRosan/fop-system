@@ -87,8 +87,42 @@ public class RefundPaymentCommandHandlerTests
     {
         var application = CreateValidApplication();
 
-        // Submit and process payment
+        // Add required documents before submission
+        var requiredDocTypes = new[]
+        {
+            DocumentType.CertificateOfAirworthiness,
+            DocumentType.CertificateOfRegistration,
+            DocumentType.AirOperatorCertificate,
+            DocumentType.InsuranceCertificate
+        };
+
+        foreach (var docType in requiredDocTypes)
+        {
+            var document = ApplicationDocument.Create(
+                application.Id,
+                docType,
+                $"{docType}.pdf",
+                1024,
+                "application/pdf",
+                $"https://storage.test/docs/{docType}.pdf",
+                "test-user",
+                DateOnly.FromDateTime(DateTime.UtcNow.AddYears(1)));
+            application.AddDocument(document);
+        }
+
+        // Submit the application
         application.Submit();
+
+        // Start review process
+        application.StartReview("reviewer-001");
+
+        // Verify all documents (required before payment can be requested)
+        foreach (var doc in application.Documents)
+        {
+            application.VerifyDocument(doc.Id, "reviewer-001");
+        }
+
+        // Process payment
         application.RequestPayment(PaymentMethod.CreditCard);
         application.CompletePayment("TXN-123", "RCP-123");
 
