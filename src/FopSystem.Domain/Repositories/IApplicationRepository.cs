@@ -22,5 +22,6 @@ public interface IApplicationRepository : IRepository<FopApplication, Guid>
         string? search = null,
         int pageNumber = 1,
         int pageSize = 20,
+        bool? isFlagged = null,
         CancellationToken cancellationToken = default);
 }

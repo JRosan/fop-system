@@ -34,7 +34,9 @@ public sealed record ApplicationSummaryDto(
     string AircraftRegistration,
     MoneyDto CalculatedFee,
     DateTime? SubmittedAt,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    bool IsFlagged,
+    string? FlagReason);
 
 public sealed record FlightDetailsDto(
     FlightPurpose Purpose,

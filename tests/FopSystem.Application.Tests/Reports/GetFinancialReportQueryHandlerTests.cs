@@ -37,6 +37,7 @@ public class GetFinancialReportQueryHandlerTests
             Arg.Any<string?>(),
             Arg.Any<int>(),
             Arg.Any<int>(),
+            Arg.Any<bool?>(),
             Arg.Any<CancellationToken>())
             .Returns((applications, 0));
 
@@ -68,6 +69,7 @@ public class GetFinancialReportQueryHandlerTests
             Arg.Any<string?>(),
             Arg.Any<int>(),
             Arg.Any<int>(),
+            Arg.Any<bool?>(),
             Arg.Any<CancellationToken>())
             .Returns((applications, 0));
 
@@ -97,6 +99,7 @@ public class GetFinancialReportQueryHandlerTests
             Arg.Any<string?>(),
             Arg.Any<int>(),
             Arg.Any<int>(),
+            Arg.Any<bool?>(),
             Arg.Any<CancellationToken>())
             .Returns((applications, 0));
 
@@ -116,6 +119,7 @@ public class GetFinancialReportQueryHandlerTests
             Arg.Any<string?>(),
             Arg.Any<int>(),
             Arg.Any<int>(),
+            Arg.Any<bool?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -132,6 +136,7 @@ public class GetFinancialReportQueryHandlerTests
             Arg.Any<string?>(),
             Arg.Any<int>(),
             Arg.Any<int>(),
+            Arg.Any<bool?>(),
             Arg.Any<CancellationToken>())
             .Returns((new List<FopApplication>(), 0));
 

@@ -97,6 +97,7 @@ public class ApplicationRepository : IApplicationRepository
         string? search = null,
         int pageNumber = 1,
         int pageSize = 20,
+        bool? isFlagged = null,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Applications.AsQueryable();
@@ -132,6 +133,11 @@ public class ApplicationRepository : IApplicationRepository
                 a.ApplicationNumber.Contains(search) ||
                 a.FlightDetails.ArrivalAirport.Contains(search) ||
                 a.FlightDetails.DepartureAirport.Contains(search));
+        }
+
+        if (isFlagged.HasValue)
+        {
+            query = query.Where(a => a.IsFlagged == isFlagged.Value);
         }
 
         var totalCount = await query.CountAsync(cancellationToken);

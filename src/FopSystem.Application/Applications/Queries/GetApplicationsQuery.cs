@@ -13,7 +13,8 @@ public sealed record GetApplicationsQuery(
     DateTime? SubmittedTo = null,
     string? Search = null,
     int PageNumber = 1,
-    int PageSize = 20) : IQuery<PagedResult<ApplicationSummaryDto>>;
+    int PageSize = 20,
+    bool? IsFlagged = null) : IQuery<PagedResult<ApplicationSummaryDto>>;
 
 public sealed class GetApplicationsQueryHandler : IQueryHandler<GetApplicationsQuery, PagedResult<ApplicationSummaryDto>>
 {
@@ -44,6 +45,7 @@ public sealed class GetApplicationsQueryHandler : IQueryHandler<GetApplicationsQ
             request.Search,
             request.PageNumber,
             request.PageSize,
+            request.IsFlagged,
             cancellationToken);
 
         var operatorIds = items.Select(a => a.OperatorId).Distinct().ToList();
@@ -73,7 +75,9 @@ public sealed class GetApplicationsQueryHandler : IQueryHandler<GetApplicationsQ
             aircraft.GetValueOrDefault(a.AircraftId, "Unknown"),
             new MoneyDto(a.CalculatedFee.Amount, a.CalculatedFee.Currency.ToString()),
             a.SubmittedAt,
-            a.CreatedAt)).ToList();
+            a.CreatedAt,
+            a.IsFlagged,
+            a.FlagReason)).ToList();
 
         return Result.Success(PagedResult<ApplicationSummaryDto>.Create(
             dtos, totalCount, request.PageNumber, request.PageSize));

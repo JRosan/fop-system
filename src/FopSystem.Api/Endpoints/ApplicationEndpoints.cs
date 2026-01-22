@@ -83,10 +83,11 @@ public static class ApplicationEndpoints
         [FromQuery] string? search = null,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
+        [FromQuery] bool? isFlagged = null,
         CancellationToken cancellationToken = default)
     {
         var query = new GetApplicationsQuery(
-            statuses, types, operatorId, submittedFrom, submittedTo, search, pageNumber, pageSize);
+            statuses, types, operatorId, submittedFrom, submittedTo, search, pageNumber, pageSize, isFlagged);
 
         var result = await mediator.Send(query, cancellationToken);
 
