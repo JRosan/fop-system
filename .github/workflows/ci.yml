@@ -1,0 +1,256 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  NODE_VERSION: '20'
+
+jobs:
+  # Backend Build and Test
+  backend:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore FopSystem.sln
+
+      - name: Build
+        run: dotnet build FopSystem.sln --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: |
+          dotnet test tests/FopSystem.Domain.Tests/FopSystem.Domain.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+          dotnet test tests/FopSystem.Application.Tests/FopSystem.Application.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Run Integration Tests
+        run: |
+          dotnet test tests/FopSystem.Infrastructure.Tests/FopSystem.Infrastructure.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+          dotnet test tests/FopSystem.Api.Tests/FopSystem.Api.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./coverage
+          flags: backend
+          fail_ci_if_error: false
+
+  # Backend Security Scan
+  backend-security:
+    name: Backend Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore FopSystem.sln
+
+      - name: Run Security Scan
+        run: |
+          dotnet tool install --global security-scan
+          security-scan FopSystem.sln --export=sarif --output=security-scan-results.sarif || true
+
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: security-scan-results.sarif
+        continue-on-error: true
+
+  # Generate EF Core Migration Bundle
+  migration-bundle:
+    name: Generate Migration Bundle
+    runs-on: ubuntu-latest
+    needs: backend
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Generate Migration Bundle
+        run: |
+          dotnet ef migrations bundle \
+            --project src/FopSystem.Infrastructure/FopSystem.Infrastructure.csproj \
+            --startup-project src/FopSystem.Api/FopSystem.Api.csproj \
+            --output efbundle \
+            --self-contained \
+            --target-runtime linux-x64 \
+            --force
+
+      - name: Upload Migration Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ef-migration-bundle
+          path: efbundle
+          retention-days: 5
+
+  # Frontend Build and Test
+  frontend:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        working-directory: frontend
+        run: pnpm run typecheck
+
+      - name: Lint
+        working-directory: frontend
+        run: pnpm run lint
+
+      - name: Run tests
+        working-directory: frontend
+        run: pnpm run test --if-present
+
+      - name: Build packages
+        working-directory: frontend
+        run: pnpm run build --filter=@fop/*
+
+      - name: Build web app
+        working-directory: frontend
+        run: pnpm run build --filter=web
+
+      - name: Upload web build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: frontend/apps/web/dist
+          retention-days: 5
+
+  # Mobile Build (Expo)
+  mobile:
+    name: Mobile Build Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check mobile
+        working-directory: frontend/apps/mobile
+        run: npx tsc --noEmit
+
+      - name: Expo Doctor
+        working-directory: frontend/apps/mobile
+        run: npx expo-doctor || true
+
+  # Bicep Validation
+  infrastructure:
+    name: Infrastructure Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure CLI Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        continue-on-error: true
+
+      - name: Validate Bicep
+        run: |
+          az bicep build --file infrastructure/bicep/main.bicep
+        continue-on-error: true
+
+      - name: Lint Bicep
+        run: |
+          az bicep lint --file infrastructure/bicep/main.bicep
+        continue-on-error: true
+
+  # Docker Build
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./src/FopSystem.Api/Dockerfile
+          push: false
+          tags: fopsystem-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
