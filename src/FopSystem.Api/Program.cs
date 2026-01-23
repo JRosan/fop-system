@@ -41,7 +41,8 @@ if (builder.Configuration.GetSection("AzureAd").Exists())
         .AddPolicy("FinanceOfficer", policy => policy.RequireRole("FinanceOfficer", "Admin", "SuperAdmin"))
         .AddPolicy("Finance", policy => policy.RequireRole("FinanceOfficer", "Admin", "SuperAdmin"))
         .AddPolicy("Admin", policy => policy.RequireRole("Admin", "SuperAdmin"))
-        .AddPolicy("SuperAdmin", policy => policy.RequireRole("SuperAdmin"));
+        .AddPolicy("SuperAdmin", policy => policy.RequireRole("SuperAdmin"))
+        .AddPolicy("FieldOfficer", policy => policy.RequireRole("FieldOfficer", "Reviewer", "Approver", "Admin", "SuperAdmin"));
 }
 else
 {
@@ -192,6 +193,7 @@ app.MapSubscriptionEndpoints();
 app.MapStripeEndpoints();
 app.MapAuthEndpoints();
 app.MapDeviceEndpoints();
+app.MapFieldOperationsEndpoints();
 
 app.Run();
 

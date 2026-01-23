@@ -62,6 +62,14 @@ public static class DependencyInjection
         services.AddScoped<IBviaFeeRateRepository, BviaFeeRateRepository>();
         services.AddScoped<IOperatorAccountBalanceRepository, OperatorAccountBalanceRepository>();
 
+        // Field Operations Repositories
+        services.AddScoped<IAirportServiceLogRepository, AirportServiceLogRepository>();
+        services.AddScoped<IFieldVerificationLogRepository, FieldVerificationLogRepository>();
+        services.AddScoped<ITelemetryEventRepository, TelemetryEventRepository>();
+
+        // JWT Permit Token Service
+        services.AddSingleton<Application.Interfaces.IJwtPermitTokenService, JwtPermitTokenService>();
+
         // Azure Blob Storage
         var storageConnectionString = configuration["AzureStorage:ConnectionString"];
         if (!string.IsNullOrEmpty(storageConnectionString))

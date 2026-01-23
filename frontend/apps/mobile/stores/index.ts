@@ -18,3 +18,21 @@ export type {
   NotificationPreferences,
   NotificationState,
 } from './notification';
+
+export { useOfflineStore } from './offline';
+export type {
+  OfflineServiceLog,
+  OfflineVerification,
+  CachedPermit,
+  CachedFeeRate,
+  AirportServiceType,
+  VerificationResult,
+  PermitStatus,
+  BviAirport,
+} from './offline';
+
+export { useBiometricStore, ProtectedAction } from './biometric';
+export type { BiometricType } from './biometric';
+
+export { useLocationStore, BVI_AIRPORTS } from './location';
+export type { GeoCoordinate } from './location';

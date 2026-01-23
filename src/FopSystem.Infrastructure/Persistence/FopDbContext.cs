@@ -1,5 +1,6 @@
 using FopSystem.Domain.Aggregates.Aircraft;
 using FopSystem.Domain.Aggregates.Application;
+using FopSystem.Domain.Aggregates.Field;
 using FopSystem.Domain.Aggregates.Operator;
 using FopSystem.Domain.Aggregates.Permit;
 using FopSystem.Domain.Aggregates.Revenue;
@@ -51,6 +52,11 @@ public class FopDbContext : DbContext, IUnitOfWork
 
     // Push notification device tokens (tenant-scoped)
     public DbSet<DeviceToken> DeviceTokens => Set<DeviceToken>();
+
+    // Field Operations entities (tenant-scoped)
+    public DbSet<AirportServiceLog> AirportServiceLogs => Set<AirportServiceLog>();
+    public DbSet<FieldVerificationLog> FieldVerificationLogs => Set<FieldVerificationLog>();
+    public DbSet<TelemetryEvent> TelemetryEvents => Set<TelemetryEvent>();
 
     public FopDbContext(DbContextOptions<FopDbContext> options) : base(options)
     {
@@ -119,6 +125,15 @@ public class FopDbContext : DbContext, IUnitOfWork
             .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
 
         modelBuilder.Entity<DeviceToken>()
+            .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
+
+        modelBuilder.Entity<AirportServiceLog>()
+            .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
+
+        modelBuilder.Entity<FieldVerificationLog>()
+            .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
+
+        modelBuilder.Entity<TelemetryEvent>()
             .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
     }
 
