@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { QrCode, DollarSign, Bell, ArrowRight, Smartphone } from 'lucide-react';
 import { AnimatedSection } from '../AnimatedSection';
 import { DeviceMockup, QRScannerScreen, VerifiedScreen, FeeLoggerScreen } from './DeviceMockup';
@@ -51,8 +51,9 @@ const screens = [
 export function MobileShowcase() {
   const [activeScreen, setActiveScreen] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
-  // Auto-cycle between screens (pauses on hover)
+  // Auto-cycle between screens (pauses on hover/touch)
   useEffect(() => {
     if (isPaused) return;
 
@@ -62,6 +63,33 @@ export function MobileShowcase() {
 
     return () => clearInterval(interval);
   }, [isPaused]);
+
+  // Touch handlers for swipe navigation
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsPaused(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        // Swipe left - next screen
+        setActiveScreen((prev) => (prev + 1) % screens.length);
+      } else {
+        // Swipe right - previous screen
+        setActiveScreen((prev) => (prev - 1 + screens.length) % screens.length);
+      }
+    }
+
+    touchStartX.current = null;
+    setIsPaused(false);
+  };
 
   return (
     <section className="landing-section relative overflow-hidden bg-gradient-to-br from-bvi-atlantic-700 via-bvi-atlantic-600 to-bvi-turquoise-600">
@@ -77,9 +105,11 @@ export function MobileShowcase() {
           {/* Device Mockup - Left side on desktop */}
           <AnimatedSection direction="left" className="order-2 lg:order-1">
             <div
-              className="flex flex-col items-center gap-6"
+              className="flex flex-col items-center gap-6 touch-pan-y"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
             >
               <DeviceMockup>
                 {/* Screen container with crossfade */}
