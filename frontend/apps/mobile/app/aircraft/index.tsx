@@ -60,8 +60,9 @@ export default function AircraftListScreen() {
     router.push(`/aircraft/${item.id}` as never);
   };
 
-  const formatWeight = (mtow: { value: number; unit: string }) => {
-    const formatted = mtow.value.toLocaleString();
+  const formatWeight = (mtow?: { value: number; unit: string }) => {
+    if (!mtow) return 'N/A';
+    const formatted = (mtow.value ?? 0).toLocaleString();
     const unit = mtow.unit === 'Kilograms' ? 'kg' : 'lbs';
     return `${formatted} ${unit}`;
   };

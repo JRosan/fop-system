@@ -48,7 +48,7 @@ export default function ApplicationsScreen() {
   };
 
   const renderApplicationItem = ({ item }: { item: Application }) => {
-    const status = statusConfig[item.status];
+    const status = statusConfig[item.status] || { color: '#64748b', bgColor: '#f1f5f9', icon: FileText, label: item.status || 'Unknown' };
     const StatusIcon = status.icon;
 
     return (
@@ -93,7 +93,7 @@ export default function ApplicationsScreen() {
         <View style={styles.feeRow}>
           <Text style={styles.feeLabel}>Total Fee</Text>
           <Text style={styles.feeAmount}>
-            {item.currency} {item.totalFee.toLocaleString()}
+            {item.currency || 'USD'} {(item.totalFee ?? 0).toLocaleString()}
           </Text>
         </View>
       </TouchableOpacity>

@@ -20,7 +20,7 @@ public static class FieldOperationsEndpoints
 
         // Permit Verification
         group.MapPost("/verify", VerifyPermit)
-            .WithName("VerifyPermit")
+            .WithName("FieldVerifyPermit")
             .WithSummary("Verify a permit via QR code scan")
             .Produces<VerifyPermitResponse>()
             .Produces<ProblemDetails>(400);

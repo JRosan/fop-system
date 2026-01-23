@@ -163,7 +163,7 @@ export default function ApplicationDetailsScreen() {
   }
 
   const app = currentApplication;
-  const status = statusConfig[app.status];
+  const status = statusConfig[app.status] || { color: '#64748b', bgColor: '#f1f5f9', icon: FileText };
   const StatusIcon = status.icon;
 
   return (
@@ -202,7 +202,7 @@ export default function ApplicationDetailsScreen() {
           <View style={styles.feeRow}>
             <Text style={styles.feeLabel}>Total Fee</Text>
             <Text style={styles.feeAmount}>
-              {app.currency} {app.totalFee.toLocaleString()}
+              {app.currency || 'USD'} {(app.totalFee ?? 0).toLocaleString()}
             </Text>
           </View>
           <View style={styles.paymentStatus}>
@@ -215,7 +215,7 @@ export default function ApplicationDetailsScreen() {
                 styles.paymentStatusText,
                 { color: app.paymentStatus === 'Paid' ? '#10b981' : '#f59e0b' }
               ]}>
-                {app.paymentStatus}
+                {app.paymentStatus || 'Pending'}
               </Text>
             </View>
           </View>
@@ -227,12 +227,16 @@ export default function ApplicationDetailsScreen() {
             <Building2 size={20} color="#002D56" />
             <Text style={styles.cardTitle}>Operator</Text>
           </View>
-          <Text style={styles.operatorName}>{app.operator.name}</Text>
-          <Text style={styles.operatorDetail}>{app.operator.country}</Text>
-          {app.operator.aocNumber && (
+          <Text style={styles.operatorName}>{app.operatorName || app.operator?.name || 'Unknown Operator'}</Text>
+          {(app.operator?.country) && (
+            <Text style={styles.operatorDetail}>{app.operator.country}</Text>
+          )}
+          {app.operator?.aocNumber && (
             <Text style={styles.operatorDetail}>AOC: {app.operator.aocNumber}</Text>
           )}
-          <Text style={styles.operatorDetail}>{app.operator.contactEmail}</Text>
+          {app.operator?.contactEmail && (
+            <Text style={styles.operatorDetail}>{app.operator.contactEmail}</Text>
+          )}
         </View>
 
         {/* Aircraft Card */}
@@ -241,18 +245,20 @@ export default function ApplicationDetailsScreen() {
             <Plane size={20} color="#00A3B1" />
             <Text style={styles.cardTitle}>Aircraft</Text>
           </View>
-          <Text style={styles.aircraftReg}>{app.aircraft.registration}</Text>
-          <Text style={styles.aircraftDetail}>
-            {app.aircraft.manufacturer} {app.aircraft.model}
-          </Text>
+          <Text style={styles.aircraftReg}>{app.aircraftRegistration || app.aircraft?.registration || 'N/A'}</Text>
+          {(app.aircraftType || (app.aircraft?.manufacturer && app.aircraft?.model)) && (
+            <Text style={styles.aircraftDetail}>
+              {app.aircraftType || `${app.aircraft?.manufacturer || ''} ${app.aircraft?.model || ''}`.trim()}
+            </Text>
+          )}
           <View style={styles.aircraftSpecs}>
             <View style={styles.specItem}>
               <Text style={styles.specLabel}>MTOW</Text>
-              <Text style={styles.specValue}>{app.aircraft.maxTakeoffWeight.toLocaleString()} kg</Text>
+              <Text style={styles.specValue}>{(app.aircraft?.maxTakeoffWeight ?? 0).toLocaleString()} kg</Text>
             </View>
             <View style={styles.specItem}>
               <Text style={styles.specLabel}>Seats</Text>
-              <Text style={styles.specValue}>{app.aircraft.seatCapacity}</Text>
+              <Text style={styles.specValue}>{app.aircraft?.seatCapacity ?? 'N/A'}</Text>
             </View>
           </View>
         </View>
@@ -263,7 +269,7 @@ export default function ApplicationDetailsScreen() {
             <Calendar size={20} color="#002D56" />
             <Text style={styles.cardTitle}>Flight Details</Text>
           </View>
-          <Text style={styles.purposeText}>{app.flightPurpose}</Text>
+          {app.flightPurpose && <Text style={styles.purposeText}>{app.flightPurpose}</Text>}
           <View style={styles.dateRow}>
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>Start Date</Text>
@@ -286,7 +292,7 @@ export default function ApplicationDetailsScreen() {
             <FileText size={20} color="#002D56" />
             <Text style={styles.cardTitle}>Documents</Text>
           </View>
-          {app.documents.length === 0 ? (
+          {!app.documents || app.documents.length === 0 ? (
             <Text style={styles.emptyText}>No documents uploaded</Text>
           ) : (
             app.documents.map((doc) => (
@@ -335,18 +341,22 @@ export default function ApplicationDetailsScreen() {
             <Clock size={20} color="#002D56" />
             <Text style={styles.cardTitle}>Timeline</Text>
           </View>
-          {app.timeline.map((event, index) => (
-            <View key={index} style={styles.timelineItem}>
-              <View style={styles.timelineDot} />
-              <View style={styles.timelineContent}>
-                <Text style={styles.timelineAction}>{event.action}</Text>
-                <Text style={styles.timelineDate}>
-                  {new Date(event.date).toLocaleDateString()} {new Date(event.date).toLocaleTimeString()}
-                </Text>
-                {event.notes && <Text style={styles.timelineNotes}>{event.notes}</Text>}
+          {!app.timeline || app.timeline.length === 0 ? (
+            <Text style={styles.emptyText}>No timeline events</Text>
+          ) : (
+            app.timeline.map((event, index) => (
+              <View key={index} style={styles.timelineItem}>
+                <View style={styles.timelineDot} />
+                <View style={styles.timelineContent}>
+                  <Text style={styles.timelineAction}>{event.action}</Text>
+                  <Text style={styles.timelineDate}>
+                    {new Date(event.date).toLocaleDateString()} {new Date(event.date).toLocaleTimeString()}
+                  </Text>
+                  {event.notes && <Text style={styles.timelineNotes}>{event.notes}</Text>}
+                </View>
               </View>
-            </View>
-          ))}
+            ))
+          )}
         </View>
 
         {/* Review Notes */}

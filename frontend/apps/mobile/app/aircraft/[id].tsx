@@ -83,8 +83,9 @@ export default function AircraftDetailScreen() {
     );
   };
 
-  const formatWeight = (mtow: { value: number; unit: string }) => {
-    const formatted = mtow.value.toLocaleString();
+  const formatWeight = (mtow?: { value: number; unit: string }) => {
+    if (!mtow) return 'N/A';
+    const formatted = (mtow.value ?? 0).toLocaleString();
     const unit = mtow.unit === 'Kilograms' ? 'kg' : 'lbs';
     return `${formatted} ${unit}`;
   };

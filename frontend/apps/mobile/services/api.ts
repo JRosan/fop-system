@@ -3,8 +3,8 @@ import { storage } from './storage';
 const AUTH_TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 
-// API base URL - use environment variable or default
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api';
+// API base URL - use environment variable or ngrok tunnel for development
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://2e1efac2f8fb.ngrok-free.app/api';
 
 // Create axios instance
 export const apiClient: AxiosInstance = axios.create({
@@ -12,6 +12,8 @@ export const apiClient: AxiosInstance = axios.create({
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
+    'X-Tenant-Code': 'BVI',
   },
 });
 

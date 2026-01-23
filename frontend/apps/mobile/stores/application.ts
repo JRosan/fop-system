@@ -31,7 +31,7 @@ export interface Application {
 }
 
 export interface ApplicationDetails extends Application {
-  operator: {
+  operator?: {
     id: string;
     name: string;
     country: string;
@@ -39,7 +39,7 @@ export interface ApplicationDetails extends Application {
     contactEmail: string;
     contactPhone?: string;
   };
-  aircraft: {
+  aircraft?: {
     id: string;
     registration: string;
     type: string;
@@ -48,21 +48,21 @@ export interface ApplicationDetails extends Application {
     maxTakeoffWeight: number;
     seatCapacity: number;
   };
-  documents: Array<{
+  documents?: Array<{
     id: string;
     type: string;
     fileName: string;
     status: 'Pending' | 'Verified' | 'Rejected';
     uploadedAt: string;
   }>;
-  timeline: Array<{
+  timeline?: Array<{
     action: string;
     date: string;
     user?: string;
     notes?: string;
   }>;
   reviewNotes?: string;
-  paymentStatus: 'Pending' | 'Paid' | 'Waived' | 'Refunded';
+  paymentStatus?: 'Pending' | 'Paid' | 'Waived' | 'Refunded';
 }
 
 export interface ApplicationState {
@@ -112,8 +112,8 @@ export const useApplicationStore = create<ApplicationState>((set) => ({
   fetchApplications: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiClient.get<Application[]>('/applications');
-      set({ applications: response.data, isLoading: false });
+      const response = await apiClient.get<{ items: Application[] }>('/applications');
+      set({ applications: response.data.items || [], isLoading: false });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch applications';
       set({ error: message, isLoading: false });

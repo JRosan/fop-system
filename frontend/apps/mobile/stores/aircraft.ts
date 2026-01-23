@@ -70,8 +70,10 @@ export const useAircraftStore = create<AircraftState>((set) => ({
   fetchAircraft: async (operatorId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiClient.get<Aircraft[]>(`/aircraft/operator/${operatorId}`);
-      set({ aircraft: response.data, isLoading: false });
+      const response = await apiClient.get<Aircraft[] | { items: Aircraft[] }>(`/aircraft/operator/${operatorId}`);
+      // Handle both array and paginated response
+      const items = Array.isArray(response.data) ? response.data : response.data.items || [];
+      set({ aircraft: items, isLoading: false });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to fetch aircraft';
       set({ error: message, isLoading: false });

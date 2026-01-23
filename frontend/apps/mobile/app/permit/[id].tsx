@@ -33,15 +33,21 @@ import { apiClient } from '../../services/api';
 interface Permit {
   id: string;
   permitNumber: string;
-  status: 'Active' | 'Expired' | 'Revoked' | 'Suspended';
-  permitType: 'OneTime' | 'Blanket' | 'Emergency';
-  operator: {
+  status: string;
+  type?: string;
+  permitType?: string;
+  // Flat fields from API
+  operatorName?: string;
+  aircraftRegistration?: string;
+  aircraftType?: string;
+  // Nested fields (for backwards compatibility)
+  operator?: {
     id: string;
     name: string;
     country: string;
     aocNumber?: string;
   };
-  aircraft: {
+  aircraft?: {
     id: string;
     registration: string;
     type: string;
@@ -49,20 +55,40 @@ interface Permit {
     model: string;
   };
   validFrom: string;
-  validTo: string;
+  validUntil?: string;
+  validTo?: string;
   issuedAt: string;
-  issuedBy: string;
+  issuedBy?: string;
   conditions?: string[];
-  verificationUrl: string;
-  applicationId: string;
+  verificationUrl?: string;
+  applicationId?: string;
 }
 
-const statusConfig = {
+const statusConfig: Record<string, { color: string; bgColor: string; icon: typeof CheckCircle }> = {
   Active: { color: '#10b981', bgColor: '#d1fae5', icon: CheckCircle },
+  active: { color: '#10b981', bgColor: '#d1fae5', icon: CheckCircle },
   Expired: { color: '#64748b', bgColor: '#f1f5f9', icon: Clock },
+  expired: { color: '#64748b', bgColor: '#f1f5f9', icon: Clock },
   Revoked: { color: '#ef4444', bgColor: '#fee2e2', icon: XCircle },
+  revoked: { color: '#ef4444', bgColor: '#fee2e2', icon: XCircle },
   Suspended: { color: '#f59e0b', bgColor: '#fef3c7', icon: AlertTriangle },
+  suspended: { color: '#f59e0b', bgColor: '#fef3c7', icon: AlertTriangle },
 };
+
+// Helper to get display values from flat or nested structure
+const getOperatorName = (permit: Permit) => permit.operatorName || permit.operator?.name || 'Unknown Operator';
+const getAircraftReg = (permit: Permit) => permit.aircraftRegistration || permit.aircraft?.registration || 'N/A';
+const getAircraftType = (permit: Permit) => permit.aircraftType || permit.aircraft?.type || '';
+const getAircraftDetails = (permit: Permit) => {
+  if (permit.aircraft) {
+    return `${permit.aircraft.manufacturer} ${permit.aircraft.model}`;
+  }
+  return permit.aircraftType || '';
+};
+const getValidTo = (permit: Permit) => permit.validUntil || permit.validTo || permit.validFrom;
+const getPermitType = (permit: Permit) => permit.permitType || permit.type || 'Standard';
+const getVerificationUrl = (permit: Permit) => permit.verificationUrl || `https://fop.bvi.gov/verify/${permit.permitNumber}`;
+const getStatusLabel = (status: string) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
 export default function PermitDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -97,11 +123,12 @@ export default function PermitDetailsScreen() {
 
   const handleShare = async () => {
     if (!permit) return;
+    const verifyUrl = getVerificationUrl(permit);
     try {
       await Share.share({
         title: `BVI Foreign Operator Permit - ${permit.permitNumber}`,
-        message: `BVI Foreign Operator Permit\n\nPermit Number: ${permit.permitNumber}\nOperator: ${permit.operator.name}\nAircraft: ${permit.aircraft.registration}\nValid: ${new Date(permit.validFrom).toLocaleDateString()} - ${new Date(permit.validTo).toLocaleDateString()}\n\nVerify at: ${permit.verificationUrl}`,
-        url: permit.verificationUrl,
+        message: `BVI Foreign Operator Permit\n\nPermit Number: ${permit.permitNumber}\nOperator: ${getOperatorName(permit)}\nAircraft: ${getAircraftReg(permit)}\nValid: ${new Date(permit.validFrom).toLocaleDateString()} - ${new Date(getValidTo(permit)).toLocaleDateString()}\n\nVerify at: ${verifyUrl}`,
+        url: verifyUrl,
       });
     } catch (err) {
       console.error('Share failed:', err);
@@ -128,8 +155,8 @@ export default function PermitDetailsScreen() {
   const getDaysRemaining = () => {
     if (!permit) return 0;
     const now = new Date();
-    const validTo = new Date(permit.validTo);
-    const diffTime = validTo.getTime() - now.getTime();
+    const validToDate = new Date(getValidTo(permit));
+    const diffTime = validToDate.getTime() - now.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
@@ -155,7 +182,7 @@ export default function PermitDetailsScreen() {
     );
   }
 
-  const status = statusConfig[permit.status];
+  const status = statusConfig[permit.status] || { color: '#64748b', bgColor: '#f1f5f9', icon: Clock };
   const StatusIcon = status.icon;
   const daysRemaining = getDaysRemaining();
 
@@ -195,7 +222,7 @@ export default function PermitDetailsScreen() {
 
           <View style={styles.qrContainer}>
             <QRCode
-              value={permit.verificationUrl}
+              value={getVerificationUrl(permit)}
               size={160}
               backgroundColor="#fff"
               color="#002D56"
@@ -210,10 +237,10 @@ export default function PermitDetailsScreen() {
 
           <View style={[styles.statusBadge, { backgroundColor: status.bgColor }]}>
             <StatusIcon size={18} color={status.color} />
-            <Text style={[styles.statusText, { color: status.color }]}>{permit.status}</Text>
+            <Text style={[styles.statusText, { color: status.color }]}>{getStatusLabel(permit.status)}</Text>
           </View>
 
-          {permit.status === 'Active' && daysRemaining <= 30 && (
+          {permit.status.toLowerCase() === 'active' && daysRemaining <= 30 && (
             <View style={styles.expiryWarning}>
               <AlertTriangle size={16} color="#f59e0b" />
               <Text style={styles.expiryWarningText}>
@@ -240,14 +267,14 @@ export default function PermitDetailsScreen() {
             <View style={styles.validityItem}>
               <Text style={styles.validityLabel}>Valid To</Text>
               <Text style={styles.validityValue}>
-                {new Date(permit.validTo).toLocaleDateString()}
+                {new Date(getValidTo(permit)).toLocaleDateString()}
               </Text>
             </View>
           </View>
           <View style={styles.permitTypeRow}>
             <Text style={styles.permitTypeLabel}>Permit Type</Text>
             <View style={styles.permitTypeBadge}>
-              <Text style={styles.permitTypeText}>{permit.permitType}</Text>
+              <Text style={styles.permitTypeText}>{getPermitType(permit)}</Text>
             </View>
           </View>
         </View>
@@ -258,9 +285,11 @@ export default function PermitDetailsScreen() {
             <Building2 size={20} color="#002D56" />
             <Text style={styles.cardTitle}>Operator</Text>
           </View>
-          <Text style={styles.operatorName}>{permit.operator.name}</Text>
-          <Text style={styles.operatorDetail}>{permit.operator.country}</Text>
-          {permit.operator.aocNumber && (
+          <Text style={styles.operatorName}>{getOperatorName(permit)}</Text>
+          {permit.operator?.country && (
+            <Text style={styles.operatorDetail}>{permit.operator.country}</Text>
+          )}
+          {permit.operator?.aocNumber && (
             <Text style={styles.operatorDetail}>AOC: {permit.operator.aocNumber}</Text>
           )}
         </View>
@@ -271,11 +300,13 @@ export default function PermitDetailsScreen() {
             <Plane size={20} color="#00A3B1" />
             <Text style={styles.cardTitle}>Aircraft</Text>
           </View>
-          <Text style={styles.aircraftReg}>{permit.aircraft.registration}</Text>
-          <Text style={styles.aircraftDetail}>
-            {permit.aircraft.manufacturer} {permit.aircraft.model}
-          </Text>
-          <Text style={styles.aircraftDetail}>Type: {permit.aircraft.type}</Text>
+          <Text style={styles.aircraftReg}>{getAircraftReg(permit)}</Text>
+          {getAircraftDetails(permit) && (
+            <Text style={styles.aircraftDetail}>{getAircraftDetails(permit)}</Text>
+          )}
+          {getAircraftType(permit) && (
+            <Text style={styles.aircraftDetail}>Type: {getAircraftType(permit)}</Text>
+          )}
         </View>
 
         {/* Conditions */}
@@ -306,10 +337,12 @@ export default function PermitDetailsScreen() {
               {new Date(permit.issuedAt).toLocaleDateString()}
             </Text>
           </View>
-          <View style={styles.issuedRow}>
-            <Text style={styles.issuedLabel}>Issued By</Text>
-            <Text style={styles.issuedValue}>{permit.issuedBy}</Text>
-          </View>
+          {permit.issuedBy && (
+            <View style={styles.issuedRow}>
+              <Text style={styles.issuedLabel}>Issued By</Text>
+              <Text style={styles.issuedValue}>{permit.issuedBy}</Text>
+            </View>
+          )}
         </View>
 
         {/* Actions */}
