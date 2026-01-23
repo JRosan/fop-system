@@ -16,6 +16,7 @@ bld/
 
 # Visual Studio
 .vs/
+Properties/
 *.user
 *.userosscache
 *.sln.docstates
