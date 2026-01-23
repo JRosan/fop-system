@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { QrCode, DollarSign, Bell, ArrowRight, Smartphone } from 'lucide-react';
 import { AnimatedSection } from '../AnimatedSection';
 import { DeviceMockup, QRScannerScreen, VerifiedScreen, FeeLoggerScreen } from './DeviceMockup';
@@ -52,6 +52,7 @@ export function MobileShowcase() {
   const [activeScreen, setActiveScreen] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Auto-cycle between screens (pauses on hover/touch)
   useEffect(() => {
@@ -91,6 +92,17 @@ export function MobileShowcase() {
     setIsPaused(false);
   };
 
+  // Keyboard handler for arrow key navigation
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setActiveScreen((prev) => (prev - 1 + screens.length) % screens.length);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setActiveScreen((prev) => (prev + 1) % screens.length);
+    }
+  }, []);
+
   return (
     <section className="landing-section relative overflow-hidden bg-gradient-to-br from-bvi-atlantic-700 via-bvi-atlantic-600 to-bvi-turquoise-600">
       {/* Background decorative elements */}
@@ -105,11 +117,16 @@ export function MobileShowcase() {
           {/* Device Mockup - Left side on desktop */}
           <AnimatedSection direction="left" className="order-2 lg:order-1">
             <div
-              className="flex flex-col items-center gap-6 touch-pan-y"
+              ref={containerRef}
+              tabIndex={0}
+              className="flex flex-col items-center gap-6 touch-pan-y outline-none focus:ring-2 focus:ring-bvi-turquoise-400/50 focus:ring-offset-4 focus:ring-offset-transparent rounded-3xl"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
+              onKeyDown={handleKeyDown}
+              role="region"
+              aria-label="Mobile app showcase carousel. Use arrow keys to navigate."
             >
               <DeviceMockup>
                 {/* Screen container with crossfade */}
