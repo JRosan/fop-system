@@ -181,3 +181,79 @@ export function VerifiedScreen() {
     </div>
   );
 }
+
+export function FeeLoggerScreen() {
+  const fees = [
+    { type: 'Landing Fee', amount: 125.00, icon: '✈️' },
+    { type: 'Fuel (285 gal)', amount: 1710.00, icon: '⛽' },
+    { type: 'Hangar (2 nights)', amount: 450.00, icon: '🏠' },
+  ];
+
+  const total = fees.reduce((sum, fee) => sum + fee.amount, 0);
+
+  return (
+    <div className="w-full h-full flex flex-col bg-bvi-atlantic-900">
+      {/* Status bar */}
+      <div className="pt-12 px-6 pb-4 flex items-center justify-between text-white/60 text-xs">
+        <span>9:41</span>
+        <div className="flex items-center gap-1">
+          <div className="w-4 h-2 border border-white/60 rounded-sm">
+            <div className="w-3/4 h-full bg-white/60 rounded-sm" />
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <div className="px-6 py-4">
+        <h3 className="text-white font-semibold text-lg">Log Fees</h3>
+        <p className="text-white/60 text-sm mt-1">VP-BAA • Caribbean Air Charter</p>
+      </div>
+
+      {/* Fee list */}
+      <div className="flex-1 px-6 space-y-3 overflow-hidden">
+        {fees.map((fee, index) => (
+          <div
+            key={fee.type}
+            className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">{fee.icon}</span>
+              <span className="text-white text-sm font-medium">{fee.type}</span>
+            </div>
+            <span className="text-bvi-gold-400 text-sm font-mono font-semibold">
+              ${fee.amount.toFixed(2)}
+            </span>
+          </div>
+        ))}
+
+        {/* Add fee button */}
+        <button className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-white/20 text-white/50 hover:border-white/30 hover:text-white/70 transition-colors">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span className="text-sm">Add Fee</span>
+        </button>
+      </div>
+
+      {/* Total and submit */}
+      <div className="px-6 pb-8 pt-4">
+        {/* Total */}
+        <div className="flex items-center justify-between mb-4 p-3 rounded-xl bg-bvi-gold-500/10 border border-bvi-gold-500/20">
+          <span className="text-white/80 text-sm font-medium">Total</span>
+          <span className="text-bvi-gold-400 text-xl font-mono font-bold">
+            ${total.toFixed(2)}
+          </span>
+        </div>
+
+        {/* Submit button */}
+        <button className="w-full py-3 rounded-xl bg-bvi-gold-500 text-bvi-atlantic-900 font-semibold text-sm flex items-center justify-center gap-2">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Submit Fees
+        </button>
+      </div>
+    </div>
+  );
+}

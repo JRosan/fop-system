@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { QrCode, DollarSign, Bell, ArrowRight, Smartphone } from 'lucide-react';
 import { AnimatedSection } from '../AnimatedSection';
-import { DeviceMockup, QRScannerScreen, VerifiedScreen } from './DeviceMockup';
+import { DeviceMockup, QRScannerScreen, VerifiedScreen, FeeLoggerScreen } from './DeviceMockup';
 
 const features = [
   {
@@ -45,6 +45,7 @@ const colorClasses = {
 const screens = [
   { id: 'scanner', label: 'Scan', component: QRScannerScreen },
   { id: 'verified', label: 'Verify', component: VerifiedScreen },
+  { id: 'fees', label: 'Fees', component: FeeLoggerScreen },
 ] as const;
 
 export function MobileShowcase() {
