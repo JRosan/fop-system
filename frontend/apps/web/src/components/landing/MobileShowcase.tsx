@@ -50,15 +50,18 @@ const screens = [
 
 export function MobileShowcase() {
   const [activeScreen, setActiveScreen] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  // Auto-cycle between screens
+  // Auto-cycle between screens (pauses on hover)
   useEffect(() => {
+    if (isPaused) return;
+
     const interval = setInterval(() => {
       setActiveScreen((prev) => (prev + 1) % screens.length);
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isPaused]);
 
   return (
     <section className="landing-section relative overflow-hidden bg-gradient-to-br from-bvi-atlantic-700 via-bvi-atlantic-600 to-bvi-turquoise-600">
@@ -73,7 +76,11 @@ export function MobileShowcase() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Device Mockup - Left side on desktop */}
           <AnimatedSection direction="left" className="order-2 lg:order-1">
-            <div className="flex flex-col items-center gap-6">
+            <div
+              className="flex flex-col items-center gap-6"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
               <DeviceMockup>
                 {/* Screen container with crossfade */}
                 <div className="relative w-full h-full">
