@@ -18,23 +18,80 @@ import { applicationsApi, documentsApi, dashboardApi } from '@fop/api';
 import type { ApplicationSummary, ApplicationStatus, FopApplication, Document } from '@fop/types';
 import { formatDate, formatDistanceToNow } from '../utils/date';
 import { useNotificationStore } from '@fop/core';
+import { Portal } from '../components/Portal';
 
-const statusColors: Record<ApplicationStatus, string> = {
-  DRAFT: 'bg-neutral-100 text-neutral-600',
-  SUBMITTED: 'bg-blue-100 text-blue-700',
-  UNDER_REVIEW: 'bg-yellow-100 text-yellow-700',
-  PENDING_DOCUMENTS: 'bg-orange-100 text-orange-700',
-  PENDING_PAYMENT: 'bg-purple-100 text-purple-700',
-  APPROVED: 'bg-success-100 text-success-700',
-  REJECTED: 'bg-error-100 text-error-700',
-  EXPIRED: 'bg-neutral-100 text-neutral-500',
-  CANCELLED: 'bg-neutral-100 text-neutral-500',
+// Support both numeric and string enum values from backend (camelCase and PascalCase)
+const statusColors: Record<string | number, string> = {
+  1: 'bg-neutral-100 text-neutral-600',
+  2: 'bg-blue-100 text-blue-700',
+  3: 'bg-yellow-100 text-yellow-700',
+  4: 'bg-orange-100 text-orange-700',
+  5: 'bg-purple-100 text-purple-700',
+  6: 'bg-success-100 text-success-700',
+  7: 'bg-error-100 text-error-700',
+  8: 'bg-neutral-100 text-neutral-500',
+  9: 'bg-neutral-100 text-neutral-500',
+  // camelCase (response data)
+  draft: 'bg-neutral-100 text-neutral-600',
+  submitted: 'bg-blue-100 text-blue-700',
+  underReview: 'bg-yellow-100 text-yellow-700',
+  pendingDocuments: 'bg-orange-100 text-orange-700',
+  pendingPayment: 'bg-purple-100 text-purple-700',
+  approved: 'bg-success-100 text-success-700',
+  rejected: 'bg-error-100 text-error-700',
+  expired: 'bg-neutral-100 text-neutral-500',
+  cancelled: 'bg-neutral-100 text-neutral-500',
+  // PascalCase (filter values)
+  Draft: 'bg-neutral-100 text-neutral-600',
+  Submitted: 'bg-blue-100 text-blue-700',
+  UnderReview: 'bg-yellow-100 text-yellow-700',
+  PendingDocuments: 'bg-orange-100 text-orange-700',
+  PendingPayment: 'bg-purple-100 text-purple-700',
+  Approved: 'bg-success-100 text-success-700',
+  Rejected: 'bg-error-100 text-error-700',
+  Expired: 'bg-neutral-100 text-neutral-500',
+  Cancelled: 'bg-neutral-100 text-neutral-500',
 };
 
-const typeLabels = {
-  ONE_TIME: 'One-Time',
-  BLANKET: 'Blanket',
-  EMERGENCY: 'Emergency',
+const statusLabels: Record<string | number, string> = {
+  1: 'Draft',
+  2: 'Submitted',
+  3: 'Under Review',
+  4: 'Pending Documents',
+  5: 'Pending Payment',
+  6: 'Approved',
+  7: 'Rejected',
+  8: 'Expired',
+  9: 'Cancelled',
+  // camelCase (response data)
+  draft: 'Draft',
+  submitted: 'Submitted',
+  underReview: 'Under Review',
+  pendingDocuments: 'Pending Documents',
+  pendingPayment: 'Pending Payment',
+  approved: 'Approved',
+  rejected: 'Rejected',
+  expired: 'Expired',
+  cancelled: 'Cancelled',
+  // PascalCase (filter values)
+  Draft: 'Draft',
+  Submitted: 'Submitted',
+  UnderReview: 'Under Review',
+  PendingDocuments: 'Pending Documents',
+  PendingPayment: 'Pending Payment',
+  Approved: 'Approved',
+  Rejected: 'Rejected',
+  Expired: 'Expired',
+  Cancelled: 'Cancelled',
+};
+
+const typeLabels: Record<string | number, string> = {
+  1: 'One-Time',
+  2: 'Blanket',
+  3: 'Emergency',
+  OneTime: 'One-Time',
+  Blanket: 'Blanket',
+  Emergency: 'Emergency',
 };
 
 const documentTypeLabels: Record<string, string> = {
@@ -59,10 +116,12 @@ export function ReviewerDashboard() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [approvalNotes, setApprovalNotes] = useState('');
   const [documentRejectionReason, setDocumentRejectionReason] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ApplicationStatus[]>([
-    'SUBMITTED',
-    'UNDER_REVIEW',
-    'PENDING_DOCUMENTS',
+  // Using PascalCase string values for API query parameters
+  const [statusFilter, setStatusFilter] = useState<string[]>([
+    'Submitted',
+    'UnderReview',
+    'PendingPayment',
+    'PendingDocuments',
   ]);
 
   // Fetch reviewer dashboard stats
@@ -73,10 +132,10 @@ export function ReviewerDashboard() {
 
   // Fetch applications for review
   const { data: applicationsData, isLoading: applicationsLoading } = useQuery({
-    queryKey: ['applications', 'review', { status: statusFilter }],
+    queryKey: ['applications', 'review', { statuses: statusFilter }],
     queryFn: () =>
       applicationsApi.getAll({
-        status: statusFilter,
+        statuses: statusFilter,
         pageSize: 50,
       }),
   });
@@ -187,7 +246,7 @@ export function ReviewerDashboard() {
     }
   };
 
-  const toggleStatusFilter = (status: ApplicationStatus) => {
+  const toggleStatusFilter = (status: string) => {
     setStatusFilter((prev) =>
       prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
     );
@@ -266,18 +325,18 @@ export function ReviewerDashboard() {
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-neutral-700">Filter by status:</span>
           <div className="flex flex-wrap gap-2">
-            {(['SUBMITTED', 'UNDER_REVIEW', 'PENDING_DOCUMENTS'] as ApplicationStatus[]).map(
+            {(['Submitted', 'UnderReview', 'PendingPayment', 'PendingDocuments'] as string[]).map(
               (status) => (
                 <button
                   key={status}
-                  onClick={() => toggleStatusFilter(status)}
+                  onClick={() => toggleStatusFilter(status as ApplicationStatus)}
                   className={`badge cursor-pointer transition-colors ${
                     statusFilter.includes(status)
                       ? statusColors[status]
                       : 'bg-neutral-100 text-neutral-400'
                   }`}
                 >
-                  {status.replace(/_/g, ' ')}
+                  {statusLabels[status]}
                 </button>
               )
             )}
@@ -321,7 +380,7 @@ export function ReviewerDashboard() {
                         {application.applicationNumber}
                       </Link>
                       <span className={`badge ${statusColors[application.status]}`}>
-                        {application.status.replace(/_/g, ' ')}
+                        {statusLabels[application.status]}
                       </span>
                       <span className="badge bg-neutral-100 text-neutral-600">
                         {typeLabels[application.type]}
@@ -339,7 +398,7 @@ export function ReviewerDashboard() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
-                    {application.status === 'SUBMITTED' && (
+                    {(application.status === 2 || application.status === 'submitted') && (
                       <button
                         onClick={() => handleStartReview(application)}
                         disabled={startReviewMutation.isPending}
@@ -350,26 +409,27 @@ export function ReviewerDashboard() {
                       </button>
                     )}
 
-                    {application.status === 'UNDER_REVIEW' && (
-                      <>
-                        <button
-                          onClick={() => openApproveModal(application)}
-                          className="btn-primary text-sm py-1.5 px-3 bg-success-600 hover:bg-success-700"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => openRejectModal(application)}
-                          className="btn-secondary text-sm py-1.5 px-3 text-error-600 hover:bg-error-50"
-                        >
-                          <XCircle className="w-4 h-4 mr-1" />
-                          Reject
-                        </button>
-                      </>
+                    {(application.status === 5 || application.status === 'pendingPayment') && (
+                      <button
+                        onClick={() => openApproveModal(application)}
+                        className="btn-primary text-sm py-1.5 px-3 bg-success-600 hover:bg-success-700"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Approve
+                      </button>
                     )}
 
-                    {application.status === 'PENDING_DOCUMENTS' && (
+                    {(application.status === 3 || application.status === 'underReview' || application.status === 5 || application.status === 'pendingPayment') && (
+                      <button
+                        onClick={() => openRejectModal(application)}
+                        className="btn-secondary text-sm py-1.5 px-3 text-error-600 hover:bg-error-50"
+                      >
+                        <XCircle className="w-4 h-4 mr-1" />
+                        Reject
+                      </button>
+                    )}
+
+                    {(application.status === 4 || application.status === 'pendingDocuments') && (
                       <span className="flex items-center gap-1 text-sm text-orange-600">
                         <AlertTriangle className="w-4 h-4" />
                         Awaiting Documents
@@ -410,7 +470,7 @@ export function ReviewerDashboard() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`badge ${statusColors[app.status as ApplicationStatus]}`}>
-                    {app.status.replace(/_/g, ' ')}
+                    {statusLabels[app.status as ApplicationStatus]}
                   </span>
                   <ChevronRight className="w-5 h-5 text-neutral-400" />
                 </div>
@@ -422,23 +482,63 @@ export function ReviewerDashboard() {
 
       {/* Approve Modal */}
       {showApproveModal && selectedApplication && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Approve Application</h2>
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Approve Application</h2>
               <p className="text-neutral-500 mt-1">
                 Approve {selectedApplication.applicationNumber}
               </p>
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="p-4 bg-success-50 border border-success-200 rounded-lg">
-                <p className="text-success-700 text-sm">
-                  Approving this application will issue a Foreign Operator Permit to{' '}
-                  <strong>{selectedApplication.operator.name}</strong> for aircraft{' '}
-                  <strong>{selectedApplication.aircraft.registrationMark}</strong>.
-                </p>
-              </div>
+              {/* Payment Status Check */}
+              {(!selectedApplication.payment || selectedApplication.payment.status !== 'completed') ? (
+                <div className="p-4 bg-error-50 border border-error-200 rounded-lg">
+                  <p className="text-error-700 text-sm font-medium">
+                    Payment Required
+                  </p>
+                  <p className="text-error-600 text-sm mt-1">
+                    {!selectedApplication.payment
+                      ? 'No payment has been requested for this application. Please request payment first.'
+                      : `Payment status is "${selectedApplication.payment.status}". Payment must be completed before approval.`
+                    }
+                  </p>
+                </div>
+              ) : (
+                <div className="p-4 bg-success-50 border border-success-200 rounded-lg">
+                  <p className="text-success-700 text-sm">
+                    Approving this application will issue a Foreign Operator Permit to{' '}
+                    <strong>{selectedApplication.operator.name}</strong> for aircraft{' '}
+                    <strong>{selectedApplication.aircraft.registrationMark}</strong>.
+                  </p>
+                </div>
+              )}
+
+              {/* Payment Summary */}
+              {selectedApplication.payment && (
+                <div className="p-4 bg-neutral-50 rounded-lg">
+                  <label className="label mb-2">Payment</label>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-neutral-900">
+                        {selectedApplication.calculatedFee.currency} {selectedApplication.calculatedFee.amount.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        Method: {selectedApplication.payment.method}
+                      </p>
+                    </div>
+                    <span className={`badge text-xs ${
+                      selectedApplication.payment.status === 'completed'
+                        ? 'bg-success-100 text-success-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {selectedApplication.payment.status}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Document Summary */}
               <div>
@@ -527,20 +627,22 @@ export function ReviewerDashboard() {
                     notes: approvalNotes || undefined,
                   })
                 }
-                disabled={approveMutation.isPending}
-                className="btn-primary bg-success-600 hover:bg-success-700"
+                disabled={approveMutation.isPending || !selectedApplication.payment || selectedApplication.payment.status !== 'completed'}
+                className="btn-primary bg-success-600 hover:bg-success-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {approveMutation.isPending ? 'Approving...' : 'Approve Application'}
               </button>
             </div>
+            </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Reject Modal */}
       {showRejectModal && selectedApplication && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
             <div className="p-6 border-b border-neutral-200">
               <h2 className="text-xl font-semibold text-neutral-900">Reject Application</h2>
               <p className="text-neutral-500 mt-1">
@@ -601,14 +703,16 @@ export function ReviewerDashboard() {
                 {rejectMutation.isPending ? 'Rejecting...' : 'Reject Application'}
               </button>
             </div>
+            </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Document Review Modal */}
       {showDocumentModal && selectedDocument && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
             <div className="p-6 border-b border-neutral-200">
               <h2 className="text-xl font-semibold text-neutral-900">Review Document</h2>
               <p className="text-neutral-500 mt-1">
@@ -726,8 +830,9 @@ export function ReviewerDashboard() {
                 </>
               )}
             </div>
+            </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

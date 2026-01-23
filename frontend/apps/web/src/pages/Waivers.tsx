@@ -16,6 +16,7 @@ import { waiversApi, WAIVER_TYPES } from '@fop/api';
 import type { PendingWaiver, WaiverType } from '@fop/types';
 import { formatDate, formatMoney, formatDistanceToNow } from '../utils/date';
 import { useNotificationStore } from '@fop/core';
+import { Portal } from '../components/Portal';
 
 const waiverTypeColors: Record<WaiverType, string> = {
   Emergency: 'bg-error-100 text-error-700',
@@ -269,10 +270,11 @@ export function Waivers() {
 
       {/* Approve Modal */}
       {showApproveModal && selectedWaiver && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Approve Fee Waiver</h2>
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Approve Fee Waiver</h2>
               <p className="text-neutral-500 mt-1">
                 {selectedWaiver.applicationNumber} - {selectedWaiver.operatorName}
               </p>
@@ -381,17 +383,19 @@ export function Waivers() {
               >
                 {approveMutation.isPending ? 'Approving...' : 'Approve Waiver'}
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Reject Modal */}
       {showRejectModal && selectedWaiver && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Reject Fee Waiver</h2>
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Reject Fee Waiver</h2>
               <p className="text-neutral-500 mt-1">
                 {selectedWaiver.applicationNumber} - {selectedWaiver.operatorName}
               </p>
@@ -451,9 +455,10 @@ export function Waivers() {
               >
                 {rejectMutation.isPending ? 'Rejecting...' : 'Reject Waiver'}
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

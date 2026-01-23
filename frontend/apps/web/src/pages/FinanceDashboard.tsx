@@ -23,26 +23,61 @@ import type { PaymentWithApplication } from '@fop/api';
 import type { PaymentStatus, PaymentMethod } from '@fop/types';
 import { formatDate, formatMoney } from '../utils/date';
 import { useNotificationStore } from '@fop/core';
+import { Portal } from '../components/Portal';
 
-const statusColors: Record<PaymentStatus, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-700',
-  PROCESSING: 'bg-blue-100 text-blue-700',
-  COMPLETED: 'bg-success-100 text-success-700',
-  FAILED: 'bg-error-100 text-error-700',
-  REFUNDED: 'bg-purple-100 text-purple-700',
-  CANCELLED: 'bg-neutral-100 text-neutral-500',
+// Support both numeric and string enum values from backend (camelCase)
+const statusColors: Record<string | number, string> = {
+  1: 'bg-yellow-100 text-yellow-700',
+  2: 'bg-blue-100 text-blue-700',
+  3: 'bg-success-100 text-success-700',
+  4: 'bg-error-100 text-error-700',
+  5: 'bg-purple-100 text-purple-700',
+  6: 'bg-neutral-100 text-neutral-500',
+  pending: 'bg-yellow-100 text-yellow-700',
+  processing: 'bg-blue-100 text-blue-700',
+  completed: 'bg-success-100 text-success-700',
+  failed: 'bg-error-100 text-error-700',
+  refunded: 'bg-purple-100 text-purple-700',
+  cancelled: 'bg-neutral-100 text-neutral-500',
 };
 
-const methodIcons: Record<PaymentMethod, typeof CreditCard> = {
-  CREDIT_CARD: CreditCard,
-  BANK_TRANSFER: Building,
-  WIRE_TRANSFER: ArrowRightLeft,
+const statusLabels: Record<string | number, string> = {
+  1: 'Pending',
+  2: 'Processing',
+  3: 'Completed',
+  4: 'Failed',
+  5: 'Refunded',
+  6: 'Cancelled',
+  pending: 'Pending',
+  processing: 'Processing',
+  completed: 'Completed',
+  failed: 'Failed',
+  refunded: 'Refunded',
+  cancelled: 'Cancelled',
 };
 
-const methodLabels: Record<PaymentMethod, string> = {
-  CREDIT_CARD: 'Credit Card',
-  BANK_TRANSFER: 'Bank Transfer',
-  WIRE_TRANSFER: 'Wire Transfer',
+const methodIcons: Record<string | number, typeof CreditCard> = {
+  1: CreditCard,
+  2: Building,
+  3: ArrowRightLeft,
+  CreditCard: CreditCard,
+  BankTransfer: Building,
+  WireTransfer: ArrowRightLeft,
+  creditCard: CreditCard,
+  bankTransfer: Building,
+  wireTransfer: ArrowRightLeft,
+};
+
+const methodLabels: Record<string | number, string> = {
+  1: 'Credit Card',
+  2: 'Bank Transfer',
+  3: 'Wire Transfer',
+  CreditCard: 'Credit Card',
+  BankTransfer: 'Bank Transfer',
+  WireTransfer: 'Wire Transfer',
+  creditCard: 'Credit Card',
+  bankTransfer: 'Bank Transfer',
+  wireTransfer: 'Wire Transfer',
 };
 
 export function FinanceDashboard() {
@@ -236,7 +271,7 @@ export function FinanceDashboard() {
           </div>
           <div className="divide-y divide-neutral-200">
             {pendingPayments.slice(0, 5).map((payment) => {
-              const MethodIcon = methodIcons[payment.method];
+              const MethodIcon = methodIcons[payment.method] || CreditCard;
               return (
                 <div
                   key={payment.id}
@@ -315,7 +350,7 @@ export function FinanceDashboard() {
             <div>
               <label className="label">Status</label>
               <div className="flex flex-wrap gap-2">
-                {(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED'] as PaymentStatus[]).map(
+                {(['pending', 'processing', 'completed', 'failed', 'refunded'] as PaymentStatus[]).map(
                   (status) => (
                     <button
                       key={status}
@@ -327,7 +362,7 @@ export function FinanceDashboard() {
                           : 'bg-neutral-100 text-neutral-400'
                       }`}
                     >
-                      {status}
+                      {statusLabels[status]}
                     </button>
                   )
                 )}
@@ -337,7 +372,7 @@ export function FinanceDashboard() {
             <div>
               <label className="label">Payment Method</label>
               <div className="flex flex-wrap gap-2">
-                {(['CREDIT_CARD', 'BANK_TRANSFER', 'WIRE_TRANSFER'] as PaymentMethod[]).map(
+                {(['creditCard', 'bankTransfer', 'wireTransfer'] as PaymentMethod[]).map(
                   (method) => (
                     <button
                       key={method}
@@ -423,7 +458,7 @@ export function FinanceDashboard() {
               </thead>
               <tbody className="divide-y divide-neutral-200">
                 {paymentsData.items.map((payment) => {
-                  const MethodIcon = methodIcons[payment.method];
+                  const MethodIcon = methodIcons[payment.method] || CreditCard;
                   return (
                     <tr key={payment.id} className="hover:bg-neutral-50">
                       <td className="px-4 py-3">
@@ -446,7 +481,7 @@ export function FinanceDashboard() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={`badge ${statusColors[payment.status]}`}>
-                          {payment.status}
+                          {statusLabels[payment.status]}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-neutral-600">
@@ -454,7 +489,7 @@ export function FinanceDashboard() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
-                          {(payment.status === 'PENDING' || payment.status === 'PROCESSING') && (
+                          {(payment.status === 'pending' || payment.status === 'processing') && (
                             <>
                               <button
                                 onClick={() => openVerifyModal(payment)}
@@ -503,10 +538,11 @@ export function FinanceDashboard() {
 
       {/* Verify Modal */}
       {showVerifyModal && selectedPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Verify Payment</h2>
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Verify Payment</h2>
               <p className="text-neutral-500 mt-1">
                 Confirm payment for {selectedPayment.applicationNumber}
               </p>
@@ -588,19 +624,21 @@ export function FinanceDashboard() {
               >
                 {verifyMutation.isPending ? 'Verifying...' : 'Verify Payment'}
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Reject Modal */}
       {showRejectModal && selectedPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Reject Payment</h2>
-              <p className="text-neutral-500 mt-1">
-                Reject payment for {selectedPayment.applicationNumber}
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Reject Payment</h2>
+                <p className="text-neutral-500 mt-1">
+                  Reject payment for {selectedPayment.applicationNumber}
               </p>
             </div>
 
@@ -667,9 +705,10 @@ export function FinanceDashboard() {
               >
                 {rejectMutation.isPending ? 'Rejecting...' : 'Reject Payment'}
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

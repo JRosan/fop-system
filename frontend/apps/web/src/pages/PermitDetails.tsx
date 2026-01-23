@@ -22,25 +22,49 @@ import { permitsApi } from '@fop/api';
 import type { PermitStatus, ApplicationType } from '@fop/types';
 import { formatDate, formatMoney } from '../utils/date';
 import { useNotificationStore } from '@fop/core';
+import { Portal } from '../components/Portal';
 
-const statusColors: Record<PermitStatus, string> = {
-  ACTIVE: 'bg-success-100 text-success-700',
-  EXPIRED: 'bg-neutral-100 text-neutral-500',
-  REVOKED: 'bg-error-100 text-error-700',
-  SUSPENDED: 'bg-warning-100 text-warning-700',
+// Support both numeric and string enum values from backend
+const statusColors: Record<string | number, string> = {
+  1: 'bg-success-100 text-success-700',
+  2: 'bg-neutral-100 text-neutral-500',
+  3: 'bg-error-100 text-error-700',
+  4: 'bg-warning-100 text-warning-700',
+  Active: 'bg-success-100 text-success-700',
+  Expired: 'bg-neutral-100 text-neutral-500',
+  Revoked: 'bg-error-100 text-error-700',
+  Suspended: 'bg-warning-100 text-warning-700',
 };
 
-const statusIcons: Record<PermitStatus, typeof CheckCircle> = {
-  ACTIVE: CheckCircle,
-  EXPIRED: Clock,
-  REVOKED: XCircle,
-  SUSPENDED: Pause,
+const statusLabels: Record<string | number, string> = {
+  1: 'Active',
+  2: 'Expired',
+  3: 'Revoked',
+  4: 'Suspended',
+  Active: 'Active',
+  Expired: 'Expired',
+  Revoked: 'Revoked',
+  Suspended: 'Suspended',
 };
 
-const typeLabels: Record<ApplicationType, string> = {
-  ONE_TIME: 'One-Time Permit',
-  BLANKET: 'Blanket Permit',
-  EMERGENCY: 'Emergency Permit',
+const statusIcons: Record<string | number, typeof CheckCircle> = {
+  1: CheckCircle,
+  2: Clock,
+  3: XCircle,
+  4: Pause,
+  Active: CheckCircle,
+  Expired: Clock,
+  Revoked: XCircle,
+  Suspended: Pause,
+};
+
+const typeLabels: Record<string | number, string> = {
+  1: 'One-Time Permit',
+  2: 'Blanket Permit',
+  3: 'Emergency Permit',
+  OneTime: 'One-Time Permit',
+  Blanket: 'Blanket Permit',
+  Emergency: 'Emergency Permit',
 };
 
 export function PermitDetails() {
@@ -180,11 +204,11 @@ export function PermitDetails() {
     );
   }
 
-  const StatusIcon = statusIcons[permit.status];
-  const isActive = permit.status === 'ACTIVE';
-  const isSuspended = permit.status === 'SUSPENDED';
-  const isExpired = permit.status === 'EXPIRED';
-  const isRevoked = permit.status === 'REVOKED';
+  const StatusIcon = statusIcons[permit.status] || CheckCircle;
+  const isActive = permit.status === 1 || permit.status === 'Active';
+  const isSuspended = permit.status === 4 || permit.status === 'Suspended';
+  const isExpired = permit.status === 2 || permit.status === 'Expired';
+  const isRevoked = permit.status === 3 || permit.status === 'Revoked';
 
   return (
     <div className="space-y-6">
@@ -202,7 +226,7 @@ export function PermitDetails() {
               <h1 className="text-2xl font-bold text-neutral-900">{permit.permitNumber}</h1>
               <span className={`badge ${statusColors[permit.status]}`}>
                 <StatusIcon className="w-3 h-3 mr-1" />
-                {permit.status}
+                {statusLabels[permit.status]}
               </span>
             </div>
             <p className="text-neutral-500 mt-1">{typeLabels[permit.type]}</p>
@@ -270,7 +294,7 @@ export function PermitDetails() {
             <div>
               <p className="font-medium text-neutral-700">Permit Expired</p>
               <p className="text-sm text-neutral-500">
-                This permit expired on {formatDate(permit.validityPeriod.endDate)}. The operator must submit a new application for renewal.
+                This permit expired on {formatDate(permit.validUntil)}. The operator must submit a new application for renewal.
               </p>
             </div>
           </div>
@@ -323,13 +347,13 @@ export function PermitDetails() {
               <div>
                 <dt className="text-sm text-neutral-500">Valid From</dt>
                 <dd className="font-medium text-neutral-900">
-                  {formatDate(permit.validityPeriod.startDate)}
+                  {formatDate(permit.validFrom)}
                 </dd>
               </div>
               <div>
                 <dt className="text-sm text-neutral-500">Valid Until</dt>
                 <dd className="font-medium text-neutral-900">
-                  {formatDate(permit.validityPeriod.endDate)}
+                  {formatDate(permit.validUntil)}
                 </dd>
               </div>
               <div>
@@ -446,10 +470,11 @@ export function PermitDetails() {
 
       {/* Suspend Modal */}
       {showSuspendModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Suspend Permit</h2>
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Suspend Permit</h2>
               <p className="text-neutral-500 mt-1">Temporarily suspend {permit.permitNumber}</p>
             </div>
 
@@ -517,17 +542,19 @@ export function PermitDetails() {
               >
                 {suspendMutation.isPending ? 'Suspending...' : 'Suspend Permit'}
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Revoke Modal */}
       {showRevokeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Revoke Permit</h2>
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Revoke Permit</h2>
               <p className="text-neutral-500 mt-1">Permanently revoke {permit.permitNumber}</p>
             </div>
 
@@ -573,17 +600,19 @@ export function PermitDetails() {
               >
                 {revokeMutation.isPending ? 'Revoking...' : 'Revoke Permit'}
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Reinstate Modal */}
       {showReinstateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Reinstate Permit</h2>
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Reinstate Permit</h2>
               <p className="text-neutral-500 mt-1">Reinstate {permit.permitNumber}</p>
             </div>
 
@@ -628,25 +657,27 @@ export function PermitDetails() {
               >
                 {reinstateMutation.isPending ? 'Reinstating...' : 'Reinstate Permit'}
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
 
       {/* Extend Modal */}
       {showExtendModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
-            <div className="p-6 border-b border-neutral-200">
-              <h2 className="text-xl font-semibold text-neutral-900">Extend Permit</h2>
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="modal-content">
+              <div className="p-6 border-b border-neutral-200">
+                <h2 className="text-xl font-semibold text-neutral-900">Extend Permit</h2>
               <p className="text-neutral-500 mt-1">Extend validity of {permit.permitNumber}</p>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="p-4 bg-neutral-50 rounded-lg">
                 <p className="text-sm text-neutral-600">
-                  Current validity: {formatDate(permit.validityPeriod.startDate)} to{' '}
-                  {formatDate(permit.validityPeriod.endDate)}
+                  Current validity: {formatDate(permit.validFrom)} to{' '}
+                  {formatDate(permit.validUntil)}
                 </p>
               </div>
 
@@ -660,7 +691,7 @@ export function PermitDetails() {
                   value={extendDate}
                   onChange={(e) => setExtendDate(e.target.value)}
                   className="input"
-                  min={permit.validityPeriod.endDate}
+                  min={permit.validUntil}
                 />
               </div>
 
@@ -704,9 +735,10 @@ export function PermitDetails() {
               >
                 {extendMutation.isPending ? 'Extending...' : 'Extend Permit'}
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

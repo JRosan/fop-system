@@ -6,7 +6,8 @@ using Microsoft.Extensions.Logging;
 namespace FopSystem.Application.Behaviors;
 
 public sealed class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommand<TResponse>
+    where TRequest : IRequest<TResponse>
+    where TResponse : Result
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<TransactionBehavior<TRequest, TResponse>> _logger;

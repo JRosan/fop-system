@@ -16,6 +16,7 @@ import {
 import { auditApi, ENTITY_TYPES, ACTION_LABELS } from '@fop/api';
 import type { EntityType, AuditAction, AuditLog } from '@fop/types';
 import { formatDate, formatDateTime } from '../utils/date';
+import { Portal } from '../components/Portal';
 
 export function AuditLogs() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -345,8 +346,9 @@ export function AuditLogs() {
 
       {/* Details Modal */}
       {selectedLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <Portal>
+          <div className="modal-backdrop">
+            <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
             <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-neutral-900">Audit Log Details</h2>
@@ -440,8 +442,9 @@ export function AuditLogs() {
                 Close
               </button>
             </div>
+            </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );
