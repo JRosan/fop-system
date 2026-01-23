@@ -20,38 +20,49 @@ public class SampleDataSeeder
         _logger = logger;
     }
 
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Seeds sample data for the specified tenant.
+    /// </summary>
+    /// <param name="tenantId">The tenant ID to seed data for. Defaults to the BVI tenant.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task SeedAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        if (await _context.Operators.AnyAsync(cancellationToken))
+        var targetTenantId = tenantId ?? TenantSeeder.DefaultBviTenantId;
+
+        // Check if operators already exist for this tenant (ignore query filters for seeding)
+        if (await _context.Operators
+            .IgnoreQueryFilters()
+            .AnyAsync(o => o.TenantId == targetTenantId, cancellationToken))
         {
-            _logger.LogInformation("Sample data already seeded, skipping");
+            _logger.LogInformation("Sample data already seeded for tenant {TenantId}, skipping", targetTenantId);
             return;
         }
 
-        _logger.LogInformation("Seeding sample data...");
+        _logger.LogInformation("Seeding sample data for tenant {TenantId}...", targetTenantId);
 
-        var operators = CreateOperators();
+        var operators = CreateOperators(targetTenantId);
         await _context.Operators.AddRangeAsync(operators, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        var applications = CreateApplications(operators);
+        var applications = CreateApplications(operators, targetTenantId);
         await _context.Applications.AddRangeAsync(applications, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        var permits = CreatePermits(applications.Where(a => a.Status == ApplicationStatus.Approved).ToList());
+        var permits = CreatePermits(applications.Where(a => a.Status == ApplicationStatus.Approved).ToList(), targetTenantId);
         await _context.Permits.AddRangeAsync(permits, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Seeded {OperatorCount} operators, {ApplicationCount} applications, {PermitCount} permits",
-            operators.Count, applications.Count, permits.Count);
+        _logger.LogInformation("Seeded {OperatorCount} operators, {ApplicationCount} applications, {PermitCount} permits for tenant {TenantId}",
+            operators.Count, applications.Count, permits.Count, targetTenantId);
     }
 
-    private List<Operator> CreateOperators()
+    private List<Operator> CreateOperators(Guid tenantId)
     {
         var operators = new List<Operator>();
 
         // US Operators
         operators.Add(CreateOperatorWithAircraft(
+            tenantId,
             "Atlantic Charter Services",
             "AC-2024-001",
             "United States",
@@ -68,6 +79,7 @@ public class SampleDataSeeder
             }));
 
         operators.Add(CreateOperatorWithAircraft(
+            tenantId,
             "Caribbean Sky Jets",
             "CSJ-2024-002",
             "United States",
@@ -85,6 +97,7 @@ public class SampleDataSeeder
 
         // UK Operator
         operators.Add(CreateOperatorWithAircraft(
+            tenantId,
             "Royal Executive Aviation",
             "REA-UK-2024",
             "United Kingdom",
@@ -101,6 +114,7 @@ public class SampleDataSeeder
 
         // Canadian Operator
         operators.Add(CreateOperatorWithAircraft(
+            tenantId,
             "Northern Wings Charter",
             "NWC-CA-2024",
             "Canada",
@@ -118,6 +132,7 @@ public class SampleDataSeeder
 
         // Caribbean Operator
         operators.Add(CreateOperatorWithAircraft(
+            tenantId,
             "Island Hoppers Aviation",
             "IHA-BB-2024",
             "Barbados",
@@ -135,6 +150,7 @@ public class SampleDataSeeder
 
         // European Operator
         operators.Add(CreateOperatorWithAircraft(
+            tenantId,
             "EuroJet Executive",
             "EJE-FR-2024",
             "France",
@@ -153,6 +169,7 @@ public class SampleDataSeeder
     }
 
     private static Operator CreateOperatorWithAircraft(
+        Guid tenantId,
         string name,
         string registrationNumber,
         string country,
@@ -175,6 +192,8 @@ public class SampleDataSeeder
             aocAuthority,
             aocExpiry);
 
+        op.SetTenantId(tenantId);
+
         foreach (var ac in aircraftData)
         {
             var aircraft = Aircraft.Create(
@@ -188,13 +207,14 @@ public class SampleDataSeeder
                 ac.year,
                 op.Id,
                 "Chapter 3");
+            aircraft.SetTenantId(tenantId);
             op.AddAircraft(aircraft);
         }
 
         return op;
     }
 
-    private List<FopApplication> CreateApplications(List<Operator> operators)
+    private List<FopApplication> CreateApplications(List<Operator> operators, Guid tenantId)
     {
         var applications = new List<FopApplication>();
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
@@ -214,6 +234,7 @@ public class SampleDataSeeder
             today.AddDays(14),
             today.AddDays(14),
             Money.Usd(1150));
+        app1.SetTenantId(tenantId);
         SimulateApprovedApplication(app1);
         applications.Add(app1);
 
@@ -231,6 +252,7 @@ public class SampleDataSeeder
             today.AddDays(7),
             today.AddMonths(6),
             Money.Usd(2875));
+        app2.SetTenantId(tenantId);
         SimulateUnderReviewApplication(app2);
         applications.Add(app2);
 
@@ -249,6 +271,7 @@ public class SampleDataSeeder
             today.AddDays(21),
             today.AddDays(21),
             Money.Usd(950));
+        app3.SetTenantId(tenantId);
         SimulateSubmittedApplication(app3);
         applications.Add(app3);
 
@@ -267,6 +290,7 @@ public class SampleDataSeeder
             today.AddDays(-30),
             today.AddMonths(9),
             Money.Usd(3250));
+        app4.SetTenantId(tenantId);
         SimulateApprovedApplication(app4);
         applications.Add(app4);
 
@@ -284,6 +308,7 @@ public class SampleDataSeeder
             today.AddDays(45),
             today.AddDays(45),
             Money.Usd(1100));
+        app5.SetTenantId(tenantId);
         // Leave as draft
         applications.Add(app5);
 
@@ -303,6 +328,7 @@ public class SampleDataSeeder
             today.AddDays(-5),
             today.AddDays(-5),
             Money.Usd(575));
+        app6.SetTenantId(tenantId);
         SimulateApprovedApplication(app6);
         applications.Add(app6);
 
@@ -321,6 +347,7 @@ public class SampleDataSeeder
             today.AddDays(30),
             today.AddMonths(12),
             Money.Usd(4500));
+        app7.SetTenantId(tenantId);
         SimulatePendingPaymentApplication(app7);
         applications.Add(app7);
 
@@ -339,6 +366,7 @@ public class SampleDataSeeder
             today.AddDays(-10),
             today.AddDays(-10),
             Money.Usd(850));
+        app8.SetTenantId(tenantId);
         SimulateRejectedApplication(app8, "Insurance certificate expired. Please resubmit with valid insurance.");
         applications.Add(app8);
 
@@ -356,6 +384,7 @@ public class SampleDataSeeder
             today.AddDays(60),
             today.AddDays(60),
             Money.Usd(900));
+        app9.SetTenantId(tenantId);
         SimulatePendingDocumentsApplication(app9);
         applications.Add(app9);
 
@@ -452,7 +481,7 @@ public class SampleDataSeeder
         }
     }
 
-    private List<Permit> CreatePermits(List<FopApplication> approvedApplications)
+    private List<Permit> CreatePermits(List<FopApplication> approvedApplications, Guid tenantId)
     {
         var permits = new List<Permit>();
 
@@ -472,6 +501,7 @@ public class SampleDataSeeder
                 "approver@bvicaa.vg",
                 new[] { "Flight operations must comply with all BVI aviation regulations", "24-hour notice required for flight plan submission" });
 
+            permit.SetTenantId(tenantId);
             permit.SetDocumentUrl($"https://storage.example.com/permits/{permit.PermitNumber}.pdf");
             permits.Add(permit);
         }

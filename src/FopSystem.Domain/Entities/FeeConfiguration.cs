@@ -2,8 +2,9 @@ using FopSystem.Domain.Enums;
 
 namespace FopSystem.Domain.Entities;
 
-public class FeeConfiguration : Entity<Guid>
+public class FeeConfiguration : Entity<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public decimal BaseFeeUsd { get; private set; }
     public decimal PerSeatFeeUsd { get; private set; }
     public decimal PerKgFeeUsd { get; private set; }
@@ -151,5 +152,12 @@ public class FeeConfiguration : Entity<Guid>
             throw new ArgumentException("Blanket multiplier must be positive", nameof(blanket));
         if (emergency <= 0)
             throw new ArgumentException("Emergency multiplier must be positive", nameof(emergency));
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }

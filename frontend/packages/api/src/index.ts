@@ -1,4 +1,4 @@
-export { apiClient, setAuthToken, clearAuthToken } from './client';
+export { apiClient, setAuthToken, clearAuthToken, setTenantId, clearTenantId } from './client';
 export type { ApiError } from './client';
 export * from './services/applications';
 export * from './services/operators';
@@ -10,3 +10,4 @@ export * from './services/fees';
 export * from './services/dashboard';
 export * from './services/waivers';
 export * from './services/audit';
+export * from './services/tenant';

@@ -12,7 +12,18 @@ namespace FopSystem.Api.Tests;
 public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
     private static readonly string _databaseName = "TestDb_" + Guid.NewGuid();
-    private bool _seeded;
+    private static bool _seeded;
+    private static readonly object _seedLock = new();
+
+    // Shared internal service provider for in-memory database to ensure state is shared across test instances
+    private static readonly IServiceProvider _internalServiceProvider = new ServiceCollection()
+        .AddEntityFrameworkInMemoryDatabase()
+        .BuildServiceProvider();
+
+    /// <summary>
+    /// The default test tenant ID (BVI tenant).
+    /// </summary>
+    public static readonly Guid TestTenantId = TenantSeeder.DefaultBviTenantId;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -31,15 +42,13 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
                 services.Remove(descriptor);
             }
 
-            // Add an in-memory database for testing with isolated internal service provider
+            // Add an in-memory database for testing with shared internal service provider
+            // This ensures all test instances share the same database state
             services.AddDbContext<FopDbContext>((sp, options) =>
             {
                 options.UseInMemoryDatabase(_databaseName);
                 options.EnableSensitiveDataLogging();
-                options.UseInternalServiceProvider(
-                    new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase()
-                        .BuildServiceProvider());
+                options.UseInternalServiceProvider(_internalServiceProvider);
             });
         });
 
@@ -50,22 +59,39 @@ public class TestWebApplicationFactory<TProgram> : WebApplicationFactory<TProgra
     {
         var host = base.CreateHost(builder);
 
-        // Seed the database after host is created
-        if (!_seeded)
+        // Thread-safe seeding of the shared database
+        lock (_seedLock)
         {
-            using var scope = host.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<FopDbContext>();
+            if (!_seeded)
+            {
+                using var scope = host.Services.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<FopDbContext>();
 
-            // Ensure database is created
-            context.Database.EnsureCreated();
+                // Ensure database is created
+                context.Database.EnsureCreated();
 
-            // Seed BVIA fee rates for tests
-            var seeder = new BviaFeeRateSeeder(context, NullLogger<BviaFeeRateSeeder>.Instance);
-            seeder.SeedAsync().GetAwaiter().GetResult();
+                // Seed default BVI tenant first
+                var tenantSeeder = new TenantSeeder(context, NullLogger<TenantSeeder>.Instance);
+                tenantSeeder.SeedAsync().GetAwaiter().GetResult();
 
-            _seeded = true;
+                // Seed BVIA fee rates for the test tenant
+                var feeRateSeeder = new BviaFeeRateSeeder(context, NullLogger<BviaFeeRateSeeder>.Instance);
+                feeRateSeeder.SeedAsync(TestTenantId).GetAwaiter().GetResult();
+
+                _seeded = true;
+            }
         }
 
         return host;
+    }
+
+    /// <summary>
+    /// Creates an HttpClient with the X-Tenant-Id header set to the test tenant.
+    /// </summary>
+    public HttpClient CreateTenantClient()
+    {
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Add("X-Tenant-Id", TestTenantId.ToString());
+        return client;
     }
 }

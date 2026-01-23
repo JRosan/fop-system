@@ -12,6 +12,9 @@ public class BviaFeeRateConfiguration : IEntityTypeConfiguration<BviaFeeRate>
 
         builder.HasKey(r => r.Id);
 
+        builder.Property(r => r.TenantId)
+            .IsRequired();
+
         builder.Property(r => r.Category)
             .IsRequired()
             .HasConversion<string>();
@@ -69,7 +72,9 @@ public class BviaFeeRateConfiguration : IEntityTypeConfiguration<BviaFeeRate>
         builder.Property(r => r.IsActive)
             .IsRequired();
 
+        builder.HasIndex(r => r.TenantId);
         builder.HasIndex(r => new { r.Category, r.OperationType, r.Airport, r.MtowTier, r.EffectiveFrom });
+        builder.HasIndex(r => new { r.TenantId, r.Category, r.OperationType, r.IsActive });
         builder.HasIndex(r => r.IsActive);
 
         builder.Ignore(r => r.DomainEvents);

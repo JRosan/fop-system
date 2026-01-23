@@ -12,6 +12,9 @@ public class AircraftConfiguration : IEntityTypeConfiguration<Aircraft>
 
         builder.HasKey(a => a.Id);
 
+        builder.Property(a => a.TenantId)
+            .IsRequired();
+
         builder.Property(a => a.RegistrationMark)
             .IsRequired()
             .HasMaxLength(20);
@@ -58,6 +61,8 @@ public class AircraftConfiguration : IEntityTypeConfiguration<Aircraft>
         builder.Property(a => a.NoiseCategory)
             .HasMaxLength(20);
 
+        builder.HasIndex(a => a.TenantId);
         builder.HasIndex(a => a.OperatorId);
+        builder.HasIndex(a => new { a.TenantId, a.OperatorId });
     }
 }

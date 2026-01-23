@@ -19,7 +19,7 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
 
     public BviaFeeEndpointTests(TestWebApplicationFactory<Program> factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CreateTenantClient();
     }
 
     #region Calculate BVIAA Fees Endpoint

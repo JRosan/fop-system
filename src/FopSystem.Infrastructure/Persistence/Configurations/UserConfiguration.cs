@@ -12,6 +12,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasKey(u => u.Id);
 
+        builder.Property(u => u.TenantId)
+            .IsRequired();
+
         builder.Property(u => u.Email)
             .HasMaxLength(256)
             .IsRequired();
@@ -49,5 +52,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.LastLoginAt);
 
         builder.Ignore(u => u.FullName);
+
+        builder.HasIndex(u => u.TenantId);
+        builder.HasIndex(u => new { u.TenantId, u.Email });
+        builder.HasIndex(u => new { u.TenantId, u.Role });
     }
 }

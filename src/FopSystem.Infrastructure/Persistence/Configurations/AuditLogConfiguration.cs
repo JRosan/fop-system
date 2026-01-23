@@ -12,6 +12,9 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
 
         builder.HasKey(a => a.Id);
 
+        builder.Property(a => a.TenantId)
+            .IsRequired();
+
         builder.Property(a => a.EntityType)
             .HasMaxLength(100)
             .IsRequired();
@@ -41,11 +44,13 @@ public class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         builder.Property(a => a.UserAgent)
             .HasMaxLength(500);
 
+        builder.HasIndex(a => a.TenantId);
         builder.HasIndex(a => a.EntityType);
         builder.HasIndex(a => a.EntityId);
         builder.HasIndex(a => a.Action);
         builder.HasIndex(a => a.UserId);
         builder.HasIndex(a => a.CreatedAt);
         builder.HasIndex(a => new { a.EntityType, a.EntityId });
+        builder.HasIndex(a => new { a.TenantId, a.EntityType, a.EntityId });
     }
 }

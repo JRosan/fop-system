@@ -12,6 +12,9 @@ public class OperatorConfiguration : IEntityTypeConfiguration<Operator>
 
         builder.HasKey(o => o.Id);
 
+        builder.Property(o => o.TenantId)
+            .IsRequired();
+
         builder.Property(o => o.Name)
             .IsRequired()
             .HasMaxLength(200);
@@ -112,7 +115,11 @@ public class OperatorConfiguration : IEntityTypeConfiguration<Operator>
             .HasForeignKey(a => a.OperatorId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasIndex(o => o.TenantId);
         builder.HasIndex(o => o.Country);
         builder.HasIndex(o => o.AocExpiryDate);
+
+        // Composite index for tenant-scoped queries
+        builder.HasIndex(o => new { o.TenantId, o.Name });
     }
 }

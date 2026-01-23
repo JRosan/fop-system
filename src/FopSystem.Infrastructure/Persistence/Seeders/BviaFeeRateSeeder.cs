@@ -18,15 +18,25 @@ public class BviaFeeRateSeeder
         _logger = logger;
     }
 
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Seeds BVIAA fee rates for the specified tenant.
+    /// </summary>
+    /// <param name="tenantId">The tenant ID to seed rates for. Defaults to the BVI tenant.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task SeedAsync(Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
-        if (await _context.BviaFeeRates.AnyAsync(cancellationToken))
+        var targetTenantId = tenantId ?? TenantSeeder.DefaultBviTenantId;
+
+        // Check if rates already exist for this tenant (ignore query filters for seeding)
+        if (await _context.BviaFeeRates
+            .IgnoreQueryFilters()
+            .AnyAsync(r => r.TenantId == targetTenantId, cancellationToken))
         {
-            _logger.LogInformation("BVIAA fee rates already seeded, skipping");
+            _logger.LogInformation("BVIAA fee rates already seeded for tenant {TenantId}, skipping", targetTenantId);
             return;
         }
 
-        _logger.LogInformation("Seeding BVIAA fee rates...");
+        _logger.LogInformation("Seeding BVIAA fee rates for tenant {TenantId}...", targetTenantId);
 
         var rates = new List<BviaFeeRate>();
 
@@ -48,10 +58,16 @@ public class BviaFeeRateSeeder
         // Other Fees
         rates.AddRange(CreateOtherFeeRates());
 
+        // Set TenantId on all rates
+        foreach (var rate in rates)
+        {
+            rate.SetTenantId(targetTenantId);
+        }
+
         await _context.BviaFeeRates.AddRangeAsync(rates, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Seeded {Count} BVIAA fee rates", rates.Count);
+        _logger.LogInformation("Seeded {Count} BVIAA fee rates for tenant {TenantId}", rates.Count, targetTenantId);
     }
 
     private IEnumerable<BviaFeeRate> CreateLandingFeeRates()

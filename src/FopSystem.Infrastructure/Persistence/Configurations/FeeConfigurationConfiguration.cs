@@ -12,6 +12,9 @@ public class FeeConfigurationConfiguration : IEntityTypeConfiguration<FeeConfigu
 
         builder.HasKey(f => f.Id);
 
+        builder.Property(f => f.TenantId)
+            .IsRequired();
+
         builder.Property(f => f.BaseFeeUsd)
             .HasPrecision(18, 4)
             .IsRequired();
@@ -46,8 +49,10 @@ public class FeeConfigurationConfiguration : IEntityTypeConfiguration<FeeConfigu
         builder.Property(f => f.Notes)
             .HasMaxLength(1000);
 
+        builder.HasIndex(f => f.TenantId);
         builder.HasIndex(f => f.IsActive);
         builder.HasIndex(f => f.EffectiveFrom);
         builder.HasIndex(f => f.EffectiveTo);
+        builder.HasIndex(f => new { f.TenantId, f.IsActive });
     }
 }

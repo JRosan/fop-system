@@ -12,6 +12,9 @@ public class PermitConfiguration : IEntityTypeConfiguration<Permit>
 
         builder.HasKey(p => p.Id);
 
+        builder.Property(p => p.TenantId)
+            .IsRequired();
+
         builder.Property(p => p.PermitNumber)
             .IsRequired()
             .HasMaxLength(50);
@@ -78,9 +81,12 @@ public class PermitConfiguration : IEntityTypeConfiguration<Permit>
                 v => v.Split("||", StringSplitOptions.RemoveEmptyEntries).ToList())
             .HasMaxLength(4000);
 
+        builder.HasIndex(p => p.TenantId);
         builder.HasIndex(p => p.ApplicationId);
         builder.HasIndex(p => p.OperatorId);
         builder.HasIndex(p => p.Status);
         builder.HasIndex(p => p.ValidUntil);
+        builder.HasIndex(p => new { p.TenantId, p.Status });
+        builder.HasIndex(p => new { p.TenantId, p.OperatorId });
     }
 }

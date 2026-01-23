@@ -5,8 +5,9 @@ using FopSystem.Domain.ValueObjects;
 
 namespace FopSystem.Domain.Aggregates.Application;
 
-public class FopApplication : AggregateRoot<Guid>
+public class FopApplication : AggregateRoot<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public string ApplicationNumber { get; private set; } = default!;
     public ApplicationType Type { get; private set; }
     public ApplicationStatus Status { get; private set; }
@@ -441,5 +442,12 @@ public class FopApplication : AggregateRoot<Guid>
         if (Status != expectedStatus)
             throw new InvalidOperationException(
                 $"Operation not allowed. Expected status: {expectedStatus}, actual: {Status}");
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }

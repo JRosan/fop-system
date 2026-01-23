@@ -6,5 +6,6 @@ public enum UserRole
     Reviewer = 2,
     Approver = 3,
     FinanceOfficer = 4,
-    Admin = 5
+    Admin = 5,
+    SuperAdmin = 6
 }

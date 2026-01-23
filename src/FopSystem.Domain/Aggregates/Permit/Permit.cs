@@ -5,8 +5,9 @@ using FopSystem.Domain.ValueObjects;
 
 namespace FopSystem.Domain.Aggregates.Permit;
 
-public class Permit : AggregateRoot<Guid>
+public class Permit : AggregateRoot<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public string PermitNumber { get; private set; } = default!;
     public Guid ApplicationId { get; private set; }
     public string ApplicationNumber { get; private set; } = default!;
@@ -184,5 +185,12 @@ public class Permit : AggregateRoot<Guid>
         SuspensionReason = null;
         SuspendedUntil = null;
         SetUpdatedAt();
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }

@@ -4,8 +4,9 @@ using FopSystem.Domain.ValueObjects;
 
 namespace FopSystem.Domain.Aggregates.Revenue;
 
-public class BviaFeeRate : AggregateRoot<Guid>
+public class BviaFeeRate : AggregateRoot<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public BviaFeeCategory Category { get; private set; }
     public FlightOperationType OperationType { get; private set; }
     public BviAirport? Airport { get; private set; }
@@ -99,5 +100,12 @@ public class BviaFeeRate : AggregateRoot<Guid>
         return IsActive &&
                date >= EffectiveFrom &&
                (EffectiveTo is null || date <= EffectiveTo);
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }

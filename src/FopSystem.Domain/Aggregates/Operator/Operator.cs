@@ -3,8 +3,9 @@ using FopSystem.Domain.ValueObjects;
 
 namespace FopSystem.Domain.Aggregates.Operator;
 
-public class Operator : AggregateRoot<Guid>
+public class Operator : AggregateRoot<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public string Name { get; private set; } = default!;
     public string? TradingName { get; private set; }
     public string RegistrationNumber { get; private set; } = default!;
@@ -89,6 +90,13 @@ public class Operator : AggregateRoot<Guid>
     public void AddAircraft(Aircraft.Aircraft aircraft)
     {
         _aircraft.Add(aircraft);
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }
 

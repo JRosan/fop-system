@@ -3,8 +3,9 @@ using FopSystem.Domain.ValueObjects;
 
 namespace FopSystem.Domain.Aggregates.Revenue;
 
-public class OperatorAccountBalance : AggregateRoot<Guid>
+public class OperatorAccountBalance : AggregateRoot<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public Guid OperatorId { get; private set; }
 
     public Money TotalInvoiced { get; private set; } = default!;
@@ -121,5 +122,12 @@ public class OperatorAccountBalance : AggregateRoot<Guid>
         PaidInvoiceCount = paidCount;
         OverdueInvoiceCount = overdueCount;
         SetUpdatedAt();
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }

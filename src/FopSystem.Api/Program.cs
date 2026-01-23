@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FopSystem.Api.Endpoints;
+using FopSystem.Api.Middleware;
 using FopSystem.Application;
 using FopSystem.Infrastructure;
 using FopSystem.Infrastructure.Persistence;
@@ -34,12 +35,13 @@ if (builder.Configuration.GetSection("AzureAd").Exists())
         .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
     builder.Services.AddAuthorizationBuilder()
-        .AddPolicy("Applicant", policy => policy.RequireRole("Applicant", "Admin"))
-        .AddPolicy("Reviewer", policy => policy.RequireRole("Reviewer", "Approver", "Admin"))
-        .AddPolicy("Approver", policy => policy.RequireRole("Approver", "Admin"))
-        .AddPolicy("FinanceOfficer", policy => policy.RequireRole("FinanceOfficer", "Admin"))
-        .AddPolicy("Finance", policy => policy.RequireRole("FinanceOfficer", "Admin"))
-        .AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+        .AddPolicy("Applicant", policy => policy.RequireRole("Applicant", "Admin", "SuperAdmin"))
+        .AddPolicy("Reviewer", policy => policy.RequireRole("Reviewer", "Approver", "Admin", "SuperAdmin"))
+        .AddPolicy("Approver", policy => policy.RequireRole("Approver", "Admin", "SuperAdmin"))
+        .AddPolicy("FinanceOfficer", policy => policy.RequireRole("FinanceOfficer", "Admin", "SuperAdmin"))
+        .AddPolicy("Finance", policy => policy.RequireRole("FinanceOfficer", "Admin", "SuperAdmin"))
+        .AddPolicy("Admin", policy => policy.RequireRole("Admin", "SuperAdmin"))
+        .AddPolicy("SuperAdmin", policy => policy.RequireRole("SuperAdmin"));
 }
 else
 {
@@ -131,6 +133,10 @@ if (app.Environment.IsDevelopment())
     {
         await db.Database.MigrateAsync();
 
+        // Seed default tenant first (required for multi-tenancy)
+        var tenantSeeder = scope.ServiceProvider.GetRequiredService<TenantSeeder>();
+        await tenantSeeder.SeedAsync();
+
         // Seed BVIAA fee rates
         var feeSeeder = scope.ServiceProvider.GetRequiredService<BviaFeeRateSeeder>();
         await feeSeeder.SeedAsync();
@@ -156,6 +162,9 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Tenant resolution middleware (after auth, before endpoints)
+app.UseTenantResolution();
+
 // Health check endpoint
 app.MapHealthChecks("/health");
 
@@ -174,6 +183,7 @@ app.MapAuditEndpoints();
 app.MapFeeConfigurationEndpoints();
 app.MapDashboardEndpoints();
 app.MapBviaRevenueEndpoints();
+app.MapTenantEndpoints();
 
 app.Run();
 

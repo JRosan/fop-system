@@ -12,6 +12,9 @@ public class OperatorAccountBalanceConfiguration : IEntityTypeConfiguration<Oper
 
         builder.HasKey(b => b.Id);
 
+        builder.Property(b => b.TenantId)
+            .IsRequired();
+
         builder.Property(b => b.OperatorId)
             .IsRequired();
 
@@ -102,5 +105,8 @@ public class OperatorAccountBalanceConfiguration : IEntityTypeConfiguration<Oper
         builder.Property(b => b.LastPaymentDate);
 
         builder.Ignore(b => b.DomainEvents);
+
+        builder.HasIndex(b => b.TenantId);
+        builder.HasIndex(b => new { b.TenantId, b.OperatorId });
     }
 }

@@ -4,8 +4,9 @@ using FopSystem.Domain.ValueObjects;
 
 namespace FopSystem.Domain.Aggregates.Aircraft;
 
-public class Aircraft : Entity<Guid>
+public class Aircraft : Entity<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public string RegistrationMark { get; private set; } = default!;
     public string Manufacturer { get; private set; } = default!;
     public string Model { get; private set; } = default!;
@@ -85,4 +86,11 @@ public class Aircraft : Entity<Guid>
     }
 
     public decimal MtowInKilograms => Mtow.InKilograms;
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
+    }
 }

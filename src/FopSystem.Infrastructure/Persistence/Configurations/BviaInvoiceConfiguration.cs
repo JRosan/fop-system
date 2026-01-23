@@ -12,6 +12,9 @@ public class BviaInvoiceConfiguration : IEntityTypeConfiguration<BviaInvoice>
 
         builder.HasKey(i => i.Id);
 
+        builder.Property(i => i.TenantId)
+            .IsRequired();
+
         builder.Property(i => i.InvoiceNumber)
             .IsRequired()
             .HasMaxLength(50);
@@ -166,5 +169,9 @@ public class BviaInvoiceConfiguration : IEntityTypeConfiguration<BviaInvoice>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Ignore(i => i.DomainEvents);
+
+        builder.HasIndex(i => i.TenantId);
+        builder.HasIndex(i => new { i.TenantId, i.Status });
+        builder.HasIndex(i => new { i.TenantId, i.OperatorId });
     }
 }

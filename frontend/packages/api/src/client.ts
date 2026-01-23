@@ -11,6 +11,7 @@ export const apiClient: AxiosInstance = axios.create({
 });
 
 let authToken: string | null = null;
+let tenantId: string | null = null;
 
 export function setAuthToken(token: string): void {
   authToken = token;
@@ -20,10 +21,21 @@ export function clearAuthToken(): void {
   authToken = null;
 }
 
+export function setTenantId(id: string): void {
+  tenantId = id;
+}
+
+export function clearTenantId(): void {
+  tenantId = null;
+}
+
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (authToken) {
       config.headers.Authorization = `Bearer ${authToken}`;
+    }
+    if (tenantId) {
+      config.headers['X-Tenant-Id'] = tenantId;
     }
     return config;
   },

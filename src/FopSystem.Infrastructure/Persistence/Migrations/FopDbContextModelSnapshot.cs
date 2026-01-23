@@ -65,6 +65,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -77,6 +80,10 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RegistrationMark")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "OperatorId");
 
                     b.ToTable("Aircraft", (string)null);
                 });
@@ -370,6 +377,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("SubmittedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -391,6 +401,12 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                     b.HasIndex("Status");
 
                     b.HasIndex("SubmittedAt");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "OperatorId");
+
+                    b.HasIndex("TenantId", "Status");
 
                     b.ToTable("Applications", (string)null);
                 });
@@ -432,6 +448,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("TradingName")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -447,6 +466,10 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RegistrationNumber")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Name");
 
                     b.ToTable("Operators", (string)null);
                 });
@@ -521,6 +544,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -545,7 +571,13 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Status");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("ValidUntil");
+
+                    b.HasIndex("TenantId", "OperatorId");
+
+                    b.HasIndex("TenantId", "Status");
 
                     b.ToTable("Permits", (string)null);
                 });
@@ -589,6 +621,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("UnitDescription")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -599,6 +634,10 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IsActive");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Category", "OperationType", "IsActive");
 
                     b.HasIndex("Category", "OperationType", "Airport", "MtowTier", "EffectiveFrom");
 
@@ -673,6 +712,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -688,6 +730,12 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                     b.HasIndex("OperatorId");
 
                     b.HasIndex("Status");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "OperatorId");
+
+                    b.HasIndex("TenantId", "Status");
 
                     b.ToTable("BviaInvoices", (string)null);
                 });
@@ -819,6 +867,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                     b.Property<int>("PaidInvoiceCount")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -826,6 +877,10 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OperatorId")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "OperatorId");
 
                     b.ToTable("OperatorAccountBalances", (string)null);
                 });
@@ -875,6 +930,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -886,6 +944,12 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Email");
+
+                    b.HasIndex("TenantId", "Role");
 
                     b.ToTable("Users", (string)null);
                 });
@@ -922,6 +986,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                     b.Property<string>("OldValues")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -947,9 +1014,13 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("EntityType");
 
+                    b.HasIndex("TenantId");
+
                     b.HasIndex("UserId");
 
                     b.HasIndex("EntityType", "EntityId");
+
+                    b.HasIndex("TenantId", "EntityType", "EntityId");
 
                     b.ToTable("AuditLogs", (string)null);
                 });
@@ -1006,6 +1077,9 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -1017,7 +1091,100 @@ namespace FopSystem.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IsActive");
 
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "IsActive");
+
                     b.ToTable("FeeConfigurations", (string)null);
+                });
+
+            modelBuilder.Entity("FopSystem.Domain.Entities.Tenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("ContactEmail")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)")
+                        .HasDefaultValue("USD");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PrimaryColor")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)")
+                        .HasDefaultValue("#1E3A5F");
+
+                    b.Property<string>("SecondaryColor")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)")
+                        .HasDefaultValue("#F4A460");
+
+                    b.Property<string>("Subdomain")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("America/Tortola");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Tenants_Code");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_Tenants_IsActive");
+
+                    b.HasIndex("Subdomain")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Tenants_Subdomain");
+
+                    b.ToTable("Tenants", (string)null);
                 });
 
             modelBuilder.Entity("FopSystem.Domain.Aggregates.Aircraft.Aircraft", b =>

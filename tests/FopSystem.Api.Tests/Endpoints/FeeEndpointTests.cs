@@ -12,7 +12,7 @@ public class FeeEndpointTests : IClassFixture<TestWebApplicationFactory<Program>
 
     public FeeEndpointTests(TestWebApplicationFactory<Program> factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CreateTenantClient();
     }
 
     [Fact]

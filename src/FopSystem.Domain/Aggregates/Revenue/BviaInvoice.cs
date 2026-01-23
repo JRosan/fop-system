@@ -5,8 +5,9 @@ using FopSystem.Domain.ValueObjects;
 
 namespace FopSystem.Domain.Aggregates.Revenue;
 
-public class BviaInvoice : AggregateRoot<Guid>
+public class BviaInvoice : AggregateRoot<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public string InvoiceNumber { get; private set; } = default!;
     public Guid OperatorId { get; private set; }
     public Guid? FopApplicationId { get; private set; }
@@ -303,5 +304,12 @@ public class BviaInvoice : AggregateRoot<Guid>
             if (!IsPastDue) return 0;
             return DateOnly.FromDateTime(DateTime.UtcNow).DayNumber - DueDate.DayNumber;
         }
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }

@@ -13,8 +13,10 @@ import {
   History,
   Menu,
   X,
+  Plane,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTenantBranding } from './TenantThemeProvider';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -30,8 +32,37 @@ const navigation = [
   { name: 'Admin', href: '/admin', icon: Settings },
 ];
 
+function TenantLogo({ className }: { className?: string }) {
+  const { logoUrl, code, primaryColor } = useTenantBranding();
+
+  if (logoUrl) {
+    return (
+      <img
+        src={logoUrl}
+        alt={`${code} Logo`}
+        className={className}
+      />
+    );
+  }
+
+  // Default logo icon with tenant primary color
+  return (
+    <div
+      className={`flex items-center justify-center rounded-lg ${className}`}
+      style={{ backgroundColor: primaryColor }}
+    >
+      <Plane className="w-5 h-5 text-white" />
+    </div>
+  );
+}
+
 export function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { name, code, isLoading } = useTenantBranding();
+
+  // Display name: use code + "FOP System" format
+  const displayName = isLoading ? 'FOP System' : `${code} FOP System`;
+  const fullName = isLoading ? 'Civil Aviation Department' : name;
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -45,9 +76,12 @@ export function Layout() {
         />
         <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
           <div className="flex items-center justify-between px-4 h-16 border-b">
-            <span className="text-lg font-semibold text-primary-600">
-              BVI FOP System
-            </span>
+            <div className="flex items-center gap-2">
+              <TenantLogo className="w-8 h-8" />
+              <span className="text-lg font-semibold text-primary-600">
+                {displayName}
+              </span>
+            </div>
             <button
               onClick={() => setSidebarOpen(false)}
               className="p-2 rounded-lg hover:bg-neutral-100"
@@ -80,9 +114,10 @@ export function Layout() {
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:block">
         <div className="flex flex-col h-full bg-white border-r border-neutral-200">
-          <div className="flex items-center px-6 h-16 border-b">
+          <div className="flex items-center gap-2 px-6 h-16 border-b">
+            <TenantLogo className="w-8 h-8" />
             <span className="text-lg font-semibold text-primary-600">
-              BVI FOP System
+              {displayName}
             </span>
           </div>
           <nav className="flex-1 p-4 space-y-1">
@@ -105,7 +140,7 @@ export function Layout() {
           </nav>
           <div className="p-4 border-t">
             <p className="text-xs text-neutral-500">
-              BVI Civil Aviation Department
+              {fullName}
             </p>
           </div>
         </div>
@@ -121,9 +156,12 @@ export function Layout() {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <span className="text-lg font-semibold text-primary-600">
-            BVI FOP System
-          </span>
+          <div className="flex items-center gap-2">
+            <TenantLogo className="w-7 h-7" />
+            <span className="text-lg font-semibold text-primary-600">
+              {displayName}
+            </span>
+          </div>
         </header>
 
         <main className="p-6">

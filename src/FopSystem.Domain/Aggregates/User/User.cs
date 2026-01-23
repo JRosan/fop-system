@@ -3,8 +3,9 @@ using FopSystem.Domain.Enums;
 
 namespace FopSystem.Domain.Aggregates.User;
 
-public class User : AggregateRoot<Guid>
+public class User : AggregateRoot<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public string Email { get; private set; } = default!;
     public string FirstName { get; private set; } = default!;
     public string LastName { get; private set; } = default!;
@@ -92,6 +93,13 @@ public class User : AggregateRoot<Guid>
 
         AzureAdObjectId = objectId;
         SetUpdatedAt();
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }
 

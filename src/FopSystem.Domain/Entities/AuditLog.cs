@@ -1,7 +1,8 @@
 namespace FopSystem.Domain.Entities;
 
-public class AuditLog : Entity<Guid>
+public class AuditLog : Entity<Guid>, ITenantEntity
 {
+    public Guid TenantId { get; private set; }
     public string EntityType { get; private set; } = default!;
     public Guid EntityId { get; private set; }
     public string Action { get; private set; } = default!;
@@ -45,6 +46,13 @@ public class AuditLog : Entity<Guid>
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
+    }
+
+    public void SetTenantId(Guid tenantId)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant ID cannot be empty", nameof(tenantId));
+        TenantId = tenantId;
     }
 }
 

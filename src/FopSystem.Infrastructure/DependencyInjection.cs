@@ -2,6 +2,8 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using FopSystem.Application.Interfaces;
 using FopSystem.Domain.Repositories;
+using FopSystem.Domain.Services;
+using FopSystem.Domain.Services.Fees;
 using FopSystem.Infrastructure.BackgroundJobs;
 using FopSystem.Infrastructure.Persistence;
 using FopSystem.Infrastructure.Persistence.Repositories;
@@ -34,6 +36,13 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<FopDbContext>());
+
+        // Tenant Services
+        services.AddScoped<ITenantContext, TenantContext>();
+        services.AddScoped<ITenantRepository, TenantRepository>();
+
+        // Fee Policy Provider
+        services.AddScoped<IFeePolicyProvider, FeePolicyProvider>();
 
         // Repositories
         services.AddScoped<IApplicationRepository, ApplicationRepository>();
@@ -81,6 +90,7 @@ public static class DependencyInjection
         services.AddHostedService<InvoiceOverdueProcessingJob>();
 
         // Data Seeders
+        services.AddScoped<TenantSeeder>();
         services.AddScoped<BviaFeeRateSeeder>();
         services.AddScoped<SampleDataSeeder>();
 

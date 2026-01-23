@@ -14,6 +14,9 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<FopApplication>
 
         builder.HasKey(a => a.Id);
 
+        builder.Property(a => a.TenantId)
+            .IsRequired();
+
         builder.Property(a => a.ApplicationNumber)
             .IsRequired()
             .HasMaxLength(50);
@@ -133,9 +136,14 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<FopApplication>
             .HasForeignKey(w => w.ApplicationId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasIndex(a => a.TenantId);
         builder.HasIndex(a => a.Status);
         builder.HasIndex(a => a.OperatorId);
         builder.HasIndex(a => a.SubmittedAt);
         builder.HasIndex(a => a.IsFlagged);
+
+        // Composite index for tenant-scoped queries
+        builder.HasIndex(a => new { a.TenantId, a.Status });
+        builder.HasIndex(a => new { a.TenantId, a.OperatorId });
     }
 }

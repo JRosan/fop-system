@@ -1,4 +1,5 @@
 using FopSystem.Domain.Enums;
+using FopSystem.Domain.Services.Fees;
 using FopSystem.Domain.ValueObjects;
 
 namespace FopSystem.Domain.Services;
@@ -6,98 +7,55 @@ namespace FopSystem.Domain.Services;
 public interface IBviaFeeCalculationService
 {
     BviaFeeCalculationResult Calculate(BviaFeeCalculationRequest request);
+    BviaFeeCalculationResult Calculate(BviaFeeCalculationRequest request, IBviaFeePolicy policy);
     Money CalculateLandingFee(decimal mtowLbs, FlightOperationType operationType);
+    Money CalculateLandingFee(decimal mtowLbs, FlightOperationType operationType, IBviaFeePolicy policy);
     Money CalculateNavigationFee(decimal mtowLbs);
+    Money CalculateNavigationFee(decimal mtowLbs, IBviaFeePolicy policy);
     Money CalculateParkingFee(Money landingFee, int eightHourBlocks);
+    Money CalculateParkingFee(Money landingFee, int eightHourBlocks, IBviaFeePolicy policy);
     Money CalculatePassengerFees(int passengerCount, BviAirport airport, bool isDeparting);
+    Money CalculatePassengerFees(int passengerCount, BviAirport airport, bool isDeparting, bool isInterisland, IBviaFeePolicy policy);
     Money CalculateExtendedOperationsFee(TimeOnly scheduledTime, bool isArrival);
+    Money CalculateExtendedOperationsFee(TimeOnly scheduledTime, bool isArrival, IBviaFeePolicy policy);
     Money CalculateLightingFee(int hours);
+    Money CalculateLightingFee(int hours, IBviaFeePolicy policy);
     Money CalculateInterest(Money principalAmount, int daysOverdue);
+    Money CalculateInterest(Money principalAmount, int daysOverdue, IBviaFeePolicy policy);
 }
 
 public class BviaFeeCalculationService : IBviaFeeCalculationService
 {
-    // Landing Fee Rates per 1000 lbs (or fraction thereof)
-    private static readonly Dictionary<(FlightOperationType, MtowTierLevel), decimal> LandingRates = new()
-    {
-        // Local/Scheduled operations
-        { (FlightOperationType.LocalScheduled, MtowTierLevel.Tier1), 2.50m },
-        { (FlightOperationType.LocalScheduled, MtowTierLevel.Tier2), 3.00m },
-        { (FlightOperationType.LocalScheduled, MtowTierLevel.Tier3), 3.50m },
-        { (FlightOperationType.LocalScheduled, MtowTierLevel.Tier4), 5.00m },
-        // General Aviation / Charter operations
-        { (FlightOperationType.GeneralAviation, MtowTierLevel.Tier1), 5.00m },
-        { (FlightOperationType.GeneralAviation, MtowTierLevel.Tier2), 10.00m },
-        { (FlightOperationType.GeneralAviation, MtowTierLevel.Tier3), 12.00m },
-        { (FlightOperationType.GeneralAviation, MtowTierLevel.Tier4), 15.00m },
-        { (FlightOperationType.Charter, MtowTierLevel.Tier1), 5.00m },
-        { (FlightOperationType.Charter, MtowTierLevel.Tier2), 10.00m },
-        { (FlightOperationType.Charter, MtowTierLevel.Tier3), 12.00m },
-        { (FlightOperationType.Charter, MtowTierLevel.Tier4), 15.00m },
-    };
+    private readonly IBviaFeePolicy _defaultPolicy;
 
-    // Minimum landing fees
-    private static readonly Dictionary<FlightOperationType, decimal> MinimumLandingFees = new()
+    public BviaFeeCalculationService() : this(new DefaultBviaFeePolicy())
     {
-        { FlightOperationType.LocalScheduled, 15.00m },
-        { FlightOperationType.GeneralAviation, 20.00m },
-        { FlightOperationType.Charter, 20.00m },
-        { FlightOperationType.Interisland, 10.00m },
-        { FlightOperationType.Emergency, 0.00m },
-        { FlightOperationType.Military, 0.00m },
-        { FlightOperationType.Government, 0.00m },
-    };
+    }
 
-    // Navigation/Communication Fee Rates by MTOW Tier
-    private static readonly Dictionary<MtowTierLevel, decimal> NavigationRates = new()
+    public BviaFeeCalculationService(IBviaFeePolicy defaultPolicy)
     {
-        { MtowTierLevel.Tier1, 5.00m },   // 0-12,500 lbs
-        { MtowTierLevel.Tier2, 10.00m },  // 12,501-75,000 lbs
-        { MtowTierLevel.Tier3, 15.00m },  // 75,001-100,000 lbs
-        { MtowTierLevel.Tier4, 20.00m },  // Over 100,000 lbs
-    };
-
-    // Airport Development Fee by Airport (per passenger, in/out)
-    private static readonly Dictionary<BviAirport, decimal> AirportDevelopmentFees = new()
-    {
-        { BviAirport.TUPJ, 15.00m },  // TB Lettsome
-        { BviAirport.TUPW, 10.00m },  // Virgin Gorda
-        { BviAirport.TUPY, 10.00m },  // Anegada
-    };
-
-    // Constants
-    private const decimal InterislandAirportDevelopmentFee = 5.00m;
-    private const decimal SecurityCharge = 5.00m;
-    private const decimal HoldBaggageScreeningFee = 7.00m;
-    private const decimal ParkingFeePercentage = 0.20m;
-    private const decimal CatViFireUpgradeFee = 100.00m;
-    private const decimal FlightPlanFilingFee = 20.00m;
-    private const decimal FuelFlowFeePerGallon = 0.20m;
-    private const decimal LightingFeePerHour = 35.00m;
-    private const decimal LatePaymentInterestRate = 0.015m; // 1.5% per month
-
-    // Extended Operations Fees
-    private static readonly Dictionary<string, decimal> ExtendedOperationsFees = new()
-    {
-        { "Early_0400_0600", 975.00m },
-        { "Late_2200_0000", 1650.00m },
-        { "Late_0000_0200", 3225.00m },
-    };
+        _defaultPolicy = defaultPolicy ?? throw new ArgumentNullException(nameof(defaultPolicy));
+    }
 
     public BviaFeeCalculationResult Calculate(BviaFeeCalculationRequest request)
+    {
+        return Calculate(request, _defaultPolicy);
+    }
+
+    public BviaFeeCalculationResult Calculate(BviaFeeCalculationRequest request, IBviaFeePolicy policy)
     {
         var breakdown = new List<BviaFeeBreakdownItem>();
         var mtowTier = MtowTier.FromPounds(request.MtowLbs);
 
         // 1. Landing Fee
-        var landingFee = CalculateLandingFee(request.MtowLbs, request.OperationType);
+        var landingFee = CalculateLandingFee(request.MtowLbs, request.OperationType, policy);
         breakdown.Add(new BviaFeeBreakdownItem(
             BviaFeeCategory.Landing,
             $"Landing Fee ({mtowTier.Level}, {request.OperationType})",
             landingFee));
 
         // 2. Navigation/Communication Fee
-        var navigationFee = CalculateNavigationFee(request.MtowLbs);
+        var navigationFee = CalculateNavigationFee(request.MtowLbs, policy);
         breakdown.Add(new BviaFeeBreakdownItem(
             BviaFeeCategory.Navigation,
             $"Navigation/Communication Fee ({mtowTier.Level})",
@@ -106,17 +64,18 @@ public class BviaFeeCalculationService : IBviaFeeCalculationService
         // 3. CAT-VI Fire Upgrade (if applicable - typically for large jets)
         if (request.RequiresCatViFire)
         {
+            var catViFee = policy.GetCatViFireUpgradeFee();
             breakdown.Add(new BviaFeeBreakdownItem(
                 BviaFeeCategory.CatViFireUpgrade,
                 "CAT-VI Fire Upgrade",
-                Money.Usd(CatViFireUpgradeFee)));
+                catViFee));
         }
 
         // 4. Parking Fee (if hours specified)
         if (request.ParkingHours > 0)
         {
             var eightHourBlocks = (int)Math.Ceiling(request.ParkingHours / 8.0);
-            var parkingFee = CalculateParkingFee(landingFee, eightHourBlocks);
+            var parkingFee = CalculateParkingFee(landingFee, eightHourBlocks, policy);
             breakdown.Add(new BviaFeeBreakdownItem(
                 BviaFeeCategory.Parking,
                 $"Parking/Ramp Fee ({eightHourBlocks} × 8-hour blocks)",
@@ -126,26 +85,24 @@ public class BviaFeeCalculationService : IBviaFeeCalculationService
         // 5. Passenger-based fees (if passengers specified)
         if (request.PassengerCount > 0)
         {
-            var passengerFees = CalculatePassengerFees(
-                request.PassengerCount,
-                request.Airport,
-                isDeparting: true);
+            var airportDevFee = policy.GetAirportDevelopmentFee(request.Airport, request.IsInterisland);
+            var securityCharge = policy.GetSecurityCharge();
+            var baggageFee = policy.GetHoldBaggageScreeningFee();
 
-            var airportDevFee = GetAirportDevelopmentRate(request.Airport, request.IsInterisland);
             breakdown.Add(new BviaFeeBreakdownItem(
                 BviaFeeCategory.AirportDevelopment,
-                $"Airport Development Fee ({request.PassengerCount} pax × ${airportDevFee:F2})",
-                Money.Usd(request.PassengerCount * airportDevFee)));
+                $"Airport Development Fee ({request.PassengerCount} pax × ${airportDevFee.Amount:F2})",
+                Money.Usd(request.PassengerCount * airportDevFee.Amount)));
 
             breakdown.Add(new BviaFeeBreakdownItem(
                 BviaFeeCategory.Security,
-                $"Security Charge ({request.PassengerCount} pax × ${SecurityCharge:F2})",
-                Money.Usd(request.PassengerCount * SecurityCharge)));
+                $"Security Charge ({request.PassengerCount} pax × ${securityCharge.Amount:F2})",
+                Money.Usd(request.PassengerCount * securityCharge.Amount)));
 
             breakdown.Add(new BviaFeeBreakdownItem(
                 BviaFeeCategory.HoldBaggageScreening,
-                $"Hold Baggage Screening ({request.PassengerCount} pax × ${HoldBaggageScreeningFee:F2})",
-                Money.Usd(request.PassengerCount * HoldBaggageScreeningFee)));
+                $"Hold Baggage Screening ({request.PassengerCount} pax × ${baggageFee.Amount:F2})",
+                Money.Usd(request.PassengerCount * baggageFee.Amount)));
         }
 
         // 6. Extended Operations Fee (if outside standard hours)
@@ -153,7 +110,8 @@ public class BviaFeeCalculationService : IBviaFeeCalculationService
         {
             var extendedFee = CalculateExtendedOperationsFee(
                 request.OperatingWindow.ScheduledArrivalTime,
-                isArrival: true);
+                isArrival: true,
+                policy);
             if (extendedFee.Amount > 0)
             {
                 breakdown.Add(new BviaFeeBreakdownItem(
@@ -166,7 +124,7 @@ public class BviaFeeCalculationService : IBviaFeeCalculationService
         // 7. Lighting Fee
         if (request.OperatingWindow is not null && request.OperatingWindow.RequiresLighting)
         {
-            var lightingFee = CalculateLightingFee(request.OperatingWindow.LightingHours);
+            var lightingFee = CalculateLightingFee(request.OperatingWindow.LightingHours, policy);
             breakdown.Add(new BviaFeeBreakdownItem(
                 BviaFeeCategory.Lighting,
                 $"Lighting Fee ({request.OperatingWindow.LightingHours} hours)",
@@ -176,19 +134,21 @@ public class BviaFeeCalculationService : IBviaFeeCalculationService
         // 8. Flight Plan Filing Fee
         if (request.IncludeFlightPlanFiling)
         {
+            var filingFee = policy.GetFlightPlanFilingFee();
             breakdown.Add(new BviaFeeBreakdownItem(
                 BviaFeeCategory.FlightPlanFiling,
                 "Flight Plan Filing Fee",
-                Money.Usd(FlightPlanFilingFee)));
+                filingFee));
         }
 
         // 9. Fuel Flow Fee
         if (request.FuelGallons > 0)
         {
-            var fuelFee = Money.Usd(request.FuelGallons * FuelFlowFeePerGallon);
+            var fuelFlowRate = policy.GetFuelFlowFeePerGallon();
+            var fuelFee = Money.Usd(request.FuelGallons * fuelFlowRate.Amount);
             breakdown.Add(new BviaFeeBreakdownItem(
                 BviaFeeCategory.FuelFlow,
-                $"Fuel Flow Fee ({request.FuelGallons:N0} gallons × ${FuelFlowFeePerGallon:F2})",
+                $"Fuel Flow Fee ({request.FuelGallons:N0} gallons × ${fuelFlowRate.Amount:F2})",
                 fuelFee));
         }
 
@@ -200,10 +160,16 @@ public class BviaFeeCalculationService : IBviaFeeCalculationService
             LandingFee: landingFee,
             NavigationFee: navigationFee,
             MtowTier: mtowTier.Level,
-            Breakdown: breakdown);
+            Breakdown: breakdown,
+            PolicySource: policy.GetPolicySource());
     }
 
     public Money CalculateLandingFee(decimal mtowLbs, FlightOperationType operationType)
+    {
+        return CalculateLandingFee(mtowLbs, operationType, _defaultPolicy);
+    }
+
+    public Money CalculateLandingFee(decimal mtowLbs, FlightOperationType operationType, IBviaFeePolicy policy)
     {
         if (mtowLbs < 0)
             throw new ArgumentException("MTOW cannot be negative", nameof(mtowLbs));
@@ -215,116 +181,111 @@ public class BviaFeeCalculationService : IBviaFeeCalculationService
         }
 
         var mtowTier = MtowTier.FromPounds(mtowLbs);
-        var effectiveOperationType = operationType switch
-        {
-            FlightOperationType.Interisland => FlightOperationType.LocalScheduled,
-            _ => operationType
-        };
 
-        // Get rate, defaulting to General Aviation if not found
-        var key = (effectiveOperationType, mtowTier.Level);
-        if (!LandingRates.TryGetValue(key, out var ratePerThousandLbs))
-        {
-            key = (FlightOperationType.GeneralAviation, mtowTier.Level);
-            ratePerThousandLbs = LandingRates.GetValueOrDefault(key, 5.00m);
-        }
+        // Get rate from policy
+        var ratePerThousandLbs = policy.GetLandingRate(operationType, mtowTier.Level);
 
         // Calculate fee: rate per 1000 lbs (or fraction thereof)
         var thousandLbsUnits = Math.Ceiling(mtowLbs / 1000m);
-        var calculatedFee = thousandLbsUnits * ratePerThousandLbs;
+        var calculatedFee = thousandLbsUnits * ratePerThousandLbs.Amount;
 
         // Apply minimum
-        var minimumFee = MinimumLandingFees.GetValueOrDefault(operationType, 15.00m);
-        var finalFee = Math.Max(calculatedFee, minimumFee);
+        var minimumFee = policy.GetMinimumLandingFee(operationType);
+        var finalFee = Math.Max(calculatedFee, minimumFee.Amount);
 
         return Money.Usd(finalFee);
     }
 
     public Money CalculateNavigationFee(decimal mtowLbs)
     {
+        return CalculateNavigationFee(mtowLbs, _defaultPolicy);
+    }
+
+    public Money CalculateNavigationFee(decimal mtowLbs, IBviaFeePolicy policy)
+    {
         if (mtowLbs < 0)
             throw new ArgumentException("MTOW cannot be negative", nameof(mtowLbs));
 
         var mtowTier = MtowTier.FromPounds(mtowLbs);
-        var rate = NavigationRates.GetValueOrDefault(mtowTier.Level, 5.00m);
-        return Money.Usd(rate);
+        return policy.GetNavigationFee(mtowTier.Level);
     }
 
     public Money CalculateParkingFee(Money landingFee, int eightHourBlocks)
     {
+        return CalculateParkingFee(landingFee, eightHourBlocks, _defaultPolicy);
+    }
+
+    public Money CalculateParkingFee(Money landingFee, int eightHourBlocks, IBviaFeePolicy policy)
+    {
         if (eightHourBlocks <= 0)
             return Money.Zero();
 
-        // 20% of landing fee per 8-hour block
-        var parkingPerBlock = landingFee.Multiply(ParkingFeePercentage);
+        // Get parking fee percentage from policy
+        var parkingPercentage = policy.GetParkingFeePercentage();
+        var parkingPerBlock = landingFee.Multiply(parkingPercentage);
         return parkingPerBlock.Multiply(eightHourBlocks);
     }
 
     public Money CalculatePassengerFees(int passengerCount, BviAirport airport, bool isDeparting)
     {
+        return CalculatePassengerFees(passengerCount, airport, isDeparting, isInterisland: false, _defaultPolicy);
+    }
+
+    public Money CalculatePassengerFees(int passengerCount, BviAirport airport, bool isDeparting, bool isInterisland, IBviaFeePolicy policy)
+    {
         if (passengerCount <= 0)
             return Money.Zero();
 
-        var airportDevFee = AirportDevelopmentFees.GetValueOrDefault(airport, 10.00m);
-        var securityFee = SecurityCharge;
-        var baggageFee = isDeparting ? HoldBaggageScreeningFee : 0;
+        var airportDevFee = policy.GetAirportDevelopmentFee(airport, isInterisland);
+        var securityFee = policy.GetSecurityCharge();
+        var baggageFee = isDeparting ? policy.GetHoldBaggageScreeningFee() : Money.Zero();
 
-        var perPassengerFee = airportDevFee + securityFee + baggageFee;
+        var perPassengerFee = airportDevFee.Amount + securityFee.Amount + baggageFee.Amount;
         return Money.Usd(passengerCount * perPassengerFee);
     }
 
     public Money CalculateExtendedOperationsFee(TimeOnly scheduledTime, bool isArrival)
     {
-        // Standard operating hours: 06:00 - 22:00
-        var hour = scheduledTime.Hour;
+        return CalculateExtendedOperationsFee(scheduledTime, isArrival, _defaultPolicy);
+    }
 
-        // Early operations (04:00 - 06:00)
-        if (hour >= 4 && hour < 6)
-        {
-            return Money.Usd(ExtendedOperationsFees["Early_0400_0600"]);
-        }
-
-        // Late operations (22:00 - 00:00)
-        if (hour >= 22 && hour < 24)
-        {
-            return Money.Usd(ExtendedOperationsFees["Late_2200_0000"]);
-        }
-
-        // Very late operations (00:00 - 02:00)
-        if (hour >= 0 && hour < 2)
-        {
-            return Money.Usd(ExtendedOperationsFees["Late_0000_0200"]);
-        }
-
-        return Money.Zero();
+    public Money CalculateExtendedOperationsFee(TimeOnly scheduledTime, bool isArrival, IBviaFeePolicy policy)
+    {
+        return policy.GetExtendedOperationsFee(scheduledTime.Hour);
     }
 
     public Money CalculateLightingFee(int hours)
     {
+        return CalculateLightingFee(hours, _defaultPolicy);
+    }
+
+    public Money CalculateLightingFee(int hours, IBviaFeePolicy policy)
+    {
         if (hours <= 0)
             return Money.Zero();
 
-        return Money.Usd(hours * LightingFeePerHour);
+        var ratePerHour = policy.GetLightingFeePerHour();
+        return Money.Usd(hours * ratePerHour.Amount);
     }
 
     public Money CalculateInterest(Money principalAmount, int daysOverdue)
     {
+        return CalculateInterest(principalAmount, daysOverdue, _defaultPolicy);
+    }
+
+    public Money CalculateInterest(Money principalAmount, int daysOverdue, IBviaFeePolicy policy)
+    {
         if (daysOverdue <= 30)
             return Money.Zero();
 
-        // 1.5% per month (pro-rated by days over 30)
+        // Get interest rate from policy (e.g., 0.015 for 1.5% per month)
+        var interestRate = policy.GetLatePaymentInterestRate();
+
+        // Pro-rate by days over 30
         var monthsOverdue = (daysOverdue - 30) / 30.0m;
-        var interestAmount = principalAmount.Amount * LatePaymentInterestRate * monthsOverdue;
+        var interestAmount = principalAmount.Amount * interestRate * monthsOverdue;
 
         return Money.Create(Math.Round(interestAmount, 2), principalAmount.Currency);
-    }
-
-    private static decimal GetAirportDevelopmentRate(BviAirport airport, bool isInterisland)
-    {
-        if (isInterisland)
-            return InterislandAirportDevelopmentFee;
-
-        return AirportDevelopmentFees.GetValueOrDefault(airport, 10.00m);
     }
 }
 
@@ -345,7 +306,8 @@ public sealed record BviaFeeCalculationResult(
     Money LandingFee,
     Money NavigationFee,
     MtowTierLevel MtowTier,
-    IReadOnlyList<BviaFeeBreakdownItem> Breakdown);
+    IReadOnlyList<BviaFeeBreakdownItem> Breakdown,
+    string? PolicySource = null);
 
 public sealed record BviaFeeBreakdownItem(
     BviaFeeCategory Category,
