@@ -166,11 +166,28 @@ export default function ApplicationDetailsScreen() {
   const status = statusConfig[app.status] || { color: '#64748b', bgColor: '#f1f5f9', icon: FileText };
   const StatusIcon = status.icon;
 
+  // Helper functions to extract data with fallbacks for different API response formats
+  const getRefNumber = () => app.applicationNumber || app.referenceNumber || 'N/A';
+  const getPermitType = () => app.type || app.permitType || 'Unknown';
+  const getFee = () => {
+    if (app.calculatedFee) {
+      return { amount: app.calculatedFee.amount, currency: app.calculatedFee.currency };
+    }
+    return { amount: app.totalFee ?? 0, currency: app.currency || 'USD' };
+  };
+  const getStartDate = () => app.requestedStartDate ? new Date(app.requestedStartDate) : null;
+  const getEndDate = () => app.requestedEndDate ? new Date(app.requestedEndDate) : null;
+  const getFlightPurpose = () => app.flightPurpose || app.flightDetails?.purposeDescription || app.flightDetails?.purpose || '';
+
+  const fee = getFee();
+  const startDate = getStartDate();
+  const endDate = getEndDate();
+
   return (
     <>
       <Stack.Screen
         options={{
-          title: app.referenceNumber,
+          title: getRefNumber(),
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
               <ArrowLeft size={24} color="#002D56" />
@@ -189,8 +206,8 @@ export default function ApplicationDetailsScreen() {
             <StatusIcon size={20} color={status.color} />
             <Text style={[styles.statusText, { color: status.color }]}>{app.status}</Text>
           </View>
-          <Text style={styles.referenceNumber}>{app.referenceNumber}</Text>
-          <Text style={styles.permitType}>{app.permitType} Permit</Text>
+          <Text style={styles.referenceNumber}>{getRefNumber()}</Text>
+          <Text style={styles.permitType}>{getPermitType()} Permit</Text>
         </View>
 
         {/* Fee Card */}
@@ -202,7 +219,7 @@ export default function ApplicationDetailsScreen() {
           <View style={styles.feeRow}>
             <Text style={styles.feeLabel}>Total Fee</Text>
             <Text style={styles.feeAmount}>
-              {app.currency || 'USD'} {(app.totalFee ?? 0).toLocaleString()}
+              {fee.currency} {fee.amount.toLocaleString()}
             </Text>
           </View>
           <View style={styles.paymentStatus}>
@@ -269,18 +286,18 @@ export default function ApplicationDetailsScreen() {
             <Calendar size={20} color="#002D56" />
             <Text style={styles.cardTitle}>Flight Details</Text>
           </View>
-          {app.flightPurpose && <Text style={styles.purposeText}>{app.flightPurpose}</Text>}
+          {getFlightPurpose() ? <Text style={styles.purposeText}>{getFlightPurpose()}</Text> : null}
           <View style={styles.dateRow}>
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>Start Date</Text>
               <Text style={styles.dateValue}>
-                {new Date(app.requestedStartDate).toLocaleDateString()}
+                {startDate ? startDate.toLocaleDateString() : 'Not specified'}
               </Text>
             </View>
             <View style={styles.dateItem}>
               <Text style={styles.dateLabel}>End Date</Text>
               <Text style={styles.dateValue}>
-                {new Date(app.requestedEndDate).toLocaleDateString()}
+                {endDate ? endDate.toLocaleDateString() : 'Not specified'}
               </Text>
             </View>
           </View>

@@ -14,20 +14,32 @@ export type PermitType = 'OneTime' | 'Blanket' | 'Emergency';
 
 export interface Application {
   id: string;
-  referenceNumber: string;
-  permitType: PermitType;
+  // API returns applicationNumber, but we also support referenceNumber for compatibility
+  applicationNumber?: string;
+  referenceNumber?: string;
+  // API returns 'type', but we also support permitType
+  type?: PermitType;
+  permitType?: PermitType;
   status: ApplicationStatus;
-  operatorName: string;
-  operatorCountry: string;
-  aircraftRegistration: string;
-  aircraftType: string;
-  flightPurpose: string;
-  requestedStartDate: string;
-  requestedEndDate: string;
+  // API returns nested operator object with 'name', or flat operatorName
+  operatorName?: string;
+  operator?: { name: string; country?: string };
+  operatorCountry?: string;
+  // API returns nested aircraft object or flat fields
+  aircraftRegistration?: string;
+  aircraft?: { registration: string; type?: string };
+  aircraftType?: string;
+  // API returns nested flightDetails or flat fields
+  flightPurpose?: string;
+  flightDetails?: { purpose?: string; purposeDescription?: string };
+  requestedStartDate?: string;
+  requestedEndDate?: string;
   createdAt: string;
   submittedAt?: string;
-  totalFee: number;
-  currency: string;
+  // API returns calculatedFee as MoneyDto { amount, currency }
+  calculatedFee?: { amount: number; currency: string };
+  totalFee?: number;
+  currency?: string;
 }
 
 export interface ApplicationDetails extends Application {

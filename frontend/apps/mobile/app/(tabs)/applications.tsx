@@ -51,6 +51,21 @@ export default function ApplicationsScreen() {
     const status = statusConfig[item.status] || { color: '#64748b', bgColor: '#f1f5f9', icon: FileText, label: item.status || 'Unknown' };
     const StatusIcon = status.icon;
 
+    // Handle different API response formats
+    const refNumber = item.applicationNumber || item.referenceNumber || 'N/A';
+    const operatorName = item.operatorName || item.operator?.name || 'Unknown Operator';
+    const aircraftReg = item.aircraftRegistration || item.aircraft?.registration || 'N/A';
+    const aircraftType = item.aircraftType || item.aircraft?.type || '';
+    const permitType = item.type || item.permitType || 'Unknown';
+    const fee = item.calculatedFee
+      ? { amount: item.calculatedFee.amount, currency: item.calculatedFee.currency }
+      : { amount: item.totalFee ?? 0, currency: item.currency || 'USD' };
+    const startDate = item.requestedStartDate ? new Date(item.requestedStartDate) : null;
+    const endDate = item.requestedEndDate ? new Date(item.requestedEndDate) : null;
+    const dateRange = startDate && endDate
+      ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
+      : 'Dates not specified';
+
     return (
       <TouchableOpacity
         style={styles.applicationCard}
@@ -59,7 +74,7 @@ export default function ApplicationsScreen() {
       >
         <View style={styles.cardHeader}>
           <View style={styles.referenceContainer}>
-            <Text style={styles.referenceNumber}>{item.referenceNumber}</Text>
+            <Text style={styles.referenceNumber}>{refNumber}</Text>
             <View style={[styles.statusBadge, { backgroundColor: status.bgColor }]}>
               <StatusIcon size={12} color={status.color} />
               <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
@@ -71,29 +86,27 @@ export default function ApplicationsScreen() {
         <View style={styles.cardBody}>
           <View style={styles.infoRow}>
             <Plane size={16} color="#00A3B1" />
-            <Text style={styles.operatorText}>{item.operatorName}</Text>
+            <Text style={styles.operatorText}>{operatorName}</Text>
           </View>
           <View style={styles.infoRow}>
-            <Text style={styles.aircraftReg}>{item.aircraftRegistration}</Text>
-            <Text style={styles.aircraftType}>{item.aircraftType}</Text>
+            <Text style={styles.aircraftReg}>{aircraftReg}</Text>
+            {aircraftType ? <Text style={styles.aircraftType}>{aircraftType}</Text> : null}
           </View>
         </View>
 
         <View style={styles.cardFooter}>
           <View style={styles.permitTypeBadge}>
-            <Text style={styles.permitTypeText}>{item.permitType}</Text>
+            <Text style={styles.permitTypeText}>{permitType}</Text>
           </View>
           <View style={styles.dateContainer}>
-            <Text style={styles.dateLabel}>
-              {new Date(item.requestedStartDate).toLocaleDateString()} - {new Date(item.requestedEndDate).toLocaleDateString()}
-            </Text>
+            <Text style={styles.dateLabel}>{dateRange}</Text>
           </View>
         </View>
 
         <View style={styles.feeRow}>
           <Text style={styles.feeLabel}>Total Fee</Text>
           <Text style={styles.feeAmount}>
-            {item.currency || 'USD'} {(item.totalFee ?? 0).toLocaleString()}
+            {fee.currency} {fee.amount.toLocaleString()}
           </Text>
         </View>
       </TouchableOpacity>
