@@ -82,6 +82,7 @@ public static class DependencyInjection
 
         // Data Seeders
         services.AddScoped<BviaFeeRateSeeder>();
+        services.AddScoped<SampleDataSeeder>();
 
         return services;
     }

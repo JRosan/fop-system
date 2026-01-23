@@ -2,15 +2,24 @@ import { apiClient } from '../client';
 
 export interface DashboardStats {
   totalApplications: number;
-  pendingReview: number;
-  approvedThisMonth: number;
-  expiringSoon: number;
+  pendingApplications: number;
+  approvedApplications: number;
+  rejectedApplications: number;
+  activePermits: number;
+  expiringPermits: number;
   recentApplications: {
     id: string;
     applicationNumber: string;
+    type: string;
     status: string;
-    operatorName: string;
-    createdAt: string;
+    submittedAt: string;
+  }[];
+  upcomingExpiries: {
+    id: string;
+    type: string;
+    description: string;
+    expiryDate: string;
+    daysUntilExpiry: number;
   }[];
 }
 

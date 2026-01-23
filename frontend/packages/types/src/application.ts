@@ -4,26 +4,26 @@ import type { Aircraft } from './aircraft';
 import type { Document } from './document';
 import type { Payment } from './payment';
 
-export type ApplicationType = 'ONE_TIME' | 'BLANKET' | 'EMERGENCY';
+export type ApplicationType = 'OneTime' | 'Blanket' | 'Emergency';
 
 export type ApplicationStatus =
-  | 'DRAFT'
-  | 'SUBMITTED'
-  | 'UNDER_REVIEW'
-  | 'PENDING_DOCUMENTS'
-  | 'PENDING_PAYMENT'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'EXPIRED'
-  | 'CANCELLED';
+  | 'draft'
+  | 'submitted'
+  | 'underReview'
+  | 'pendingDocuments'
+  | 'pendingPayment'
+  | 'approved'
+  | 'rejected'
+  | 'expired'
+  | 'cancelled';
 
 export type FlightPurpose =
-  | 'CHARTER'
-  | 'CARGO'
-  | 'TECHNICAL_LANDING'
-  | 'MEDEVAC'
-  | 'PRIVATE'
-  | 'OTHER';
+  | 'charter'
+  | 'cargo'
+  | 'technicalLanding'
+  | 'medevac'
+  | 'private'
+  | 'other';
 
 export interface FlightDetails {
   purpose: FlightPurpose;
@@ -107,14 +107,15 @@ export interface RejectApplicationRequest {
 }
 
 export interface ApplicationFilter {
-  status?: ApplicationStatus[];
-  type?: ApplicationType[];
+  statuses?: (ApplicationStatus | string)[];
+  types?: (ApplicationType | string)[];
   operatorId?: string;
-  submittedDateFrom?: string;
-  submittedDateTo?: string;
+  submittedFrom?: string;
+  submittedTo?: string;
   search?: string;
   pageNumber?: number;
   pageSize?: number;
+  isFlagged?: boolean;
 }
 
 export interface FeeCalculationRequest {

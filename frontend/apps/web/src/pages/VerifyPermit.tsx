@@ -167,9 +167,9 @@ export function VerifyPermit() {
                     <div>
                       <dt className="text-xs text-neutral-400">Type</dt>
                       <dd className="text-neutral-900">
-                        {result.permit.type === 'ONE_TIME'
+                        {result.permit.type === 'OneTime'
                           ? 'One-Time Permit'
-                          : result.permit.type === 'BLANKET'
+                          : result.permit.type === 'Blanket'
                           ? 'Blanket Permit'
                           : 'Emergency Permit'}
                       </dd>

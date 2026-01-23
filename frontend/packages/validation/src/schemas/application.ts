@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const applicationTypeSchema = z.enum(['ONE_TIME', 'BLANKET', 'EMERGENCY']);
+export const applicationTypeSchema = z.enum(['OneTime', 'Blanket', 'Emergency']);
 
 export const flightPurposeSchema = z.enum([
   'CHARTER',

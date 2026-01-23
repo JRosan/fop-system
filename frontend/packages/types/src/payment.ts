@@ -1,14 +1,14 @@
 import type { Money } from './common';
 
-export type PaymentMethod = 'CREDIT_CARD' | 'BANK_TRANSFER' | 'WIRE_TRANSFER';
+export type PaymentMethod = 'creditCard' | 'bankTransfer' | 'wireTransfer';
 
 export type PaymentStatus =
-  | 'PENDING'
-  | 'PROCESSING'
-  | 'COMPLETED'
-  | 'FAILED'
-  | 'REFUNDED'
-  | 'CANCELLED';
+  | 'pending'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'refunded'
+  | 'cancelled';
 
 export interface Payment {
   id: string;

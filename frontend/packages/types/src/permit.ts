@@ -1,7 +1,7 @@
-import type { DateRange, Money } from './common';
+import type { Money } from './common';
 import type { ApplicationType } from './application';
 
-export type PermitStatus = 'ACTIVE' | 'EXPIRED' | 'REVOKED' | 'SUSPENDED';
+export type PermitStatus = 'active' | 'expired' | 'revoked' | 'suspended';
 
 export interface Permit {
   id: string;
@@ -14,12 +14,13 @@ export interface Permit {
   operatorName: string;
   aircraftId: string;
   aircraftRegistration: string;
-  validityPeriod: DateRange;
+  validFrom: string;
+  validUntil: string;
   issuedAt: string;
   issuedBy: string;
   conditions?: string[];
   feesPaid: Money;
-  documentUrl: string;
+  documentUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -31,7 +32,8 @@ export interface PermitSummary {
   status: PermitStatus;
   operatorName: string;
   aircraftRegistration: string;
-  validityPeriod: DateRange;
+  validFrom: string;
+  validUntil: string;
   issuedAt: string;
 }
 

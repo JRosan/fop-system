@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FopSystem.Api.Endpoints;
 using FopSystem.Application;
@@ -11,6 +13,14 @@ using Microsoft.Identity.Web;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure JSON serialization to use string enums
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
 
 // Add services to the container
 builder.Services.AddApplication();
@@ -122,12 +132,18 @@ if (app.Environment.IsDevelopment())
         await db.Database.MigrateAsync();
 
         // Seed BVIAA fee rates
-        var seeder = scope.ServiceProvider.GetRequiredService<BviaFeeRateSeeder>();
-        await seeder.SeedAsync();
+        var feeSeeder = scope.ServiceProvider.GetRequiredService<BviaFeeRateSeeder>();
+        await feeSeeder.SeedAsync();
+
+        // Seed sample data (operators, applications, permits)
+        var sampleSeeder = scope.ServiceProvider.GetRequiredService<SampleDataSeeder>();
+        await sampleSeeder.SeedAsync();
     }
-    catch (Exception)
+    catch (Exception ex)
     {
-        // Ignore migration errors (e.g., when using in-memory database for tests)
+        // Log seeding errors in development
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error during database migration/seeding");
     }
 }
 

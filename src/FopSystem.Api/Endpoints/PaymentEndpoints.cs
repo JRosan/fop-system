@@ -16,6 +16,11 @@ public static class PaymentEndpoints
             .WithTags("Payments")
             .WithOpenApi();
 
+        group.MapGet("/", GetAllPayments)
+            .WithName("GetAllPayments")
+            .WithSummary("Get all payments with optional filtering")
+            .AllowAnonymous();
+
         group.MapPost("/process", ProcessPayment)
             .WithName("ProcessPayment")
             .WithSummary("Process a payment for an application")
@@ -152,6 +157,58 @@ public static class PaymentEndpoints
         return result.Error?.Code == "Error.NotFound"
             ? Results.NotFound()
             : Results.Problem(result.Error!.Message, statusCode: 400);
+    }
+
+    private static async Task<IResult> GetAllPayments(
+        [FromServices] IApplicationRepository applicationRepository,
+        [FromQuery] PaymentStatus[]? status = null,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 50,
+        CancellationToken cancellationToken = default)
+    {
+        // Get applications that have payments
+        var (applications, totalCount) = await applicationRepository.GetPagedAsync(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            cancellationToken: cancellationToken);
+
+        var paymentsWithApplications = applications
+            .Where(a => a.Payment != null)
+            .Where(a => status == null || status.Length == 0 || status.Contains(a.Payment!.Status))
+            .Select(a => new
+            {
+                payment = new PaymentDto(
+                    a.Payment!.Id,
+                    a.Payment.ApplicationId,
+                    new MoneyDto(a.Payment.Amount.Amount, a.Payment.Amount.Currency.ToString()),
+                    a.Payment.Method,
+                    a.Payment.Status,
+                    a.Payment.TransactionReference,
+                    a.Payment.PaymentDate,
+                    a.Payment.ReceiptNumber,
+                    a.Payment.ReceiptUrl,
+                    a.Payment.FailureReason,
+                    a.Payment.IsVerified,
+                    a.Payment.VerifiedBy,
+                    a.Payment.VerifiedAt,
+                    a.Payment.VerificationNotes,
+                    a.Payment.CreatedAt,
+                    a.Payment.UpdatedAt),
+                applicationNumber = a.ApplicationNumber,
+                operatorName = a.Operator?.Name ?? "Unknown"
+            })
+            .ToList();
+
+        return Results.Ok(new
+        {
+            items = paymentsWithApplications,
+            totalCount = paymentsWithApplications.Count,
+            pageNumber,
+            pageSize,
+            totalPages = (int)Math.Ceiling(paymentsWithApplications.Count / (double)pageSize),
+            hasPreviousPage = pageNumber > 1,
+            hasNextPage = pageNumber * pageSize < paymentsWithApplications.Count
+        });
     }
 }
 

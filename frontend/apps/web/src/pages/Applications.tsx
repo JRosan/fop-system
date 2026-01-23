@@ -6,22 +6,56 @@ import { applicationsApi } from '@fop/api';
 import type { ApplicationStatus, ApplicationType } from '@fop/types';
 import { formatDate, formatMoney } from '../utils/date';
 
-const statusColors: Record<string, string> = {
-  DRAFT: 'bg-neutral-100 text-neutral-700',
-  SUBMITTED: 'bg-primary-100 text-primary-700',
-  UNDER_REVIEW: 'bg-purple-100 text-purple-700',
-  PENDING_DOCUMENTS: 'bg-warning-100 text-warning-700',
-  PENDING_PAYMENT: 'bg-pink-100 text-pink-700',
-  APPROVED: 'bg-success-100 text-success-700',
-  REJECTED: 'bg-error-100 text-error-700',
-  EXPIRED: 'bg-neutral-100 text-neutral-500',
-  CANCELLED: 'bg-neutral-100 text-neutral-500',
+// Support both numeric and string enum values from backend
+const statusColors: Record<string | number, string> = {
+  1: 'bg-neutral-100 text-neutral-700',
+  2: 'bg-primary-100 text-primary-700',
+  3: 'bg-purple-100 text-purple-700',
+  4: 'bg-warning-100 text-warning-700',
+  5: 'bg-pink-100 text-pink-700',
+  6: 'bg-success-100 text-success-700',
+  7: 'bg-error-100 text-error-700',
+  8: 'bg-neutral-100 text-neutral-500',
+  9: 'bg-neutral-100 text-neutral-500',
+  Draft: 'bg-neutral-100 text-neutral-700',
+  Submitted: 'bg-primary-100 text-primary-700',
+  UnderReview: 'bg-purple-100 text-purple-700',
+  PendingDocuments: 'bg-warning-100 text-warning-700',
+  PendingPayment: 'bg-pink-100 text-pink-700',
+  Approved: 'bg-success-100 text-success-700',
+  Rejected: 'bg-error-100 text-error-700',
+  Expired: 'bg-neutral-100 text-neutral-500',
+  Cancelled: 'bg-neutral-100 text-neutral-500',
 };
 
-const typeLabels: Record<ApplicationType, string> = {
-  ONE_TIME: 'One-Time',
-  BLANKET: 'Blanket',
-  EMERGENCY: 'Emergency',
+const statusLabels: Record<string | number, string> = {
+  1: 'Draft',
+  2: 'Submitted',
+  3: 'Under Review',
+  4: 'Pending Documents',
+  5: 'Pending Payment',
+  6: 'Approved',
+  7: 'Rejected',
+  8: 'Expired',
+  9: 'Cancelled',
+  Draft: 'Draft',
+  Submitted: 'Submitted',
+  UnderReview: 'Under Review',
+  PendingDocuments: 'Pending Documents',
+  PendingPayment: 'Pending Payment',
+  Approved: 'Approved',
+  Rejected: 'Rejected',
+  Expired: 'Expired',
+  Cancelled: 'Cancelled',
+};
+
+const typeLabels: Record<string | number, string> = {
+  1: 'One-Time',
+  2: 'Blanket',
+  3: 'Emergency',
+  OneTime: 'One-Time',
+  Blanket: 'Blanket',
+  Emergency: 'Emergency',
 };
 
 export function Applications() {
@@ -35,12 +69,12 @@ export function Applications() {
   const pageSize = 10;
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['applications', { search: searchTerm, status: statusFilter, type: typeFilter, page, pageSize }],
+    queryKey: ['applications', { search: searchTerm, statuses: statusFilter, types: typeFilter, page, pageSize }],
     queryFn: () =>
       applicationsApi.getAll({
         search: searchTerm || undefined,
-        status: statusFilter.length > 0 ? statusFilter : undefined,
-        type: typeFilter.length > 0 ? typeFilter : undefined,
+        statuses: statusFilter.length > 0 ? statusFilter : undefined,
+        types: typeFilter.length > 0 ? typeFilter : undefined,
         pageNumber: page,
         pageSize,
       }),
@@ -125,7 +159,7 @@ export function Applications() {
               <div>
                 <label className="label">Status</label>
                 <div className="flex flex-wrap gap-2">
-                  {(['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'PENDING_DOCUMENTS', 'PENDING_PAYMENT', 'APPROVED', 'REJECTED'] as ApplicationStatus[]).map(
+                  {(['draft', 'submitted', 'underReview', 'pendingDocuments', 'pendingPayment', 'approved', 'rejected'] as ApplicationStatus[]).map(
                     (status) => (
                       <button
                         key={status}
@@ -137,7 +171,7 @@ export function Applications() {
                             : 'bg-neutral-100 text-neutral-500'
                         }`}
                       >
-                        {status.replace(/_/g, ' ')}
+                        {statusLabels[status]}
                       </button>
                     )
                   )}
@@ -146,7 +180,7 @@ export function Applications() {
               <div>
                 <label className="label">Type</label>
                 <div className="flex flex-wrap gap-2">
-                  {(['ONE_TIME', 'BLANKET', 'EMERGENCY'] as ApplicationType[]).map((type) => (
+                  {(['OneTime', 'Blanket', 'Emergency'] as ApplicationType[]).map((type) => (
                     <button
                       key={type}
                       type="button"
@@ -254,7 +288,7 @@ export function Applications() {
                       {formatMoney(application.calculatedFee.amount, application.calculatedFee.currency)}
                     </span>
                     <span className={`badge ${statusColors[application.status]}`}>
-                      {application.status.replace(/_/g, ' ')}
+                      {statusLabels[application.status]}
                     </span>
                   </div>
                 </Link>

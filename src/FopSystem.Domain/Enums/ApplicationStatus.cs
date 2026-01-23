@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace FopSystem.Domain.Enums;
 
+[JsonConverter(typeof(JsonStringEnumConverter<ApplicationStatus>))]
 public enum ApplicationStatus
 {
     Draft = 1,

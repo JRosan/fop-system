@@ -382,21 +382,21 @@ function PermitTypeStep({ wizard }: { wizard: ReturnType<typeof useApplicationWi
 
   const types: { id: ApplicationType; name: string; description: string; multiplier: string; processing: string }[] = [
     {
-      id: 'ONE_TIME',
+      id: 'OneTime',
       name: 'One-Time Permit',
       description: 'For a single flight operation to or from the British Virgin Islands',
       multiplier: '1.0x',
       processing: '3-5 business days',
     },
     {
-      id: 'BLANKET',
+      id: 'Blanket',
       name: 'Blanket Permit',
       description: 'For multiple flights over an extended period (up to 12 months)',
       multiplier: '2.5x',
       processing: '5-7 business days',
     },
     {
-      id: 'EMERGENCY',
+      id: 'Emergency',
       name: 'Emergency Permit',
       description: 'For urgent humanitarian, medical, or emergency flights',
       multiplier: '0.5x',
@@ -834,9 +834,9 @@ function PermitPeriodStep({ wizard }: { wizard: ReturnType<typeof useApplication
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <p className="text-sm text-blue-800">
           <strong>Note:</strong>{' '}
-          {applicationType === 'ONE_TIME'
+          {applicationType === 'OneTime'
             ? 'One-Time permits are valid for the specific flight dates only.'
-            : applicationType === 'BLANKET'
+            : applicationType === 'Blanket'
             ? 'Blanket permits can be valid for up to 12 months from the start date.'
             : 'Emergency permits are processed within 24-48 hours.'}
         </p>
@@ -931,9 +931,9 @@ function ReviewStep({ wizard, termsAccepted, setTermsAccepted, feeData }: Review
   const { applicationType, operator, aircraft, flightPurpose, departureAirport, arrivalAirport, requestedStartDate, requestedEndDate, documents } = wizard;
 
   const typeLabels: Record<ApplicationType, string> = {
-    ONE_TIME: 'One-Time Permit',
-    BLANKET: 'Blanket Permit',
-    EMERGENCY: 'Emergency Permit',
+    OneTime: 'One-Time Permit',
+    Blanket: 'Blanket Permit',
+    Emergency: 'Emergency Permit',
   };
 
   return (

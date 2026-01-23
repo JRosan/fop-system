@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { FileText, Clock, CheckCircle, AlertTriangle, Plus, ArrowRight } from 'lucide-react';
@@ -23,9 +24,11 @@ export function Dashboard() {
     queryFn: () => dashboardApi.getApplicantDashboard(),
   });
 
-  if (error) {
-    showError('Failed to load dashboard', (error as Error).message);
-  }
+  useEffect(() => {
+    if (error) {
+      showError('Failed to load dashboard', (error as Error).message);
+    }
+  }, [error, showError]);
 
   const stats = [
     {
@@ -35,20 +38,20 @@ export function Dashboard() {
       color: 'bg-primary-100 text-primary-600',
     },
     {
-      name: 'Pending Review',
-      value: data?.pendingReview ?? 0,
+      name: 'Pending',
+      value: data?.pendingApplications ?? 0,
       icon: Clock,
       color: 'bg-warning-100 text-warning-600',
     },
     {
-      name: 'Approved This Month',
-      value: data?.approvedThisMonth ?? 0,
+      name: 'Active Permits',
+      value: data?.activePermits ?? 0,
       icon: CheckCircle,
       color: 'bg-success-100 text-success-600',
     },
     {
       name: 'Expiring Soon',
-      value: data?.expiringSoon ?? 0,
+      value: data?.expiringPermits ?? 0,
       icon: AlertTriangle,
       color: 'bg-error-100 text-error-600',
     },
@@ -170,7 +173,7 @@ export function Dashboard() {
                   <p className="font-medium text-neutral-900">
                     {app.applicationNumber}
                   </p>
-                  <p className="text-sm text-neutral-500">{app.operatorName}</p>
+                  <p className="text-sm text-neutral-500">{app.type.replace(/([A-Z])/g, ' $1').trim()}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span
@@ -179,7 +182,7 @@ export function Dashboard() {
                     {app.status.replace(/_/g, ' ')}
                   </span>
                   <span className="text-sm text-neutral-400">
-                    {formatDistanceToNow(app.createdAt)}
+                    {formatDistanceToNow(app.submittedAt)}
                   </span>
                 </div>
               </Link>

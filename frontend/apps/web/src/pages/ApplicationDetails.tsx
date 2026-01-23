@@ -19,42 +19,90 @@ import { useNotificationStore } from '@fop/core';
 import type { ApplicationStatus, ApplicationType, DocumentType } from '@fop/types';
 import { formatDate, formatDateTime, formatMoney } from '../utils/date';
 
-const statusColors: Record<ApplicationStatus, string> = {
-  DRAFT: 'bg-neutral-100 text-neutral-700',
-  SUBMITTED: 'bg-primary-100 text-primary-700',
-  UNDER_REVIEW: 'bg-purple-100 text-purple-700',
-  PENDING_DOCUMENTS: 'bg-warning-100 text-warning-700',
-  PENDING_PAYMENT: 'bg-pink-100 text-pink-700',
-  APPROVED: 'bg-success-100 text-success-700',
-  REJECTED: 'bg-error-100 text-error-700',
-  EXPIRED: 'bg-neutral-100 text-neutral-500',
-  CANCELLED: 'bg-neutral-100 text-neutral-500',
+// Support both numeric and string enum values from backend
+const statusColors: Record<string | number, string> = {
+  1: 'bg-neutral-100 text-neutral-700',
+  2: 'bg-primary-100 text-primary-700',
+  3: 'bg-purple-100 text-purple-700',
+  4: 'bg-warning-100 text-warning-700',
+  5: 'bg-pink-100 text-pink-700',
+  6: 'bg-success-100 text-success-700',
+  7: 'bg-error-100 text-error-700',
+  8: 'bg-neutral-100 text-neutral-500',
+  9: 'bg-neutral-100 text-neutral-500',
+  Draft: 'bg-neutral-100 text-neutral-700',
+  Submitted: 'bg-primary-100 text-primary-700',
+  UnderReview: 'bg-purple-100 text-purple-700',
+  PendingDocuments: 'bg-warning-100 text-warning-700',
+  PendingPayment: 'bg-pink-100 text-pink-700',
+  Approved: 'bg-success-100 text-success-700',
+  Rejected: 'bg-error-100 text-error-700',
+  Expired: 'bg-neutral-100 text-neutral-500',
+  Cancelled: 'bg-neutral-100 text-neutral-500',
 };
 
-const typeLabels: Record<ApplicationType, string> = {
-  ONE_TIME: 'One-Time Permit',
-  BLANKET: 'Blanket Permit',
-  EMERGENCY: 'Emergency Permit',
+const statusLabels: Record<string | number, string> = {
+  1: 'Draft',
+  2: 'Submitted',
+  3: 'Under Review',
+  4: 'Pending Documents',
+  5: 'Pending Payment',
+  6: 'Approved',
+  7: 'Rejected',
+  8: 'Expired',
+  9: 'Cancelled',
+  Draft: 'Draft',
+  Submitted: 'Submitted',
+  UnderReview: 'Under Review',
+  PendingDocuments: 'Pending Documents',
+  PendingPayment: 'Pending Payment',
+  Approved: 'Approved',
+  Rejected: 'Rejected',
+  Expired: 'Expired',
+  Cancelled: 'Cancelled',
 };
 
-const documentTypeLabels: Record<DocumentType, string> = {
-  CERTIFICATE_OF_AIRWORTHINESS: 'Certificate of Airworthiness',
-  CERTIFICATE_OF_REGISTRATION: 'Certificate of Registration',
-  AIR_OPERATOR_CERTIFICATE: 'Air Operator Certificate',
-  INSURANCE_CERTIFICATE: 'Insurance Certificate',
-  NOISE_CERTIFICATE: 'Noise Certificate',
-  CREW_LICENSES: 'Crew Licenses',
-  RADIO_LICENSE: 'Radio License',
-  OTHER: 'Other Document',
+const typeLabels: Record<string | number, string> = {
+  1: 'One-Time Permit',
+  2: 'Blanket Permit',
+  3: 'Emergency Permit',
+  OneTime: 'One-Time Permit',
+  Blanket: 'Blanket Permit',
+  Emergency: 'Emergency Permit',
 };
 
-const purposeLabels: Record<string, string> = {
-  CHARTER: 'Charter Flight',
-  CARGO: 'Cargo Operations',
-  TECHNICAL_LANDING: 'Technical Landing',
-  MEDEVAC: 'Medical Evacuation',
-  PRIVATE: 'Private Flight',
-  OTHER: 'Other',
+const documentTypeLabels: Record<string | number, string> = {
+  1: 'Certificate of Airworthiness',
+  2: 'Certificate of Registration',
+  3: 'Air Operator Certificate',
+  4: 'Insurance Certificate',
+  5: 'Noise Certificate',
+  6: 'Crew Licenses',
+  7: 'Radio License',
+  8: 'Other Document',
+  CertificateOfAirworthiness: 'Certificate of Airworthiness',
+  CertificateOfRegistration: 'Certificate of Registration',
+  AirOperatorCertificate: 'Air Operator Certificate',
+  InsuranceCertificate: 'Insurance Certificate',
+  NoiseCertificate: 'Noise Certificate',
+  CrewLicenses: 'Crew Licenses',
+  RadioLicense: 'Radio License',
+  Other: 'Other Document',
+};
+
+const purposeLabels: Record<string | number, string> = {
+  1: 'Charter Flight',
+  2: 'Cargo Operations',
+  3: 'Technical Landing',
+  4: 'Medical Evacuation',
+  5: 'Private Flight',
+  6: 'Other',
+  Charter: 'Charter Flight',
+  Cargo: 'Cargo Operations',
+  TechnicalLanding: 'Technical Landing',
+  Medevac: 'Medical Evacuation',
+  Private: 'Private Flight',
+  Other: 'Other',
 };
 
 export function ApplicationDetails() {
@@ -128,7 +176,7 @@ export function ApplicationDetails() {
     );
   }
 
-  const canSubmit = application.status === 'DRAFT';
+  const canSubmit = application.status === 1 || application.status === 'Draft';
 
   return (
     <div className="space-y-6">
@@ -144,7 +192,7 @@ export function ApplicationDetails() {
                 {application.applicationNumber}
               </h1>
               <span className={`badge ${statusColors[application.status]}`}>
-                {application.status.replace(/_/g, ' ')}
+                {statusLabels[application.status]}
               </span>
             </div>
             <p className="text-neutral-500">{typeLabels[application.type]}</p>
@@ -176,7 +224,7 @@ export function ApplicationDetails() {
       </div>
 
       {/* Status Timeline */}
-      {application.status === 'REJECTED' && application.rejectionReason && (
+      {(application.status === 7 || application.status === 'Rejected') && application.rejectionReason && (
         <div className="card p-4 bg-error-50 border-error-200">
           <div className="flex items-start gap-3">
             <XCircle className="w-5 h-5 text-error-600 mt-0.5" />
@@ -188,7 +236,7 @@ export function ApplicationDetails() {
         </div>
       )}
 
-      {application.status === 'APPROVED' && (
+      {(application.status === 6 || application.status === 'Approved') && (
         <div className="card p-4 bg-success-50 border-success-200">
           <div className="flex items-start gap-3">
             <CheckCircle className="w-5 h-5 text-success-600 mt-0.5" />
@@ -234,12 +282,6 @@ export function ApplicationDetails() {
                   <dt className="text-sm text-neutral-500">AOC Expiry</dt>
                   <dd className="font-medium text-neutral-900">
                     {formatDate(application.operator.aocExpiryDate)}
-                  </dd>
-                </div>
-                <div className="sm:col-span-2">
-                  <dt className="text-sm text-neutral-500">Contact</dt>
-                  <dd className="font-medium text-neutral-900">
-                    {application.operator.contactInfo.email} | {application.operator.contactInfo.phone}
                   </dd>
                 </div>
               </dl>
@@ -339,8 +381,8 @@ export function ApplicationDetails() {
                 <div>
                   <dt className="text-sm text-neutral-500">Permit Period</dt>
                   <dd className="font-medium text-neutral-900">
-                    {formatDate(application.requestedPeriod.startDate)} -{' '}
-                    {formatDate(application.requestedPeriod.endDate)}
+                    {formatDate(application.requestedPeriod?.startDate || application.requestedStartDate)} -{' '}
+                    {formatDate(application.requestedPeriod?.endDate || application.requestedEndDate)}
                   </dd>
                 </div>
               </dl>
@@ -430,9 +472,9 @@ export function ApplicationDetails() {
                     <span className="text-neutral-500">Payment Status</span>
                     <span
                       className={`font-medium ${
-                        application.payment.status === 'COMPLETED'
+                        application.payment.status === 'completed'
                           ? 'text-success-600'
-                          : application.payment.status === 'FAILED'
+                          : application.payment.status === 'failed'
                           ? 'text-error-600'
                           : 'text-warning-600'
                       }`}
@@ -447,7 +489,7 @@ export function ApplicationDetails() {
                     </div>
                   )}
                 </div>
-              ) : application.status === 'PENDING_PAYMENT' ? (
+              ) : (application.status === 5 || application.status === 'PendingPayment') ? (
                 <button className="btn-primary w-full">
                   <DollarSign className="w-4 h-4 mr-2" />
                   Pay Now

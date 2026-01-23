@@ -7,24 +7,24 @@ import { formatMoney } from '../utils/date';
 
 const typeOptions: { value: ApplicationType; label: string; description: string }[] = [
   {
-    value: 'ONE_TIME',
+    value: 'OneTime',
     label: 'One-Time Permit',
     description: 'Single flight operation (1.0x multiplier)',
   },
   {
-    value: 'BLANKET',
+    value: 'Blanket',
     label: 'Blanket Permit',
     description: 'Multiple flights over a period (2.5x multiplier)',
   },
   {
-    value: 'EMERGENCY',
+    value: 'Emergency',
     label: 'Emergency Permit',
     description: 'Urgent humanitarian operations (0.5x multiplier)',
   },
 ];
 
 export function FeeCalculator() {
-  const [applicationType, setApplicationType] = useState<ApplicationType>('ONE_TIME');
+  const [applicationType, setApplicationType] = useState<ApplicationType>('OneTime');
   const [seatCount, setSeatCount] = useState<number>(50);
   const [mtowKg, setMtowKg] = useState<number>(25000);
 

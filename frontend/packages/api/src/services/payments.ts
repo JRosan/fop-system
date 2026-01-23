@@ -76,14 +76,28 @@ export const paymentsApi = {
 
   async getAll(filter?: PaymentFilter): Promise<PaginatedResponse<PaymentWithApplication>> {
     const { data } = await apiClient.get('/payments', { params: filter });
-    return data;
+    // Flatten the response - backend returns { payment: {...}, applicationNumber, operatorName }
+    return {
+      ...data,
+      items: (data.items || []).map((item: { payment: Payment; applicationNumber: string; operatorName: string }) => ({
+        ...item.payment,
+        applicationNumber: item.applicationNumber,
+        operatorName: item.operatorName,
+      })),
+    };
   },
 
   async getPending(): Promise<PaymentWithApplication[]> {
     const { data } = await apiClient.get('/payments', {
-      params: { status: ['PENDING', 'PROCESSING'] },
+      params: { status: [1, 2] }, // 1 = Pending, 2 = Processing (numeric values)
     });
-    return data.items || data;
+    // Flatten the response
+    const items = data.items || data;
+    return (items || []).map((item: { payment: Payment; applicationNumber: string; operatorName: string }) => ({
+      ...item.payment,
+      applicationNumber: item.applicationNumber,
+      operatorName: item.operatorName,
+    }));
   },
 
   async recordPayment(request: RecordPaymentRequest): Promise<PaymentResult> {

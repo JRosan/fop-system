@@ -56,7 +56,7 @@ export const applicationsApi = {
     const { data } = await apiClient.get('/applications', {
       params: {
         ...filter,
-        status: ['SUBMITTED', 'UNDER_REVIEW', 'PENDING_DOCUMENTS'],
+        statuses: ['submitted', 'underReview', 'pendingDocuments'],
       },
     });
     return data;

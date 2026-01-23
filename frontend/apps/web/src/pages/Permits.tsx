@@ -6,17 +6,36 @@ import { permitsApi } from '@fop/api';
 import type { PermitStatus, ApplicationType } from '@fop/types';
 import { formatDate } from '../utils/date';
 
-const statusColors: Record<PermitStatus, string> = {
-  ACTIVE: 'bg-success-100 text-success-700',
-  EXPIRED: 'bg-neutral-100 text-neutral-500',
-  REVOKED: 'bg-error-100 text-error-700',
-  SUSPENDED: 'bg-warning-100 text-warning-700',
+// Support both numeric and string enum values from backend
+const statusColors: Record<string | number, string> = {
+  1: 'bg-success-100 text-success-700',
+  2: 'bg-neutral-100 text-neutral-500',
+  3: 'bg-error-100 text-error-700',
+  4: 'bg-warning-100 text-warning-700',
+  Active: 'bg-success-100 text-success-700',
+  Expired: 'bg-neutral-100 text-neutral-500',
+  Revoked: 'bg-error-100 text-error-700',
+  Suspended: 'bg-warning-100 text-warning-700',
 };
 
-const typeLabels: Record<ApplicationType, string> = {
-  ONE_TIME: 'One-Time',
-  BLANKET: 'Blanket',
-  EMERGENCY: 'Emergency',
+const statusLabels: Record<string | number, string> = {
+  1: 'Active',
+  2: 'Expired',
+  3: 'Revoked',
+  4: 'Suspended',
+  Active: 'Active',
+  Expired: 'Expired',
+  Revoked: 'Revoked',
+  Suspended: 'Suspended',
+};
+
+const typeLabels: Record<string | number, string> = {
+  1: 'One-Time',
+  2: 'Blanket',
+  3: 'Emergency',
+  OneTime: 'One-Time',
+  Blanket: 'Blanket',
+  Emergency: 'Emergency',
 };
 
 export function Permits() {
@@ -107,18 +126,18 @@ export function Permits() {
             <div>
               <label className="label">Status</label>
               <div className="flex flex-wrap gap-2">
-                {(['ACTIVE', 'EXPIRED', 'SUSPENDED', 'REVOKED'] as PermitStatus[]).map((status) => (
+                {([1, 2, 3, 4] as number[]).map((status) => (
                   <button
                     key={status}
                     type="button"
-                    onClick={() => toggleStatus(status)}
+                    onClick={() => toggleStatus(status as any)}
                     className={`badge cursor-pointer ${
-                      statusFilter.includes(status)
+                      statusFilter.includes(status as any)
                         ? statusColors[status]
                         : 'bg-neutral-100 text-neutral-500'
                     }`}
                   >
-                    {status}
+                    {statusLabels[status]}
                   </button>
                 ))}
               </div>
@@ -193,13 +212,13 @@ export function Permits() {
                       <span>{permit.operatorName}</span>
                       <span>{permit.aircraftRegistration}</span>
                       <span>
-                        Valid: {formatDate(permit.validityPeriod.startDate)} -{' '}
-                        {formatDate(permit.validityPeriod.endDate)}
+                        Valid: {formatDate(permit.validFrom)} -{' '}
+                        {formatDate(permit.validUntil)}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 ml-4">
-                    <span className={`badge ${statusColors[permit.status]}`}>{permit.status}</span>
+                    <span className={`badge ${statusColors[permit.status]}`}>{statusLabels[permit.status]}</span>
                     <Link
                       to={`/permits/${permit.id}`}
                       className="p-2 rounded-lg hover:bg-neutral-100"
