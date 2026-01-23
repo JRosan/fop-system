@@ -39,13 +39,38 @@ export function Subscription() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { addNotification } = useNotificationStore();
 
-  // Check URL params for pre-selected plan (from Pricing page)
+  // Check URL params for pre-selected plan (from Pricing page) or Stripe redirect
   useEffect(() => {
     const planParam = searchParams.get('plan');
     const billingParam = searchParams.get('billing');
+    const successParam = searchParams.get('success');
+    const canceledParam = searchParams.get('canceled');
 
     if (billingParam) {
       setIsAnnual(billingParam === 'annual');
+    }
+
+    // Handle Stripe redirect responses
+    if (successParam === 'true') {
+      addNotification({
+        type: 'success',
+        title: 'Payment Successful',
+        message: 'Your subscription has been activated. Welcome aboard!',
+      });
+      // Clear the URL params
+      setSearchParams({});
+      // Reload data to get updated subscription
+      loadData();
+    }
+
+    if (canceledParam === 'true') {
+      addNotification({
+        type: 'info',
+        title: 'Checkout Canceled',
+        message: 'Your checkout was canceled. No payment was processed.',
+      });
+      // Clear the URL params
+      setSearchParams({});
     }
 
     // We'll handle the plan selection after data loads
@@ -574,6 +599,8 @@ export function Subscription() {
           plan={selectedPlan}
           isAnnual={isAnnual}
           currentTier={subscription?.subscriptionTier}
+          tenantId={subscription?.tenantId || MOCK_TENANT_ID}
+          customerEmail={undefined}
           onConfirm={handleCheckoutConfirm}
           onClose={() => {
             setShowCheckoutModal(false);

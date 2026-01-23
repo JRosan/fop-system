@@ -46,7 +46,7 @@ public static class ApplicationEndpoints
             .Produces(204)
             .Produces<ProblemDetails>(400)
             .Produces(404)
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("Reviewer") when auth is configured
+            .RequireAuthorization("Reviewer");
 
         group.MapPost("/{id:guid}/approve", ApproveApplication)
             .WithName("ApproveApplication")
@@ -54,7 +54,7 @@ public static class ApplicationEndpoints
             .Produces<Guid>()
             .Produces<ProblemDetails>(400)
             .Produces(404)
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("Approver") when auth is configured
+            .RequireAuthorization("Approver");
 
         group.MapPost("/{id:guid}/reject", RejectApplication)
             .WithName("RejectApplication")
@@ -62,7 +62,7 @@ public static class ApplicationEndpoints
             .Produces(204)
             .Produces<ProblemDetails>(400)
             .Produces(404)
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("Reviewer") when auth is configured
+            .RequireAuthorization("Reviewer");
 
         group.MapPost("/{id:guid}/flag", FlagApplication)
             .WithName("FlagApplication")
@@ -70,7 +70,7 @@ public static class ApplicationEndpoints
             .Produces(204)
             .Produces<ProblemDetails>(400)
             .Produces(404)
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("Reviewer") when auth is configured
+            .RequireAuthorization("Reviewer");
 
         group.MapPost("/{id:guid}/unflag", UnflagApplication)
             .WithName("UnflagApplication")
@@ -78,7 +78,7 @@ public static class ApplicationEndpoints
             .Produces(204)
             .Produces<ProblemDetails>(400)
             .Produces(404)
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("Approver") when auth is configured
+            .RequireAuthorization("Approver");
     }
 
     private static async Task<IResult> GetApplications(

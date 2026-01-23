@@ -24,7 +24,7 @@ public static class WaiverEndpoints
         group.MapPost("/{waiverId:guid}/approve", ApproveWaiver)
             .WithName("ApproveWaiver")
             .WithSummary("Approve a fee waiver (requires approver role)")
-            .AllowAnonymous() // TODO: Add .RequireAuthorization("Approver") when auth is configured
+            .RequireAuthorization("Approver")
             .Produces<WaiverApprovalResultDto>()
             .Produces<ProblemDetails>(400)
             .Produces(404);
@@ -32,7 +32,7 @@ public static class WaiverEndpoints
         group.MapPost("/{waiverId:guid}/reject", RejectWaiver)
             .WithName("RejectWaiver")
             .WithSummary("Reject a fee waiver (requires approver role)")
-            .AllowAnonymous() // TODO: Add .RequireAuthorization("Approver") when auth is configured
+            .RequireAuthorization("Approver")
             .Produces(204)
             .Produces<ProblemDetails>(400)
             .Produces(404);
@@ -46,7 +46,7 @@ public static class WaiverEndpoints
         group.MapGet("/pending", GetPendingWaivers)
             .WithName("GetPendingWaivers")
             .WithSummary("Get all pending waiver requests (requires reviewer role)")
-            .AllowAnonymous() // TODO: Add .RequireAuthorization("Reviewer") when auth is configured
+            .RequireAuthorization("Reviewer")
             .Produces<IReadOnlyList<PendingWaiverDto>>();
     }
 

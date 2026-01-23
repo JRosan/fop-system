@@ -1,15 +1,18 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using FopSystem.Application.Behaviors;
 using FopSystem.Application.Interfaces;
 using FopSystem.Domain.Repositories;
 using FopSystem.Domain.Services;
 using FopSystem.Domain.Services.Fees;
 using FopSystem.Infrastructure.BackgroundJobs;
+using FopSystem.Infrastructure.Caching;
 using FopSystem.Infrastructure.Persistence;
 using FopSystem.Infrastructure.Persistence.Repositories;
 using FopSystem.Infrastructure.Persistence.Seeders;
 using FopSystem.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -82,6 +85,10 @@ public static class DependencyInjection
         services.Configure<EmailSettings>(configuration.GetSection("Email"));
         services.AddScoped<IEmailService, EmailService>();
 
+        // Stripe Payment Service
+        services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
+        services.AddScoped<IStripeService, StripeService>();
+
         // Officer Notification Service
         services.Configure<OfficerNotificationSettings>(configuration.GetSection("OfficerNotifications"));
         services.AddScoped<IOfficerNotificationService, OfficerNotificationService>();
@@ -95,6 +102,10 @@ public static class DependencyInjection
         services.AddScoped<BviaFeeRateSeeder>();
         services.AddScoped<SampleDataSeeder>();
         services.AddScoped<SubscriptionPlanSeeder>();
+
+        // Caching
+        services.AddMemoryCache();
+        services.AddSingleton<Application.Behaviors.ICacheService, Caching.MemoryCacheService>();
 
         return services;
     }

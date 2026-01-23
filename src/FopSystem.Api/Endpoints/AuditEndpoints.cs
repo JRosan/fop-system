@@ -11,7 +11,7 @@ public static class AuditEndpoints
         var group = app.MapGroup("/api/audit")
             .WithTags("Audit")
             .WithOpenApi()
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("Admin") when auth is configured
+            .RequireAuthorization("Admin");
 
         group.MapGet("/", GetAuditLogs)
             .WithName("GetAuditLogs")

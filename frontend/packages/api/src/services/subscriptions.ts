@@ -30,6 +30,8 @@ export interface TenantSubscription {
   trialEndDate: string | null;
   isActive: boolean;
   currentPlan: SubscriptionPlan | null;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
 }
 
 export interface UpdateSubscriptionRequest {

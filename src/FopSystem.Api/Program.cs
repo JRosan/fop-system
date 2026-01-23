@@ -189,6 +189,9 @@ app.MapDashboardEndpoints();
 app.MapBviaRevenueEndpoints();
 app.MapTenantEndpoints();
 app.MapSubscriptionEndpoints();
+app.MapStripeEndpoints();
+app.MapAuthEndpoints();
+app.MapDeviceEndpoints();
 
 app.Run();
 

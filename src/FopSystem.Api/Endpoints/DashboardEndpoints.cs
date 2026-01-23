@@ -29,19 +29,19 @@ public static class DashboardEndpoints
             .WithName("GetReviewerDashboard")
             .WithSummary("Get dashboard data for reviewers")
             .Produces<ReviewerDashboardDto>()
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("Reviewer") when auth is configured
+            .RequireAuthorization("Reviewer");
 
         group.MapGet("/finance", GetFinanceDashboard)
             .WithName("GetFinanceDashboard")
             .WithSummary("Get dashboard data for finance officers")
             .Produces<FinanceDashboardDto>()
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("FinanceOfficer") when auth is configured
+            .RequireAuthorization("Finance");
 
         group.MapGet("/admin", GetAdminDashboard)
             .WithName("GetAdminDashboard")
             .WithSummary("Get dashboard data for administrators")
             .Produces<AdminDashboardDto>()
-            .AllowAnonymous(); // TODO: Add .RequireAuthorization("Admin") when auth is configured
+            .RequireAuthorization("Admin");
     }
 
     private static async Task<IResult> GetGeneralApplicantDashboard(

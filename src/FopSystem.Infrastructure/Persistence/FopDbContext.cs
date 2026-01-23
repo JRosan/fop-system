@@ -46,6 +46,12 @@ public class FopDbContext : DbContext, IUnitOfWork
     public DbSet<BviaFeeRate> BviaFeeRates => Set<BviaFeeRate>();
     public DbSet<OperatorAccountBalance> OperatorAccountBalances => Set<OperatorAccountBalance>();
 
+    // Stripe payment tracking (tenant-scoped)
+    public DbSet<PaymentIntent> PaymentIntents => Set<PaymentIntent>();
+
+    // Push notification device tokens (tenant-scoped)
+    public DbSet<DeviceToken> DeviceTokens => Set<DeviceToken>();
+
     public FopDbContext(DbContextOptions<FopDbContext> options) : base(options)
     {
     }
@@ -107,6 +113,12 @@ public class FopDbContext : DbContext, IUnitOfWork
             .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
 
         modelBuilder.Entity<OperatorAccountBalance>()
+            .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
+
+        modelBuilder.Entity<PaymentIntent>()
+            .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
+
+        modelBuilder.Entity<DeviceToken>()
             .HasQueryFilter(e => CurrentTenantId == Guid.Empty || e.TenantId == CurrentTenantId);
     }
 

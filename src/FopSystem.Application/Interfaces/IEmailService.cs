@@ -53,4 +53,20 @@ public interface IEmailService
         decimal balanceDue,
         int daysOverdue,
         CancellationToken cancellationToken = default);
+
+    Task SendSubscriptionConfirmationEmailAsync(
+        string email,
+        string tenantName,
+        string tier,
+        bool isAnnual,
+        DateTime subscriptionEndDate,
+        CancellationToken cancellationToken = default);
+
+    Task SendPaymentReceiptEmailAsync(
+        string email,
+        string invoiceId,
+        decimal amount,
+        string currency,
+        DateTime paymentDate,
+        CancellationToken cancellationToken = default);
 }
