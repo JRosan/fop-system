@@ -175,3 +175,83 @@ export const colors = {
 } as const;
 
 export type Colors = typeof colors;
+
+// Multi-Tenant Theme Tokens for SaaS White-Labeling
+// Each territory can customize primary brand while maintaining UX consistency
+export const tenantThemes = {
+  // British Virgin Islands - Default theme
+  bvi: {
+    id: 'bvi',
+    name: 'British Virgin Islands',
+    primary: '#002D56',      // Deep Atlantic
+    primaryLight: '#003366',
+    accent: '#00A3B1',       // Virgin Turquoise
+    accentLight: '#26b5c2',
+    surface: '#F9FBFB',      // Coral White
+    surfaceDark: '#e8efef',
+    text: '#4A5568',         // Gorda Granite
+    textMuted: '#6b7280',
+    gold: '#C5A059',         // Prestige Gold
+    goldLight: '#ddb94d',
+    success: '#00A3B1',      // Use turquoise for success
+    warning: '#C5A059',      // Use gold for warnings
+    error: '#ef4444',
+  },
+  // Cayman Islands - Racing Green variant
+  cayman: {
+    id: 'cayman',
+    name: 'Cayman Islands',
+    primary: '#006847',      // Racing Green
+    primaryLight: '#008055',
+    accent: '#00A3B1',       // Keep turquoise
+    accentLight: '#26b5c2',
+    surface: '#F9FBFB',
+    surfaceDark: '#e8efef',
+    text: '#4A5568',
+    textMuted: '#6b7280',
+    gold: '#C5A059',
+    goldLight: '#ddb94d',
+    success: '#00A3B1',
+    warning: '#C5A059',
+    error: '#ef4444',
+  },
+  // Turks and Caicos - Coral variant
+  turksAndCaicos: {
+    id: 'turksAndCaicos',
+    name: 'Turks and Caicos',
+    primary: '#1E3A5F',      // Deep Teal Blue
+    primaryLight: '#2a4d7a',
+    accent: '#FF6B6B',       // Coral Pink
+    accentLight: '#ff8585',
+    surface: '#F9FBFB',
+    surfaceDark: '#e8efef',
+    text: '#4A5568',
+    textMuted: '#6b7280',
+    gold: '#C5A059',
+    goldLight: '#ddb94d',
+    success: '#22c55e',
+    warning: '#C5A059',
+    error: '#ef4444',
+  },
+  // Bermuda - Pink variant
+  bermuda: {
+    id: 'bermuda',
+    name: 'Bermuda',
+    primary: '#1E4D6B',      // Hamilton Blue
+    primaryLight: '#2a6080',
+    accent: '#FF9EAA',       // Pink Sand
+    accentLight: '#ffb8c0',
+    surface: '#FFF9FA',      // Soft pink tint
+    surfaceDark: '#f0e8ea',
+    text: '#4A5568',
+    textMuted: '#6b7280',
+    gold: '#C5A059',
+    goldLight: '#ddb94d',
+    success: '#22c55e',
+    warning: '#C5A059',
+    error: '#ef4444',
+  },
+} as const;
+
+export type TenantTheme = typeof tenantThemes[keyof typeof tenantThemes];
+export type TenantId = keyof typeof tenantThemes;

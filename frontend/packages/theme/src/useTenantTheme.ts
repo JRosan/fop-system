@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import type { TenantBranding } from '@fop/types';
+import { tenantThemes, type TenantId } from './colors';
 
 /**
  * Generates a color palette from a base hex color.
@@ -90,3 +91,48 @@ export function useTenantTheme(tenant: TenantBranding | null) {
 }
 
 export type TenantTheme = NonNullable<ReturnType<typeof useTenantTheme>>;
+
+/**
+ * Get a preset tenant theme by ID.
+ * Defaults to BVI if no ID is provided or ID is not found.
+ */
+export function getPresetTenantTheme(tenantId?: TenantId | string): typeof tenantThemes.bvi {
+  if (tenantId && tenantId in tenantThemes) {
+    return tenantThemes[tenantId as TenantId];
+  }
+  return tenantThemes.bvi;
+}
+
+/**
+ * Hook that returns a preset tenant theme.
+ * Useful when you don't have dynamic TenantBranding from the API.
+ */
+export function usePresetTenantTheme(tenantId: TenantId = 'bvi') {
+  const theme = tenantThemes[tenantId];
+
+  // Apply CSS custom properties when theme changes
+  useEffect(() => {
+    const root = document.documentElement;
+
+    // Apply theme tokens as CSS variables
+    root.style.setProperty('--tenant-primary', theme.primary);
+    root.style.setProperty('--tenant-primary-light', theme.primaryLight);
+    root.style.setProperty('--tenant-accent', theme.accent);
+    root.style.setProperty('--tenant-accent-light', theme.accentLight);
+    root.style.setProperty('--tenant-surface', theme.surface);
+    root.style.setProperty('--tenant-surface-dark', theme.surfaceDark);
+    root.style.setProperty('--tenant-text', theme.text);
+    root.style.setProperty('--tenant-text-muted', theme.textMuted);
+    root.style.setProperty('--tenant-gold', theme.gold);
+    root.style.setProperty('--tenant-gold-light', theme.goldLight);
+    root.style.setProperty('--tenant-success', theme.success);
+    root.style.setProperty('--tenant-warning', theme.warning);
+    root.style.setProperty('--tenant-error', theme.error);
+  }, [theme]);
+
+  return theme;
+}
+
+// Re-export tenant themes for direct access
+export { tenantThemes } from './colors';
+export type { TenantId } from './colors';
