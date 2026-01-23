@@ -209,6 +209,7 @@ public static class FieldOperationsEndpoints
     private static async Task<IResult> GetServiceLogs(
         [FromServices] IMediator mediator,
         ClaimsPrincipal user,
+        [FromQuery] Guid? operatorId = null,
         [FromQuery] BviAirport? airport = null,
         [FromQuery] AirportServiceLogStatus[]? statuses = null,
         [FromQuery] DateOnly? fromDate = null,
@@ -217,10 +218,23 @@ public static class FieldOperationsEndpoints
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        // For now, return empty list - would need to add GetServiceLogsQuery
-        return Results.Ok(new PagedResultResponse<AirportServiceLogSummaryDto>(
-            new List<AirportServiceLogSummaryDto>(),
-            0, pageNumber, pageSize, 0, false, false));
+        var officerId = GetUserId(user);
+
+        var query = new GetServiceLogsQuery(
+            OperatorId: operatorId,
+            OfficerId: officerId,
+            Statuses: statuses,
+            Airport: airport,
+            FromDate: fromDate,
+            ToDate: toDate,
+            PageNumber: pageNumber,
+            PageSize: pageSize);
+
+        var result = await mediator.Send(query, cancellationToken);
+
+        return result.IsSuccess
+            ? Results.Ok(new PagedResultResponse<AirportServiceLogSummaryDto>(result.Value!))
+            : Results.Problem(result.Error!.Message, statusCode: 400);
     }
 
     private static async Task<IResult> GetServiceLog(
@@ -228,8 +242,12 @@ public static class FieldOperationsEndpoints
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        // Would need to add GetServiceLogQuery
-        return Results.NotFound();
+        var query = new GetServiceLogQuery(id);
+        var result = await mediator.Send(query, cancellationToken);
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : Results.NotFound();
     }
 
     private static async Task<IResult> SyncOfflineData(
