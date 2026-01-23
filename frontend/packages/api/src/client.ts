@@ -1,38 +1,16 @@
 ﻿import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
-// Type declarations for environment variables in different build systems
+// Type declaration for process.env (works in both Vite and Expo when properly configured)
+// - Vite: Add define: { 'process.env.VITE_API_BASE_URL': JSON.stringify(...) } to vite.config.ts
+// - Expo: Use EXPO_PUBLIC_API_BASE_URL in .env (babel transforms it automatically)
 declare const process: { env: Record<string, string | undefined> } | undefined;
 
-interface ImportMetaEnv {
-  VITE_API_BASE_URL?: string;
-  [key: string]: string | undefined;
-}
-
-interface ImportMeta {
-  env?: ImportMetaEnv;
-}
-
-// Get API base URL from environment variables
-// Works in both Vite (import.meta.env) and Expo (process.env with babel transform)
-function getApiBaseUrl(): string {
-  // Check Vite environment first (import.meta.env is available at build time)
-  try {
-    const meta = import.meta as ImportMeta | undefined;
-    if (meta?.env?.VITE_API_BASE_URL) {
-      return meta.env.VITE_API_BASE_URL;
-    }
-  } catch {
-    // import.meta not available, continue to next check
-  }
-  // Check Expo/React Native environment (process.env is transformed by babel)
-  if (typeof process !== 'undefined' && process?.env?.EXPO_PUBLIC_API_BASE_URL) {
-    return process.env.EXPO_PUBLIC_API_BASE_URL;
-  }
-  // Default fallback for development
-  return 'http://localhost:5000/api';
-}
-
-const API_BASE_URL = getApiBaseUrl();
+// Get API base URL - uses process.env which both Vite and Expo can provide
+const API_BASE_URL = (
+  (typeof process !== 'undefined' && process?.env?.EXPO_PUBLIC_API_BASE_URL) ||
+  (typeof process !== 'undefined' && process?.env?.VITE_API_BASE_URL) ||
+  'http://localhost:5000/api'
+);
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

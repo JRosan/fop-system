@@ -2,8 +2,15 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  define: {
+    // Make process.env available for shared packages that need to work in both Vite and Expo
+    'process.env.VITE_API_BASE_URL': JSON.stringify(
+      mode === 'production' ? '/api' : 'http://localhost:5000/api'
+    ),
+    'process.env.EXPO_PUBLIC_API_BASE_URL': JSON.stringify(undefined),
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -59,4 +66,4 @@ export default defineConfig({
       '@tanstack/react-query',
     ],
   },
-});
+}));
