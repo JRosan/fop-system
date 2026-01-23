@@ -115,6 +115,9 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<FopApplication>
             .HasForeignKey<ApplicationPayment>(p => p.ApplicationId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(a => a.Payment)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasOne(a => a.Operator)
             .WithMany()
             .HasForeignKey(a => a.OperatorId)

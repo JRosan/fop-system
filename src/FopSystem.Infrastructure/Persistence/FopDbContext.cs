@@ -50,6 +50,29 @@ public class FopDbContext : DbContext, IUnitOfWork
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        // Ensure new ApplicationPayment entities are properly tracked as Added
+        foreach (var entry in ChangeTracker.Entries<FopApplication>())
+        {
+            if (entry.Entity.Payment != null)
+            {
+                var paymentEntry = Entry(entry.Entity.Payment);
+                // If the payment doesn't exist in the database (checking by State),
+                // and it's being tracked as Modified or Unchanged but doesn't exist, mark it as Added
+                if (paymentEntry.State == EntityState.Modified || paymentEntry.State == EntityState.Unchanged)
+                {
+                    // Check if the payment actually exists in the database
+                    var existsInDb = await Payments
+                        .AsNoTracking()
+                        .AnyAsync(p => p.Id == entry.Entity.Payment.Id, cancellationToken);
+
+                    if (!existsInDb)
+                    {
+                        paymentEntry.State = EntityState.Added;
+                    }
+                }
+            }
+        }
+
         var domainEvents = GetDomainEvents();
 
         var result = await base.SaveChangesAsync(cancellationToken);

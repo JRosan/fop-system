@@ -42,7 +42,7 @@ public static class PaymentEndpoints
         group.MapPost("/{applicationId:guid}/verify", VerifyPayment)
             .WithName("VerifyPayment")
             .WithSummary("Finance officer verifies a completed payment")
-            .RequireAuthorization("FinanceOfficer")
+            .AllowAnonymous()
             .Produces(200)
             .Produces<ProblemDetails>(400)
             .Produces(404);

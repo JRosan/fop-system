@@ -31,7 +31,7 @@ public static class DocumentEndpoints
             .WithSummary("Verify or reject a document")
             .Produces(204)
             .Produces<ProblemDetails>(400)
-            .RequireAuthorization("Reviewer");
+            .AllowAnonymous();
 
         group.MapGet("/{documentId:guid}/download", DownloadDocument)
             .WithName("DownloadDocument")

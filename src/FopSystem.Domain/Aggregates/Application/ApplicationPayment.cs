@@ -38,7 +38,7 @@ public class ApplicationPayment : Entity<Guid>
         {
             Id = Guid.NewGuid(),
             ApplicationId = applicationId,
-            Amount = amount,
+            Amount = Money.Create(amount.Amount, amount.Currency), // Create new instance to avoid EF Core tracking conflict
             Method = method,
             Status = PaymentStatus.Pending,
             CreatedAt = DateTime.UtcNow,
