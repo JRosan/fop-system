@@ -29,25 +29,26 @@ import type {
   ApplicationType,
   FlightPurpose,
 } from '@fop/types';
+import { useApplicationStore, useAuthStore, useAircraftStore } from '../../stores';
 
 // Wizard Steps
 const TOTAL_STEPS = 7;
 
 const permitTypes = [
   {
-    id: 'ONE_TIME' as ApplicationType,
+    id: 'OneTime' as ApplicationType,
     name: 'One-Time Permit',
     description: 'For a single flight operation',
     multiplier: '1.0x base fee',
   },
   {
-    id: 'BLANKET' as ApplicationType,
+    id: 'Blanket' as ApplicationType,
     name: 'Blanket Permit',
     description: 'For multiple flights over a period',
     multiplier: '2.5x base fee',
   },
   {
-    id: 'EMERGENCY' as ApplicationType,
+    id: 'Emergency' as ApplicationType,
     name: 'Emergency Permit',
     description: 'For urgent humanitarian or medical flights',
     multiplier: '0.5x base fee',
@@ -55,12 +56,12 @@ const permitTypes = [
 ];
 
 const flightPurposes: { id: FlightPurpose; name: string }[] = [
-  { id: 'CHARTER', name: 'Charter Flight' },
-  { id: 'CARGO', name: 'Cargo Transport' },
-  { id: 'TECHNICAL_LANDING', name: 'Technical Landing' },
-  { id: 'MEDEVAC', name: 'Medical Evacuation' },
-  { id: 'PRIVATE', name: 'Private Flight' },
-  { id: 'OTHER', name: 'Other' },
+  { id: 'charter', name: 'Charter Flight' },
+  { id: 'cargo', name: 'Cargo Transport' },
+  { id: 'technicalLanding', name: 'Technical Landing' },
+  { id: 'medevac', name: 'Medical Evacuation' },
+  { id: 'private', name: 'Private Flight' },
+  { id: 'other', name: 'Other' },
 ];
 
 const requiredDocuments = [
@@ -101,8 +102,13 @@ interface WizardState {
 
 export default function NewApplicationScreen() {
   const router = useRouter();
+  const { createApplication, isLoading: isCreating, error: createError } = useApplicationStore();
+  const { user } = useAuthStore();
+  const { aircraft } = useAircraftStore();
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedAircraftId, setSelectedAircraftId] = useState<string | null>(null);
   const [state, setState] = useState<WizardState>({
     applicationType: null,
     operatorName: '',
@@ -178,22 +184,59 @@ export default function NewApplicationScreen() {
   }, [currentStep]);
 
   const handleSubmit = useCallback(async () => {
+    if (!state.applicationType) {
+      Alert.alert('Error', 'Please select a permit type.');
+      return;
+    }
+
+    if (!user?.operatorId) {
+      Alert.alert(
+        'Operator Required',
+        'You must be associated with an operator to submit applications. Please contact support.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Use selected aircraft or require selection
+    const aircraftId = selectedAircraftId || aircraft[0]?.id;
+    if (!aircraftId) {
+      Alert.alert(
+        'Aircraft Required',
+        'Please register an aircraft before submitting an application.',
+        [{ text: 'OK', onPress: () => router.push('/aircraft' as never) }]
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // TODO: Call API to create application
-      // const response = await applicationsApi.create({...});
+      const applicationId = await createApplication({
+        permitType: state.applicationType,
+        operatorId: user.operatorId,
+        aircraftId: aircraftId,
+        flightPurpose: state.flightPurpose || 'other',
+        requestedStartDate: state.startDate,
+        requestedEndDate: state.endDate,
+        flightDetails: {
+          departureAirport: state.departureAirport,
+          arrivalAirport: state.arrivalAirport,
+          estimatedFlights: 1,
+        },
+      });
 
       Alert.alert(
         'Application Submitted',
         'Your Foreign Operator Permit application has been submitted successfully.',
-        [{ text: 'OK', onPress: () => router.back() }]
+        [{ text: 'View Application', onPress: () => router.replace(`/application/${applicationId}` as never) }]
       );
     } catch (error) {
-      Alert.alert('Error', 'Failed to submit application. Please try again.');
+      const message = createError || 'Failed to submit application. Please try again.';
+      Alert.alert('Error', message);
     } finally {
       setIsSubmitting(false);
     }
-  }, [state, router]);
+  }, [state, router, user, selectedAircraftId, aircraft, createApplication, createError]);
 
   const handleDocumentUpload = useCallback((docType: string) => {
     // TODO: Implement document picker
@@ -210,9 +253,9 @@ export default function NewApplicationScreen() {
     const seatFee = (parseInt(state.seatCount) || 0) * 10;
     const weightFee = (parseFloat(state.mtowKg) || 0) * 0.02;
     const multiplier =
-      state.applicationType === 'BLANKET'
+      state.applicationType === 'Blanket'
         ? 2.5
-        : state.applicationType === 'EMERGENCY'
+        : state.applicationType === 'Emergency'
         ? 0.5
         : 1.0;
 
@@ -419,7 +462,7 @@ export default function NewApplicationScreen() {
             ))}
           </View>
         </View>
-        {state.flightPurpose === 'OTHER' && (
+        {state.flightPurpose === 'other' && (
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Purpose Description</Text>
             <TextInput
@@ -523,9 +566,9 @@ export default function NewApplicationScreen() {
         </View>
         <View style={styles.periodNote}>
           <Text style={styles.periodNoteText}>
-            {state.applicationType === 'BLANKET'
+            {state.applicationType === 'Blanket'
               ? 'Blanket permits are valid for up to 12 months.'
-              : state.applicationType === 'EMERGENCY'
+              : state.applicationType === 'Emergency'
               ? 'Emergency permits are typically valid for the duration of the emergency operation.'
               : 'One-time permits are valid for the specific flight date(s) indicated.'}
           </Text>

@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
@@ -10,13 +10,11 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertTriangle,
   Download,
   Send,
 } from 'lucide-react';
 import { applicationsApi } from '@fop/api';
 import { useNotificationStore } from '@fop/core';
-import type { ApplicationStatus, ApplicationType, DocumentType } from '@fop/types';
 import { formatDate, formatDateTime, formatMoney } from '../utils/date';
 
 // Support both numeric and string enum values from backend
@@ -107,7 +105,6 @@ const purposeLabels: Record<string | number, string> = {
 
 export function ApplicationDetails() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { success, error: showError } = useNotificationStore();
 
@@ -301,7 +298,7 @@ export function ApplicationDetails() {
                 <div>
                   <dt className="text-sm text-neutral-500">Registration</dt>
                   <dd className="font-medium text-neutral-900">
-                    {application.aircraft.registrationNumber}
+                    {application.aircraft.registrationMark}
                   </dd>
                 </div>
                 <div>

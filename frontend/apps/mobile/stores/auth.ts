@@ -13,6 +13,7 @@ export interface User {
   phone?: string;
   role: string;
   companyName?: string;
+  operatorId?: string;
   isEmailVerified: boolean;
 }
 

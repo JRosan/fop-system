@@ -53,7 +53,7 @@ export default function NewServiceScreen() {
   const { nearestAirport, getCurrentLocation } = useLocationStore();
 
   const [selectedService, setSelectedService] = useState<AirportServiceType | null>(null);
-  const [selectedAirport, setSelectedAirport] = useState<BviAirport | null>(nearestAirport);
+  const [selectedAirport, setSelectedAirport] = useState<BviAirport | null>(nearestAirport as BviAirport | null);
   const [quantity, setQuantity] = useState('1');
   const [permitNumber, setPermitNumber] = useState(params.permitNumber || '');
   const [notes, setNotes] = useState('');
@@ -65,7 +65,7 @@ export default function NewServiceScreen() {
 
   useEffect(() => {
     if (nearestAirport && !selectedAirport) {
-      setSelectedAirport(nearestAirport);
+      setSelectedAirport(nearestAirport as BviAirport);
     }
   }, [nearestAirport]);
 

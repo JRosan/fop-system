@@ -2,6 +2,13 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+// BVI Sovereign color tokens
+const BVI_COLORS = {
+  atlantic: '#002D56',
+  turquoise: '#00A3B1',
+  sand: '#F9FBFB',
+};
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
@@ -9,7 +16,7 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#0066e6',
+            backgroundColor: BVI_COLORS.atlantic,
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -24,6 +31,20 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
+          name="login"
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name="register"
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
           name="application/[id]"
           options={{
             title: 'Application Details',
@@ -34,6 +55,36 @@ export default function RootLayout() {
           options={{
             title: 'New Application',
             presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name="account/index"
+          options={{
+            title: 'Account & Invoices',
+          }}
+        />
+        <Stack.Screen
+          name="account/invoice/[id]"
+          options={{
+            title: 'Invoice Details',
+          }}
+        />
+        <Stack.Screen
+          name="aircraft/index"
+          options={{
+            title: 'My Aircraft',
+          }}
+        />
+        <Stack.Screen
+          name="aircraft/[id]"
+          options={{
+            title: 'Aircraft Details',
+          }}
+        />
+        <Stack.Screen
+          name="permit/[id]"
+          options={{
+            title: 'Permit Details',
           }}
         />
       </Stack>

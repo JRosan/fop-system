@@ -22,12 +22,16 @@ import {
   Mail,
   Phone,
   Building2,
+  Wallet,
+  Plane,
 } from 'lucide-react-native';
 import { useAuthStore } from '../../stores';
 import { useNotificationStore } from '../../stores';
 import { initializePushNotifications, unregisterDeviceToken } from '../../services/notifications';
 
 const menuItems = [
+  { icon: Wallet, label: 'Account & Invoices', href: '/account', requiresOperator: true },
+  { icon: Plane, label: 'My Aircraft', href: '/aircraft', requiresOperator: true },
   { icon: Bell, label: 'Notification Settings', key: 'notifications' },
   { icon: CreditCard, label: 'Subscription', href: '/subscription' },
   { icon: HelpCircle, label: 'Help & Support', href: '/help' },
@@ -45,7 +49,6 @@ export default function ProfileScreen() {
   }, []);
 
   const handleSignIn = () => {
-    // Navigate to login screen
     router.push('/login');
   };
 
@@ -198,17 +201,19 @@ export default function ProfileScreen() {
 
       {/* Menu */}
       <View style={styles.menu}>
-        {menuItems.map((item) => (
-          <TouchableOpacity
-            key={item.label}
-            style={styles.menuItem}
-            onPress={() => handleMenuPress(item)}
-          >
-            <item.icon size={24} color="#64748b" />
-            <Text style={styles.menuItemLabel}>{item.label}</Text>
-            <ChevronRight size={20} color="#94a3b8" />
-          </TouchableOpacity>
-        ))}
+        {menuItems
+          .filter((item) => !item.requiresOperator || (isAuthenticated && user?.operatorId))
+          .map((item) => (
+            <TouchableOpacity
+              key={item.label}
+              style={styles.menuItem}
+              onPress={() => handleMenuPress(item)}
+            >
+              <item.icon size={24} color={item.requiresOperator ? '#C5A059' : '#64748b'} />
+              <Text style={styles.menuItemLabel}>{item.label}</Text>
+              <ChevronRight size={20} color="#94a3b8" />
+            </TouchableOpacity>
+          ))}
       </View>
 
       {/* Sign Out Button */}
