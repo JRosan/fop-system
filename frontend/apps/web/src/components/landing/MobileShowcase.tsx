@@ -100,7 +100,7 @@ export function MobileShowcase() {
                 </div>
               </DeviceMockup>
 
-              {/* Screen indicator dots */}
+              {/* Screen indicator dots with progress */}
               <div className="flex items-center gap-3">
                 {screens.map((screen, index) => (
                   <button
@@ -113,13 +113,51 @@ export function MobileShowcase() {
                     }`}
                     aria-label={`View ${screen.label} screen`}
                   >
-                    <span
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        activeScreen === index
-                          ? 'bg-bvi-turquoise-400 shadow-lg shadow-bvi-turquoise-400/50'
-                          : 'bg-white/40 group-hover:bg-white/60'
-                      }`}
-                    />
+                    {/* Dot with circular progress */}
+                    <span className="relative w-4 h-4 flex items-center justify-center">
+                      {/* Progress ring (only on active) */}
+                      {activeScreen === index && (
+                        <svg
+                          className="absolute inset-0 w-4 h-4 -rotate-90"
+                          viewBox="0 0 16 16"
+                        >
+                          {/* Background ring */}
+                          <circle
+                            cx="8"
+                            cy="8"
+                            r="6"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            className="text-white/20"
+                          />
+                          {/* Progress ring */}
+                          <circle
+                            cx="8"
+                            cy="8"
+                            r="6"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            className="text-bvi-turquoise-400"
+                            strokeDasharray={2 * Math.PI * 6}
+                            strokeDashoffset={2 * Math.PI * 6}
+                            style={{
+                              animation: isPaused ? 'none' : 'progress-ring 4s linear forwards',
+                            }}
+                          />
+                        </svg>
+                      )}
+                      {/* Center dot */}
+                      <span
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          activeScreen === index
+                            ? 'bg-bvi-turquoise-400 shadow-lg shadow-bvi-turquoise-400/50'
+                            : 'bg-white/40 group-hover:bg-white/60'
+                        }`}
+                      />
+                    </span>
                     <span
                       className={`text-xs font-medium transition-colors duration-300 ${
                         activeScreen === index ? 'text-white' : 'text-white/50 group-hover:text-white/70'
@@ -130,6 +168,18 @@ export function MobileShowcase() {
                   </button>
                 ))}
               </div>
+
+              {/* Progress ring animation keyframes */}
+              <style>{`
+                @keyframes progress-ring {
+                  from {
+                    stroke-dashoffset: ${2 * Math.PI * 6};
+                  }
+                  to {
+                    stroke-dashoffset: 0;
+                  }
+                }
+              `}</style>
             </div>
           </AnimatedSection>
 
