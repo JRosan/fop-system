@@ -2,12 +2,9 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Check, X, CreditCard, Calendar, Clock, AlertTriangle, ArrowRight, Receipt, Download, XCircle } from 'lucide-react';
 import { subscriptionApi, type SubscriptionPlan, type TenantSubscription } from '@fop/api';
-import { useNotificationStore } from '@fop/core';
+import { useNotificationStore, useTenantStore } from '@fop/core';
 import { SubscriptionCheckoutModal } from '../components/SubscriptionCheckoutModal';
 import { CancelSubscriptionModal } from '../components/CancelSubscriptionModal';
-
-// Mock tenant ID for development - in production this would come from auth context
-const MOCK_TENANT_ID = '11111111-1111-1111-1111-111111111111';
 
 const featureLabels: Record<string, string> = {
   maxUsers: 'Team Members',
@@ -38,6 +35,8 @@ export function Subscription() {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const { addNotification } = useNotificationStore();
+  const { tenant } = useTenantStore();
+  const tenantId = tenant?.id;
 
   // Check URL params for pre-selected plan (from Pricing page) or Stripe redirect
   useEffect(() => {
@@ -78,14 +77,14 @@ export function Subscription() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [tenantId]);
 
   async function loadData() {
     try {
       setLoading(true);
       const [plansData, subscriptionData] = await Promise.all([
         subscriptionApi.getPlans(),
-        subscriptionApi.getTenantSubscription(MOCK_TENANT_ID).catch(() => null),
+        tenantId ? subscriptionApi.getTenantSubscription(tenantId).catch(() => null) : Promise.resolve(null),
       ]);
       const filteredPlans = plansData.filter(p => p.tier !== 'Trial');
       setPlans(filteredPlans);
@@ -130,9 +129,9 @@ export function Subscription() {
   }
 
   async function handleCheckoutConfirm() {
-    if (!selectedPlan) return;
+    if (!selectedPlan || !tenantId) return;
 
-    const updated = await subscriptionApi.updateSubscription(MOCK_TENANT_ID, {
+    const updated = await subscriptionApi.updateSubscription(tenantId, {
       tier: selectedPlan.tier,
       isAnnualBilling: isAnnual,
     });
@@ -164,9 +163,10 @@ export function Subscription() {
   }
 
   async function handleStartTrial() {
+    if (!tenantId) return;
     try {
       setUpgrading('trial');
-      const updated = await subscriptionApi.startTrial(MOCK_TENANT_ID);
+      const updated = await subscriptionApi.startTrial(tenantId);
       setSubscription(updated);
       addNotification({
         type: 'success',
@@ -599,7 +599,7 @@ export function Subscription() {
           plan={selectedPlan}
           isAnnual={isAnnual}
           currentTier={subscription?.subscriptionTier}
-          tenantId={subscription?.tenantId || MOCK_TENANT_ID}
+          tenantId={subscription?.tenantId || tenantId || ''}
           customerEmail={undefined}
           onConfirm={handleCheckoutConfirm}
           onClose={() => {

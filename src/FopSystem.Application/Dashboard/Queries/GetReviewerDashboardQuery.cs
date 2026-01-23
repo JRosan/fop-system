@@ -85,6 +85,7 @@ public sealed class GetReviewerDashboardQueryHandler : IQueryHandler<GetReviewer
 
         // Get documents pending verification
         var documentsPending = pendingApps
+            .Where(a => a.Documents != null)
             .SelectMany(a => a.Documents)
             .Count(d => d.Status == DocumentStatus.Pending);
 

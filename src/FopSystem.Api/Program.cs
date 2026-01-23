@@ -46,9 +46,23 @@ if (builder.Configuration.GetSection("AzureAd").Exists())
 }
 else
 {
-    // Development mode without authentication
+    // Development mode without authentication - allow anonymous access
     builder.Services.AddAuthentication().AddJwtBearer();
-    builder.Services.AddAuthorization();
+
+    // Define same policies that allow anonymous access for development testing
+    // Also set the default policy to allow anonymous access
+    builder.Services.AddAuthorizationBuilder()
+        .SetDefaultPolicy(new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+            .RequireAssertion(_ => true)
+            .Build())
+        .AddPolicy("Applicant", policy => policy.RequireAssertion(_ => true))
+        .AddPolicy("Reviewer", policy => policy.RequireAssertion(_ => true))
+        .AddPolicy("Approver", policy => policy.RequireAssertion(_ => true))
+        .AddPolicy("FinanceOfficer", policy => policy.RequireAssertion(_ => true))
+        .AddPolicy("Finance", policy => policy.RequireAssertion(_ => true))
+        .AddPolicy("Admin", policy => policy.RequireAssertion(_ => true))
+        .AddPolicy("SuperAdmin", policy => policy.RequireAssertion(_ => true))
+        .AddPolicy("FieldOfficer", policy => policy.RequireAssertion(_ => true));
 }
 
 // CORS

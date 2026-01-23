@@ -1,9 +1,22 @@
 import { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { PublicLayout } from './layouts/PublicLayout';
 import { ScrollToTop } from './components/ScrollToTop';
 import { NotificationContainer } from './components/NotificationContainer';
+
+// Redirect component that preserves route parameters
+function RedirectWithParams({ to }: { to: string }) {
+  const params = useParams();
+  let path = to;
+  // Replace :param placeholders with actual values
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      path = path.replace(`:${key}`, value);
+    }
+  });
+  return <Navigate to={path} replace />;
+}
 
 // Loading fallback component
 function PageLoader() {
@@ -107,9 +120,9 @@ export default function App() {
           <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
           <Route path="/applications" element={<Navigate to="/app/applications" replace />} />
           <Route path="/applications/new" element={<Navigate to="/app/applications/new" replace />} />
-          <Route path="/applications/:id" element={<Navigate to="/app/applications/:id" replace />} />
+          <Route path="/applications/:id" element={<RedirectWithParams to="/app/applications/:id" />} />
           <Route path="/permits" element={<Navigate to="/app/permits" replace />} />
-          <Route path="/permits/:id" element={<Navigate to="/app/permits/:id" replace />} />
+          <Route path="/permits/:id" element={<RedirectWithParams to="/app/permits/:id" />} />
           <Route path="/verify" element={<Navigate to="/app/verify" replace />} />
           <Route path="/operators" element={<Navigate to="/app/operators" replace />} />
           <Route path="/fee-calculator" element={<Navigate to="/app/fee-calculator" replace />} />

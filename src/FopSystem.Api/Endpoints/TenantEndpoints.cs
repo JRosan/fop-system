@@ -14,18 +14,51 @@ public static class TenantEndpoints
             .WithTags("Tenants")
             .WithOpenApi();
 
-        // Get current tenant (from context) - available to all authenticated users
-        group.MapGet("/current", async ([FromServices] IMediator mediator) =>
+        // Get current tenant (from request headers) - available to all users
+        group.MapGet("/current", async (
+            HttpContext httpContext,
+            [FromServices] IMediator mediator) =>
         {
-            var result = await mediator.Send(new GetCurrentTenantQuery());
+            // Since /api/tenants is excluded from tenant resolution middleware,
+            // we need to resolve the tenant directly from headers
+            string? tenantCode = null;
+            Guid? tenantId = null;
 
-            return result.IsSuccess
-                ? Results.Ok(result.Value)
-                : Results.NotFound(new { error = result.Error!.Message });
+            if (httpContext.Request.Headers.TryGetValue("X-Tenant-Id", out var tenantIdHeader))
+            {
+                if (Guid.TryParse(tenantIdHeader.FirstOrDefault(), out var parsedId))
+                {
+                    tenantId = parsedId;
+                }
+            }
+
+            if (httpContext.Request.Headers.TryGetValue("X-Tenant-Code", out var tenantCodeHeader))
+            {
+                tenantCode = tenantCodeHeader.FirstOrDefault();
+            }
+
+            if (tenantId.HasValue)
+            {
+                var result = await mediator.Send(new GetTenantQuery(tenantId.Value));
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.NotFound(new { error = result.Error!.Message });
+            }
+
+            if (!string.IsNullOrWhiteSpace(tenantCode))
+            {
+                var result = await mediator.Send(new GetTenantByCodeQuery(tenantCode));
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.NotFound(new { error = result.Error!.Message });
+            }
+
+            return Results.BadRequest(new { error = "No tenant identifier provided. Use X-Tenant-Id or X-Tenant-Code header." });
         })
         .WithName("GetCurrentTenant")
-        .WithSummary("Get the current tenant based on the request context")
+        .WithSummary("Get the current tenant based on the request headers")
         .Produces<TenantDto>()
+        .Produces(400)
         .Produces(404);
 
         // Resolve tenant by subdomain - public endpoint for initial load
