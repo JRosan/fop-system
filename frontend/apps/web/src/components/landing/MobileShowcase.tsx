@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { QrCode, DollarSign, Bell, ArrowRight, Smartphone } from 'lucide-react';
 import { AnimatedSection } from '../AnimatedSection';
 import { DeviceMockup, QRScannerScreen, VerifiedScreen, FeeLoggerScreen } from './DeviceMockup';
+import { MobileAccessModal } from './MobileAccessModal';
 
 const features = [
   {
@@ -54,6 +55,7 @@ const screens = [
 export function MobileShowcase() {
   const [activeScreen, setActiveScreen] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -359,22 +361,28 @@ export function MobileShowcase() {
 
           {/* CTA Buttons */}
           <AnimatedSection delay={800} className="flex flex-wrap items-center justify-center gap-4">
-            <a
-              href="#request-access"
+            <button
+              onClick={() => setIsModalOpen(true)}
               className="group inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-bvi-gold-500 text-bvi-atlantic-900 font-semibold text-sm hover:bg-bvi-gold-400 transition-colors shadow-lg shadow-bvi-gold-500/25"
             >
               Request Mobile Access
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </a>
-            <a
-              href="#demo"
+            </button>
+            <button
+              onClick={() => {
+                containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                containerRef.current?.focus();
+              }}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white/10 backdrop-blur-sm text-white font-semibold text-sm hover:bg-white/15 transition-colors border border-white/10"
             >
               View Mobile Demo
-            </a>
+            </button>
           </AnimatedSection>
         </div>
       </div>
+
+      {/* Mobile Access Request Modal */}
+      <MobileAccessModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </section>
   );
 }
