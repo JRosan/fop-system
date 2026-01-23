@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentAssertions;
 using FopSystem.Domain.Enums;
 using Xunit;
@@ -9,6 +11,11 @@ namespace FopSystem.Api.Tests.Endpoints;
 public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+    };
 
     public BviaFeeEndpointTests(TestWebApplicationFactory<Program> factory)
     {
@@ -35,7 +42,7 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         content!.TotalFee.Amount.Should().Be(780.00m); // Landing + Nav + Pax fees
         content.LandingFee.Amount.Should().Be(500.00m); // 50 × $10
@@ -62,7 +69,7 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         content!.MtowTier.Should().Be("Tier1");
         content.NavigationFee.Amount.Should().Be(5.00m); // Tier1 nav fee
@@ -87,7 +94,7 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         content!.MtowTier.Should().Be("Tier4");
         content.NavigationFee.Amount.Should().Be(20.00m); // Tier4 nav fee
@@ -112,7 +119,7 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         content!.LandingFee.Amount.Should().Be(150.00m); // 50 × $3 (LocalScheduled Tier2)
     }
@@ -136,11 +143,11 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         // Landing: $500, Nav: $10, Parking: 2 × 20% × $500 = $200
         content!.TotalFee.Amount.Should().Be(710.00m);
-        content.Breakdown.Should().Contain(b => b.Category == (int)BviaFeeCategory.Parking);
+        content.Breakdown.Should().Contain(b => b.Category == BviaFeeCategory.Parking);
     }
 
     [Fact]
@@ -162,11 +169,11 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         // Landing: $500, Nav: $10, CAT-VI: $100
         content!.TotalFee.Amount.Should().Be(610.00m);
-        content.Breakdown.Should().Contain(b => b.Category == (int)BviaFeeCategory.CatViFireUpgrade);
+        content.Breakdown.Should().Contain(b => b.Category == BviaFeeCategory.CatViFireUpgrade);
     }
 
     [Fact]
@@ -188,11 +195,11 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         // Landing: $500, Nav: $10, Filing: $20
         content!.TotalFee.Amount.Should().Be(530.00m);
-        content.Breakdown.Should().Contain(b => b.Category == (int)BviaFeeCategory.FlightPlanFiling);
+        content.Breakdown.Should().Contain(b => b.Category == BviaFeeCategory.FlightPlanFiling);
     }
 
     [Fact]
@@ -214,11 +221,11 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         // Landing: $500, Nav: $10, Fuel: 500 × $0.20 = $100
         content!.TotalFee.Amount.Should().Be(610.00m);
-        content.Breakdown.Should().Contain(b => b.Category == (int)BviaFeeCategory.FuelFlow);
+        content.Breakdown.Should().Contain(b => b.Category == BviaFeeCategory.FuelFlow);
     }
 
     [Fact]
@@ -249,8 +256,8 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         tupjResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         tupwResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var tupjContent = await tupjResponse.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
-        var tupwContent = await tupwResponse.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>();
+        var tupjContent = await tupjResponse.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
+        var tupwContent = await tupwResponse.Content.ReadFromJsonAsync<BviaFeeCalculationResponse>(JsonOptions);
 
         // TUPJ should have higher fees due to higher airport dev fee
         tupjContent!.TotalFee.Amount.Should().BeGreaterThan(tupwContent!.TotalFee.Amount);
@@ -280,7 +287,7 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var content = await response.Content.ReadFromJsonAsync<UnifiedFeeCalculationResponse>();
+        var content = await response.Content.ReadFromJsonAsync<UnifiedFeeCalculationResponse>(JsonOptions);
         content.Should().NotBeNull();
         content!.FopFees.Amount.Should().BeGreaterThan(0);
         content.BviaFees.Amount.Should().BeGreaterThan(0);
@@ -319,8 +326,8 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
         var blanketResponse = await _client.PostAsJsonAsync("/api/bvia/fees/calculate-unified", blanketRequest);
 
         // Assert
-        var oneTimeContent = await oneTimeResponse.Content.ReadFromJsonAsync<UnifiedFeeCalculationResponse>();
-        var blanketContent = await blanketResponse.Content.ReadFromJsonAsync<UnifiedFeeCalculationResponse>();
+        var oneTimeContent = await oneTimeResponse.Content.ReadFromJsonAsync<UnifiedFeeCalculationResponse>(JsonOptions);
+        var blanketContent = await blanketResponse.Content.ReadFromJsonAsync<UnifiedFeeCalculationResponse>(JsonOptions);
 
         // Blanket should have higher FOP fees (2.5x multiplier)
         blanketContent!.FopFees.Amount.Should().BeGreaterThan(oneTimeContent!.FopFees.Amount);
@@ -334,7 +341,7 @@ public class BviaFeeEndpointTests : IClassFixture<TestWebApplicationFactory<Prog
 
     private record MoneyDto(decimal Amount, string Currency);
 
-    private record BviaFeeBreakdownItemDto(int Category, string Description, MoneyDto Amount);
+    private record BviaFeeBreakdownItemDto(BviaFeeCategory Category, string Description, MoneyDto Amount);
 
     private record BviaFeeCalculationResponse(
         MoneyDto TotalFee,
