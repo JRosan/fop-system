@@ -98,63 +98,78 @@ export const colors = {
     cancelled: '#374151',
   },
 
-  // Aviation Modern palette - Marketing landing page
-  aviationModern: {
-    // Midnight Navy - Base trust and authority
-    navy: {
-      50: '#e6eaf0',
-      100: '#c2ccd9',
-      200: '#9aabbf',
-      300: '#728aa5',
-      400: '#547192',
-      500: '#36587f',
-      600: '#2f4f73',
-      700: '#264263',
-      800: '#1d3654',
-      900: '#0A192F', // Primary base
-      950: '#060e1b',
+  // BVI Sovereign palette - Marketing landing page
+  // Reflects the Territory's unique geography: deep Atlantic to turquoise Caribbean
+  bviSovereign: {
+    // Deep Atlantic - BVI Flag & Deep Sea - Authority & Law
+    atlantic: {
+      50: '#e6ecf2',
+      100: '#b3c4d6',
+      200: '#809cba',
+      300: '#4d749e',
+      400: '#264d82',
+      500: '#003366',
+      600: '#002D56', // Primary brand color
+      700: '#002647',
+      800: '#001e38',
+      900: '#001729',
+      950: '#000f1a',
     },
-    // Precision Cyan - High-tech automation accent
-    cyan: {
-      50: '#e0feff',
-      100: '#b3fdff',
-      200: '#80fbff',
-      300: '#4df9ff',
-      400: '#26f6ff',
-      500: '#00F2FF', // Primary accent
-      600: '#00c2cc',
-      700: '#009199',
-      800: '#006166',
-      900: '#003033',
-      950: '#001a1a',
+    // Virgin Turquoise - North Sound & Shallow Reefs - Action & Success
+    turquoise: {
+      50: '#e0f4f6',
+      100: '#b3e4e9',
+      200: '#80d3db',
+      300: '#4dc2cd',
+      400: '#26b5c2',
+      500: '#00A3B1', // Primary action color
+      600: '#00828e',
+      700: '#00626a',
+      800: '#004147',
+      900: '#002123',
+      950: '#001012',
     },
-    // Safety Amber - Alerts and warnings
-    amber: {
-      50: '#fff8e6',
-      100: '#ffecb3',
-      200: '#ffe080',
-      300: '#ffd44d',
-      400: '#ffc826',
-      500: '#FFB800', // Primary alert
-      600: '#cc9300',
-      700: '#996e00',
-      800: '#664a00',
-      900: '#332500',
-      950: '#1a1300',
+    // Coral White - Anegada Sand - Light & Airy backgrounds
+    sand: {
+      50: '#F9FBFB', // Main background
+      100: '#f3f7f7',
+      200: '#e8efef',
+      300: '#dce7e7',
+      400: '#c4d4d4',
+      500: '#a8bfbf',
+      600: '#8aa8a8',
+      700: '#6b8f8f',
+      800: '#4d7676',
+      900: '#2f5c5c',
+      950: '#1a4242',
     },
-    // Cloud White - Clean workspace backgrounds
-    cloud: {
-      50: '#F8FAFC', // Primary background
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a',
-      950: '#020617',
+    // Gorda Granite - The Baths & Boulder Formations - Secondary text
+    granite: {
+      50: '#f7f8f8',
+      100: '#ebedef',
+      200: '#d1d5db',
+      300: '#9ca3af',
+      400: '#6b7280',
+      500: '#4A5568', // Secondary text
+      600: '#3d4654',
+      700: '#303740',
+      800: '#23282e',
+      900: '#16191c',
+      950: '#0a0b0d',
+    },
+    // Prestige Gold - Tropical Sunlight & Revenue - Premium accent
+    gold: {
+      50: '#fdf9f0',
+      100: '#f9f0d9',
+      200: '#f2e0b3',
+      300: '#e8cc80',
+      400: '#ddb94d',
+      500: '#C5A059', // Premium accent
+      600: '#a68647',
+      700: '#876c38',
+      800: '#685229',
+      900: '#49391a',
+      950: '#2a200e',
     },
   },
 } as const;

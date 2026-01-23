@@ -5,7 +5,7 @@ const audiences = [
   {
     icon: ClipboardCheck,
     title: 'Civil Aviation Officers',
-    color: 'blue',
+    color: 'atlantic',
     benefits: [
       'Streamlined permit review workflows',
       'Automated compliance validation',
@@ -18,7 +18,7 @@ const audiences = [
   {
     icon: PieChart,
     title: 'Finance & Revenue',
-    color: 'green',
+    color: 'turquoise',
     benefits: [
       'Automated fee calculations',
       'Payment tracking & reconciliation',
@@ -31,7 +31,7 @@ const audiences = [
   {
     icon: Plane,
     title: 'Aircraft Operators',
-    color: 'purple',
+    color: 'gold',
     benefits: [
       'Simple online application portal',
       'Document upload & management',
@@ -44,26 +44,26 @@ const audiences = [
 ];
 
 const colorClasses = {
-  blue: {
-    bg: 'bg-primary-500',
-    bgLight: 'bg-primary-50',
-    text: 'text-primary-600',
-    border: 'border-primary-200',
-    bullet: 'bg-primary-500',
+  atlantic: {
+    bg: 'bg-bvi-atlantic-600',
+    bgLight: 'bg-bvi-atlantic-50',
+    text: 'text-bvi-atlantic-600',
+    bullet: 'bg-bvi-atlantic-500',
+    hover: 'hover:bg-bvi-atlantic-700',
   },
-  green: {
-    bg: 'bg-success-500',
-    bgLight: 'bg-success-50',
-    text: 'text-success-600',
-    border: 'border-success-200',
-    bullet: 'bg-success-500',
+  turquoise: {
+    bg: 'bg-bvi-turquoise-500',
+    bgLight: 'bg-bvi-turquoise-50',
+    text: 'text-bvi-turquoise-600',
+    bullet: 'bg-bvi-turquoise-500',
+    hover: 'hover:bg-bvi-turquoise-600',
   },
-  purple: {
-    bg: 'bg-status-underReview',
-    bgLight: 'bg-purple-50',
-    text: 'text-purple-600',
-    border: 'border-purple-200',
-    bullet: 'bg-purple-500',
+  gold: {
+    bg: 'bg-bvi-gold-500',
+    bgLight: 'bg-bvi-gold-50',
+    text: 'text-bvi-gold-600',
+    bullet: 'bg-bvi-gold-500',
+    hover: 'hover:bg-bvi-gold-600',
   },
 };
 
@@ -73,13 +73,13 @@ export function AudienceSection() {
       <div className="landing-container">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-av-navy-900/10 text-av-navy-900 text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-bvi-atlantic-600/10 text-bvi-atlantic-600 text-sm font-medium mb-4">
             Built for Everyone
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-av-navy-900 mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-bvi-atlantic-600 mb-4">
             Designed for Your Role
           </h2>
-          <p className="text-lg text-av-cloud-600 max-w-2xl mx-auto">
+          <p className="text-lg text-bvi-granite-500 max-w-2xl mx-auto">
             Purpose-built interfaces and workflows tailored to the unique needs of each stakeholder in the aviation ecosystem.
           </p>
         </div>
@@ -92,14 +92,14 @@ export function AudienceSection() {
             return (
               <div
                 key={audience.title}
-                className="group flex flex-col rounded-2xl border border-neutral-200 overflow-hidden hover:shadow-xl transition-shadow"
+                className="group flex flex-col rounded-2xl border border-bvi-sand-200 overflow-hidden hover:shadow-xl transition-shadow"
               >
                 {/* Header */}
                 <div className={`${colors.bg} p-6`}>
                   <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-4">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white">{audience.title}</h3>
+                  <h3 className="text-xl font-display font-bold text-white">{audience.title}</h3>
                 </div>
 
                 {/* Benefits */}
@@ -108,7 +108,7 @@ export function AudienceSection() {
                     {audience.benefits.map((benefit) => (
                       <li key={benefit} className="flex items-start gap-3">
                         <span className={`w-1.5 h-1.5 rounded-full ${colors.bullet} mt-2 flex-shrink-0`} />
-                        <span className="text-av-cloud-700">{benefit}</span>
+                        <span className="text-bvi-granite-500">{benefit}</span>
                       </li>
                     ))}
                   </ul>
@@ -118,7 +118,7 @@ export function AudienceSection() {
                 <div className="p-6 pt-0">
                   <Link
                     to={audience.href}
-                    className={`group/btn w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl ${colors.bgLight} ${colors.text} font-semibold hover:${colors.bg} hover:text-white transition-colors`}
+                    className={`group/btn w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl ${colors.bgLight} ${colors.text} font-semibold transition-colors ${colors.hover} hover:text-white`}
                   >
                     {audience.cta}
                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />

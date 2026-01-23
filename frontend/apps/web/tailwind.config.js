@@ -13,15 +13,22 @@ export default {
         error: colors.error,
         neutral: colors.neutral,
         status: colors.status,
-        // Aviation Modern palette
-        'av-navy': colors.aviationModern.navy,
-        'av-cyan': colors.aviationModern.cyan,
-        'av-amber': colors.aviationModern.amber,
-        'av-cloud': colors.aviationModern.cloud,
+        // BVI Sovereign palette
+        'bvi-atlantic': colors.bviSovereign.atlantic,
+        'bvi-turquoise': colors.bviSovereign.turquoise,
+        'bvi-sand': colors.bviSovereign.sand,
+        'bvi-granite': colors.bviSovereign.granite,
+        'bvi-gold': colors.bviSovereign.gold,
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Montserrat', 'Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
+      },
+      backgroundImage: {
+        'hero-gradient': 'linear-gradient(135deg, #002D56 0%, #00A3B1 100%)',
+        'hero-gradient-reverse': 'linear-gradient(135deg, #00A3B1 0%, #002D56 100%)',
+        'gateway-flow': 'linear-gradient(180deg, #002D56 0%, #003366 50%, #00A3B1 100%)',
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',

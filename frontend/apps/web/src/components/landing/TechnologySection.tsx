@@ -34,31 +34,31 @@ const features = [
 ];
 
 const badges = [
-  { label: 'Microsoft Azure', icon: '/' },
-  { label: 'SOC 2 Type II', icon: '/' },
-  { label: 'ISO 27001', icon: '/' },
-  { label: 'GDPR Ready', icon: '/' },
+  { label: 'Microsoft Azure', abbr: 'AZ' },
+  { label: 'SOC 2 Type II', abbr: 'S2' },
+  { label: 'ISO 27001', abbr: 'ISO' },
+  { label: 'GDPR Ready', abbr: 'GD' },
 ];
 
 export function TechnologySection() {
   return (
-    <section className="landing-section bg-av-navy-900 relative overflow-hidden">
+    <section className="landing-section bg-bvi-atlantic-600 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-av-cyan-500/10 rounded-full blur-[128px]" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-av-cyan-500/5 rounded-full blur-[128px]" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-bvi-turquoise-500/10 rounded-full blur-[128px]" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-bvi-turquoise-500/5 rounded-full blur-[128px]" />
       </div>
 
       <div className="relative landing-container">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-av-cyan-500/10 border border-av-cyan-500/20 text-av-cyan-400 text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-bvi-turquoise-500/10 border border-bvi-turquoise-500/20 text-bvi-turquoise-400 text-sm font-medium mb-4">
             Enterprise Infrastructure
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
             Built on Modern Technology
           </h2>
-          <p className="text-lg text-av-cloud-300 max-w-2xl mx-auto">
+          <p className="text-lg text-bvi-sand-200 max-w-2xl mx-auto">
             Secure, scalable, and compliant infrastructure designed for government and enterprise aviation operations.
           </p>
         </div>
@@ -70,13 +70,13 @@ export function TechnologySection() {
             return (
               <div
                 key={feature.title}
-                className="group p-6 rounded-2xl bg-av-navy-800/50 border border-av-navy-700 hover:border-av-cyan-500/30 transition-all glow-border-hover"
+                className="group p-6 rounded-2xl bg-bvi-atlantic-700/50 border border-bvi-atlantic-500 hover:border-bvi-turquoise-500/30 transition-all glow-border-hover"
               >
-                <div className="w-12 h-12 rounded-xl bg-av-cyan-500/10 flex items-center justify-center mb-4 group-hover:bg-av-cyan-500/20 transition-colors">
-                  <Icon className="w-6 h-6 text-av-cyan-400" />
+                <div className="w-12 h-12 rounded-xl bg-bvi-turquoise-500/10 flex items-center justify-center mb-4 group-hover:bg-bvi-turquoise-500/20 transition-colors">
+                  <Icon className="w-6 h-6 text-bvi-turquoise-400" />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-av-cloud-400 text-sm leading-relaxed">{feature.description}</p>
+                <p className="text-bvi-sand-300 text-sm leading-relaxed">{feature.description}</p>
               </div>
             );
           })}
@@ -87,14 +87,14 @@ export function TechnologySection() {
           {badges.map((badge) => (
             <div
               key={badge.label}
-              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-av-navy-800/50 border border-av-navy-700"
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-bvi-atlantic-700/50 border border-bvi-atlantic-500"
             >
-              <div className="w-8 h-8 rounded-lg bg-av-cloud-100 flex items-center justify-center">
-                <span className="text-av-navy-900 text-xs font-bold">
-                  {badge.label.split(' ')[0].charAt(0)}
+              <div className="w-8 h-8 rounded-lg bg-bvi-sand-50 flex items-center justify-center">
+                <span className="text-bvi-atlantic-600 text-xs font-bold">
+                  {badge.abbr}
                 </span>
               </div>
-              <span className="text-av-cloud-300 text-sm font-medium">{badge.label}</span>
+              <span className="text-bvi-sand-200 text-sm font-medium">{badge.label}</span>
             </div>
           ))}
         </div>

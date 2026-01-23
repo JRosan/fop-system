@@ -29,17 +29,17 @@ const features = [
 
 export function UnifiedRevenueEngine() {
   return (
-    <section className="landing-section bg-av-cloud-50">
+    <section className="landing-section bg-bvi-sand-50">
       <div className="landing-container">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-av-navy-900/10 text-av-navy-900 text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-bvi-atlantic-600/10 text-bvi-atlantic-600 text-sm font-medium mb-4">
             Unified Platform
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-av-navy-900 mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-bvi-atlantic-600 mb-4">
             Your Complete Revenue Engine
           </h2>
-          <p className="text-lg text-av-cloud-600 max-w-2xl mx-auto">
+          <p className="text-lg text-bvi-granite-500 max-w-2xl mx-auto">
             One integrated platform that captures every revenue stream while ensuring regulatory compliance across all aviation operations.
           </p>
         </div>
@@ -51,19 +51,19 @@ export function UnifiedRevenueEngine() {
             return (
               <div
                 key={feature.title}
-                className="group relative bg-white rounded-2xl p-8 border border-neutral-200 hover:border-av-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-av-cyan-500/5"
+                className="group relative bg-white rounded-2xl p-8 border border-bvi-sand-200 hover:border-bvi-turquoise-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-bvi-turquoise-500/5"
               >
                 {/* Icon */}
-                <div className="w-14 h-14 rounded-xl bg-av-navy-900 group-hover:bg-av-cyan-500 flex items-center justify-center mb-6 transition-colors">
-                  <Icon className="w-7 h-7 text-av-cyan-400 group-hover:text-av-navy-900 transition-colors" />
+                <div className="w-14 h-14 rounded-xl bg-bvi-atlantic-600 group-hover:bg-bvi-turquoise-500 flex items-center justify-center mb-6 transition-colors">
+                  <Icon className="w-7 h-7 text-bvi-turquoise-400 group-hover:text-white transition-colors" />
                 </div>
 
                 {/* Content */}
-                <h3 className="text-xl font-bold text-av-navy-900 mb-2">{feature.title}</h3>
-                <p className="text-av-cloud-600 mb-4 leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl font-display font-bold text-bvi-atlantic-600 mb-2">{feature.title}</h3>
+                <p className="text-bvi-granite-500 mb-4 leading-relaxed">{feature.description}</p>
 
                 {/* Highlight Tag */}
-                <span className="inline-block px-3 py-1 rounded-full bg-av-cyan-500/10 text-av-cyan-600 text-sm font-medium">
+                <span className="inline-block px-3 py-1 rounded-full bg-bvi-turquoise-500/10 text-bvi-turquoise-600 text-sm font-medium">
                   {feature.highlight}
                 </span>
               </div>
@@ -72,32 +72,32 @@ export function UnifiedRevenueEngine() {
         </div>
 
         {/* Fee Formula Callout */}
-        <div className="mt-12 bg-av-navy-900 rounded-2xl p-8 md:p-10">
+        <div className="mt-12 bg-bvi-atlantic-600 rounded-2xl p-8 md:p-10">
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="w-16 h-16 rounded-2xl bg-av-cyan-500/20 flex items-center justify-center flex-shrink-0">
-              <Calculator className="w-8 h-8 text-av-cyan-400" />
+            <div className="w-16 h-16 rounded-2xl bg-bvi-turquoise-500/20 flex items-center justify-center flex-shrink-0">
+              <Calculator className="w-8 h-8 text-bvi-turquoise-400" />
             </div>
             <div className="text-center md:text-left flex-1">
-              <h3 className="text-xl font-bold text-white mb-2">Transparent Fee Calculation</h3>
-              <p className="text-av-cloud-300 mb-4">
+              <h3 className="text-xl font-display font-bold text-white mb-2">Transparent Fee Calculation</h3>
+              <p className="text-bvi-sand-200 mb-4">
                 Our standardized formula ensures consistent, auditable fee computation across all permit types.
               </p>
-              <code className="inline-block px-4 py-2 rounded-lg bg-av-navy-800 text-av-cyan-400 font-mono text-sm">
+              <code className="inline-block px-4 py-2 rounded-lg bg-bvi-atlantic-700 text-bvi-turquoise-400 font-mono text-sm">
                 Total = (Base + Seats × PerSeat + Weight × PerKg) × Multiplier
               </code>
             </div>
-            <div className="flex flex-col gap-3 text-sm">
+            <div className="flex flex-col gap-3 text-sm font-mono">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-av-cloud-600/20 text-av-cloud-300 font-mono">1.0x</span>
-                <span className="text-av-cloud-400">One-Time</span>
+                <span className="px-2 py-0.5 rounded bg-bvi-sand-200/20 text-bvi-sand-200">1.0x</span>
+                <span className="text-bvi-sand-300">One-Time</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-av-cyan-500/20 text-av-cyan-400 font-mono">2.5x</span>
-                <span className="text-av-cloud-400">Blanket</span>
+                <span className="px-2 py-0.5 rounded bg-bvi-turquoise-500/20 text-bvi-turquoise-400">2.5x</span>
+                <span className="text-bvi-sand-300">Blanket</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-av-amber-500/20 text-av-amber-400 font-mono">0.5x</span>
-                <span className="text-av-cloud-400">Emergency</span>
+                <span className="px-2 py-0.5 rounded bg-bvi-gold-500/20 text-bvi-gold-400">0.5x</span>
+                <span className="text-bvi-sand-300">Emergency</span>
               </div>
             </div>
           </div>
