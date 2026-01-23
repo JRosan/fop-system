@@ -16,7 +16,6 @@ interface ImportMeta {
 // Works in both Vite (import.meta.env) and Expo (process.env with babel transform)
 function getApiBaseUrl(): string {
   // Check Vite environment first (import.meta.env is available at build time)
-  // Using try-catch because import.meta may not exist in all environments
   try {
     const meta = import.meta as ImportMeta | undefined;
     if (meta?.env?.VITE_API_BASE_URL) {
