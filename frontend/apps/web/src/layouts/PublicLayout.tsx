@@ -165,14 +165,14 @@ export function PublicLayout() {
               <h4 className="text-white font-semibold mb-4">Resources</h4>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
+                  <Link to="/compliance" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
                     Documentation
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
-                    API Reference
-                  </a>
+                  <Link to="/features" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
+                    System Overview
+                  </Link>
                 </li>
                 <li>
                   <Link to="/contact" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
@@ -187,19 +187,19 @@ export function PublicLayout() {
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <ul className="space-y-3">
                 <li>
-                  <a href="#" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
+                  <Link to="/privacy" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
+                  <Link to="/terms" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
+                  <Link to="/compliance" className="text-bvi-granite-300 hover:text-white text-sm transition-colors">
                     Compliance
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

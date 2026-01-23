@@ -19,6 +19,9 @@ import { Landing } from './pages/Landing';
 import { Features } from './pages/Features';
 import { Pricing } from './pages/Pricing';
 import { Contact } from './pages/Contact';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
+import { Compliance } from './pages/Compliance';
 import { NotificationContainer } from './components/NotificationContainer';
 
 export default function App() {
@@ -31,6 +34,9 @@ export default function App() {
           <Route path="/features" element={<Features />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/compliance" element={<Compliance />} />
         </Route>
 
         {/* Authenticated App Routes */}
