@@ -101,7 +101,7 @@ export function AuditLogs() {
             <Filter className="w-4 h-4 mr-2" />
             Filters
             {hasActiveFilters && (
-              <span className="ml-2 px-2 py-0.5 bg-primary-600 text-white text-xs rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-bvi-atlantic-600 text-white text-xs rounded-full">
                 Active
               </span>
             )}
@@ -179,7 +179,7 @@ export function AuditLogs() {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="text-sm text-primary-600 hover:text-primary-700"
+                  className="text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
                 >
                   Clear all filters
                 </button>
@@ -199,7 +199,7 @@ export function AuditLogs() {
       {/* Loading State */}
       {isLoading && (
         <div className="card p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto" />
+          <div className="animate-spin w-8 h-8 border-4 border-bvi-turquoise-500 border-t-transparent rounded-full mx-auto" />
           <p className="text-neutral-500 mt-2">Loading audit logs...</p>
         </div>
       )}
@@ -273,7 +273,7 @@ export function AuditLogs() {
                                 {entityLink ? (
                                   <Link
                                     to={entityLink}
-                                    className="text-xs text-primary-600 hover:text-primary-700 font-mono"
+                                    className="text-xs text-bvi-atlantic-600 hover:text-bvi-atlantic-700 font-mono"
                                   >
                                     {log.entityId.slice(0, 8)}...
                                   </Link>

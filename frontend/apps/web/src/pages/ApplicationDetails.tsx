@@ -22,7 +22,7 @@ import { formatDate, formatDateTime, formatMoney } from '../utils/date';
 // Support both numeric and string enum values from backend
 const statusColors: Record<string | number, string> = {
   1: 'bg-neutral-100 text-neutral-700',
-  2: 'bg-primary-100 text-primary-700',
+  2: 'bg-bvi-atlantic-100 text-bvi-atlantic-700',
   3: 'bg-purple-100 text-purple-700',
   4: 'bg-warning-100 text-warning-700',
   5: 'bg-pink-100 text-pink-700',
@@ -31,7 +31,7 @@ const statusColors: Record<string | number, string> = {
   8: 'bg-neutral-100 text-neutral-500',
   9: 'bg-neutral-100 text-neutral-500',
   Draft: 'bg-neutral-100 text-neutral-700',
-  Submitted: 'bg-primary-100 text-primary-700',
+  Submitted: 'bg-bvi-atlantic-100 text-bvi-atlantic-700',
   UnderReview: 'bg-purple-100 text-purple-700',
   PendingDocuments: 'bg-warning-100 text-warning-700',
   PendingPayment: 'bg-pink-100 text-pink-700',
@@ -514,7 +514,7 @@ export function ApplicationDetails() {
               <div className="space-y-4">
                 <div className="flex gap-3">
                   <div className="flex flex-col items-center">
-                    <div className="w-2 h-2 bg-primary-600 rounded-full" />
+                    <div className="w-2 h-2 bg-bvi-atlantic-600 rounded-full" />
                     <div className="w-0.5 h-full bg-neutral-200" />
                   </div>
                   <div className="pb-4">
@@ -527,7 +527,7 @@ export function ApplicationDetails() {
                 {application.submittedAt && (
                   <div className="flex gap-3">
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-primary-600 rounded-full" />
+                      <div className="w-2 h-2 bg-bvi-atlantic-600 rounded-full" />
                       <div className="w-0.5 h-full bg-neutral-200" />
                     </div>
                     <div className="pb-4">
@@ -541,7 +541,7 @@ export function ApplicationDetails() {
                 {application.reviewedAt && (
                   <div className="flex gap-3">
                     <div className="flex flex-col items-center">
-                      <div className="w-2 h-2 bg-primary-600 rounded-full" />
+                      <div className="w-2 h-2 bg-bvi-atlantic-600 rounded-full" />
                       <div className="w-0.5 h-full bg-neutral-200" />
                     </div>
                     <div className="pb-4">

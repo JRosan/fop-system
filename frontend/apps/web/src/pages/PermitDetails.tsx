@@ -189,7 +189,7 @@ export function PermitDetails() {
   if (error || !permit) {
     return (
       <div className="space-y-6">
-        <Link to="/permits" className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700">
+        <Link to="/permits" className="inline-flex items-center gap-2 text-bvi-atlantic-600 hover:text-bvi-atlantic-700">
           <ArrowLeft className="w-4 h-4" />
           Back to Permits
         </Link>
@@ -410,7 +410,7 @@ export function PermitDetails() {
               <ul className="space-y-2">
                 {permit.conditions.map((condition, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="text-primary-600 mt-1">•</span>
+                    <span className="text-bvi-atlantic-600 mt-1">•</span>
                     <span className="text-neutral-700">{condition}</span>
                   </li>
                 ))}

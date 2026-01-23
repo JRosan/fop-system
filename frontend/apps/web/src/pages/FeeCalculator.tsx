@@ -61,7 +61,7 @@ export function FeeCalculator() {
                     key={option.value}
                     className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-colors ${
                       applicationType === option.value
-                        ? 'border-primary-500 bg-primary-50'
+                        ? 'border-bvi-turquoise-500 bg-bvi-atlantic-50'
                         : 'border-neutral-200 hover:border-neutral-300'
                     }`}
                   >
@@ -136,9 +136,9 @@ export function FeeCalculator() {
           {feeResult ? (
             <>
               {/* Total */}
-              <div className="text-center p-6 bg-primary-50 rounded-lg mb-6">
-                <p className="text-sm text-primary-600 mb-1">Estimated Total Fee</p>
-                <p className="text-4xl font-bold text-primary-700">
+              <div className="text-center p-6 bg-bvi-atlantic-50 rounded-lg mb-6">
+                <p className="text-sm text-bvi-atlantic-600 mb-1">Estimated Total Fee</p>
+                <p className="text-4xl font-bold text-bvi-atlantic-700">
                   {formatMoney(feeResult.totalFee.amount, feeResult.totalFee.currency)}
                 </p>
               </div>

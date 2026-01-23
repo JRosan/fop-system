@@ -78,7 +78,7 @@ export function Layout() {
           <div className="flex items-center justify-between px-4 h-16 border-b">
             <div className="flex items-center gap-2">
               <TenantLogo className="w-8 h-8" />
-              <span className="text-lg font-semibold text-primary-600">
+              <span className="text-lg font-semibold text-bvi-atlantic-600">
                 {displayName}
               </span>
             </div>
@@ -97,7 +97,7 @@ export function Layout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-primary-50 text-primary-600'
+                      ? 'bg-bvi-atlantic-50 text-bvi-atlantic-600'
                       : 'text-neutral-600 hover:bg-neutral-100'
                   }`
                 }
@@ -116,7 +116,7 @@ export function Layout() {
         <div className="flex flex-col h-full bg-white border-r border-neutral-200">
           <div className="flex items-center gap-2 px-6 h-16 border-b">
             <TenantLogo className="w-8 h-8" />
-            <span className="text-lg font-semibold text-primary-600">
+            <span className="text-lg font-semibold text-bvi-atlantic-600">
               {displayName}
             </span>
           </div>
@@ -128,7 +128,7 @@ export function Layout() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-primary-50 text-primary-600'
+                      ? 'bg-bvi-atlantic-50 text-bvi-atlantic-600'
                       : 'text-neutral-600 hover:bg-neutral-100'
                   }`
                 }
@@ -158,7 +158,7 @@ export function Layout() {
           </button>
           <div className="flex items-center gap-2">
             <TenantLogo className="w-7 h-7" />
-            <span className="text-lg font-semibold text-primary-600">
+            <span className="text-lg font-semibold text-bvi-atlantic-600">
               {displayName}
             </span>
           </div>

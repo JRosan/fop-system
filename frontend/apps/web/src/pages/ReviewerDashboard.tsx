@@ -352,7 +352,7 @@ export function ReviewerDashboard() {
 
         {isLoading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto" />
+            <div className="animate-spin w-8 h-8 border-4 border-bvi-turquoise-500 border-t-transparent rounded-full mx-auto" />
             <p className="text-neutral-500 mt-2">Loading applications...</p>
           </div>
         ) : !applicationsData?.items.length ? (
@@ -375,7 +375,7 @@ export function ReviewerDashboard() {
                     <div className="flex items-center gap-3 mb-1">
                       <Link
                         to={`/applications/${application.id}`}
-                        className="font-medium text-neutral-900 hover:text-primary-600"
+                        className="font-medium text-neutral-900 hover:text-bvi-atlantic-600"
                       >
                         {application.applicationNumber}
                       </Link>

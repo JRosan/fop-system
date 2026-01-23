@@ -9,7 +9,7 @@ import { formatDate, formatMoney } from '../utils/date';
 // Support both numeric and string enum values from backend
 const statusColors: Record<string | number, string> = {
   1: 'bg-neutral-100 text-neutral-700',
-  2: 'bg-primary-100 text-primary-700',
+  2: 'bg-bvi-atlantic-100 text-bvi-atlantic-700',
   3: 'bg-purple-100 text-purple-700',
   4: 'bg-warning-100 text-warning-700',
   5: 'bg-pink-100 text-pink-700',
@@ -18,7 +18,7 @@ const statusColors: Record<string | number, string> = {
   8: 'bg-neutral-100 text-neutral-500',
   9: 'bg-neutral-100 text-neutral-500',
   Draft: 'bg-neutral-100 text-neutral-700',
-  Submitted: 'bg-primary-100 text-primary-700',
+  Submitted: 'bg-bvi-atlantic-100 text-bvi-atlantic-700',
   UnderReview: 'bg-purple-100 text-purple-700',
   PendingDocuments: 'bg-warning-100 text-warning-700',
   PendingPayment: 'bg-pink-100 text-pink-700',
@@ -145,7 +145,7 @@ export function Applications() {
             <Filter className="w-4 h-4 mr-2" />
             Filters
             {(statusFilter.length > 0 || typeFilter.length > 0) && (
-              <span className="ml-2 px-2 py-0.5 bg-primary-600 text-white text-xs rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-bvi-atlantic-600 text-white text-xs rounded-full">
                 {statusFilter.length + typeFilter.length}
               </span>
             )}
@@ -187,7 +187,7 @@ export function Applications() {
                       onClick={() => toggleType(type)}
                       className={`badge cursor-pointer ${
                         typeFilter.includes(type)
-                          ? 'bg-primary-100 text-primary-700'
+                          ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700'
                           : 'bg-neutral-100 text-neutral-500'
                       }`}
                     >
@@ -204,7 +204,7 @@ export function Applications() {
                   setStatusFilter([]);
                   setTypeFilter([]);
                 }}
-                className="mt-3 text-sm text-primary-600 hover:text-primary-700"
+                className="mt-3 text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
               >
                 Clear all filters
               </button>

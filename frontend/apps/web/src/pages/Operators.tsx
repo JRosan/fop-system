@@ -120,8 +120,8 @@ export function Operators() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-primary-100">
-                        <Building2 className="w-5 h-5 text-primary-600" />
+                      <div className="p-2 rounded-lg bg-bvi-atlantic-100">
+                        <Building2 className="w-5 h-5 text-bvi-atlantic-600" />
                       </div>
                       <div>
                         <h3 className="font-medium text-neutral-900">{operator.name}</h3>

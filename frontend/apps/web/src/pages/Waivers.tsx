@@ -173,7 +173,7 @@ export function Waivers() {
       {/* Loading State */}
       {isLoading && (
         <div className="card p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto" />
+          <div className="animate-spin w-8 h-8 border-4 border-bvi-turquoise-500 border-t-transparent rounded-full mx-auto" />
           <p className="text-neutral-500 mt-2">Loading waiver requests...</p>
         </div>
       )}
@@ -201,7 +201,7 @@ export function Waivers() {
                       <div className="flex items-center gap-3 mb-2">
                         <Link
                           to={`/applications/${waiver.applicationId}`}
-                          className="font-medium text-neutral-900 hover:text-primary-600"
+                          className="font-medium text-neutral-900 hover:text-bvi-atlantic-600"
                         >
                           {waiver.applicationNumber}
                         </Link>
@@ -254,7 +254,7 @@ export function Waivers() {
                       </button>
                       <Link
                         to={`/applications/${waiver.applicationId}`}
-                        className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                        className="text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700 flex items-center gap-1"
                       >
                         View Application
                         <ChevronRight className="w-4 h-4" />

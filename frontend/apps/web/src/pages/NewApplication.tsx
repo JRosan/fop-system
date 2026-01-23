@@ -223,7 +223,7 @@ export function NewApplication() {
                     isCompleted
                       ? 'bg-green-600 text-white'
                       : isCurrent
-                        ? 'bg-primary-600 text-white ring-4 ring-primary-100'
+                        ? 'bg-bvi-atlantic-600 text-white ring-4 ring-primary-100'
                         : 'bg-neutral-100 text-neutral-400'
                   }`}
                 >
@@ -231,7 +231,7 @@ export function NewApplication() {
                 </div>
                 <span
                   className={`mt-2 text-xs font-medium text-center hidden sm:block ${
-                    isCompleted ? 'text-green-600' : isCurrent ? 'text-primary-600' : 'text-neutral-400'
+                    isCompleted ? 'text-green-600' : isCurrent ? 'text-bvi-atlantic-600' : 'text-neutral-400'
                   }`}
                 >
                   {step.name}
@@ -270,7 +270,7 @@ export function NewApplication() {
               <button
                 onClick={nextStep}
                 disabled={!canProceed()}
-                className="px-6 py-3 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-6 py-3 rounded-lg bg-bvi-atlantic-600 text-white font-medium hover:bg-bvi-atlantic-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Continue
               </button>
@@ -415,7 +415,7 @@ function PermitTypeStep({ wizard }: { wizard: ReturnType<typeof useApplicationWi
             key={type.id}
             className={`relative flex items-start p-5 rounded-xl border-2 cursor-pointer transition-all ${
               applicationType === type.id
-                ? 'border-primary-600 bg-primary-50 shadow-md'
+                ? 'border-primary-600 bg-bvi-atlantic-50 shadow-md'
                 : 'border-neutral-200 hover:border-neutral-300 hover:shadow-sm'
             }`}
           >
@@ -441,7 +441,7 @@ function PermitTypeStep({ wizard }: { wizard: ReturnType<typeof useApplicationWi
               </div>
             </div>
             {applicationType === type.id && (
-              <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-primary-600 flex items-center justify-center">
+              <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-bvi-atlantic-600 flex items-center justify-center">
                 <Check className="w-4 h-4 text-white" />
               </div>
             )}
@@ -501,7 +501,7 @@ function OperatorStep({ wizard }: { wizard: ReturnType<typeof useApplicationWiza
                   type="button"
                   onClick={() => handleSelectExisting(op)}
                   className={`w-full text-left px-4 py-3 hover:bg-neutral-50 ${
-                    operatorId === op.id ? 'bg-primary-50' : ''
+                    operatorId === op.id ? 'bg-bvi-atlantic-50' : ''
                   }`}
                 >
                   <p className="font-medium">{op.name}</p>
@@ -899,7 +899,7 @@ function DocumentsStep({ wizard }: { wizard: ReturnType<typeof useApplicationWiz
                     <X className="w-4 h-4" />
                   </button>
                 )}
-                <label className="px-4 py-2 rounded-lg border border-primary-600 text-primary-600 text-sm font-medium hover:bg-primary-50 cursor-pointer">
+                <label className="px-4 py-2 rounded-lg border border-primary-600 text-bvi-atlantic-600 text-sm font-medium hover:bg-bvi-atlantic-50 cursor-pointer">
                   {uploaded ? 'Replace' : 'Upload'}
                   <input
                     type="file"
@@ -978,18 +978,18 @@ function ReviewStep({ wizard, termsAccepted, setTermsAccepted, feeData }: Review
         </div>
 
         {feeData && (
-          <div className="p-4 rounded-lg bg-primary-50 border border-primary-200">
+          <div className="p-4 rounded-lg bg-bvi-atlantic-50 border border-primary-200">
             <h3 className="font-semibold text-primary-900 mb-2">Fee Summary</h3>
             <div className="space-y-1 text-sm">
-              <div className="flex justify-between text-primary-700">
+              <div className="flex justify-between text-bvi-atlantic-700">
                 <span>Base Fee</span>
                 <span>{formatMoney(feeData.baseFee.amount, feeData.baseFee.currency)}</span>
               </div>
-              <div className="flex justify-between text-primary-700">
+              <div className="flex justify-between text-bvi-atlantic-700">
                 <span>Seat Fee</span>
                 <span>{formatMoney(feeData.seatFee.amount, feeData.seatFee.currency)}</span>
               </div>
-              <div className="flex justify-between text-primary-700">
+              <div className="flex justify-between text-bvi-atlantic-700">
                 <span>Weight Fee</span>
                 <span>{formatMoney(feeData.weightFee.amount, feeData.weightFee.currency)}</span>
               </div>
@@ -1008,7 +1008,7 @@ function ReviewStep({ wizard, termsAccepted, setTermsAccepted, feeData }: Review
             type="checkbox"
             checked={termsAccepted}
             onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="mt-1 w-4 h-4 text-primary-600 rounded border-neutral-300 focus:ring-primary-500"
+            className="mt-1 w-4 h-4 text-bvi-atlantic-600 rounded border-neutral-300 focus:ring-bvi-turquoise-500"
           />
           <span className="text-sm text-neutral-600">
             I confirm that all information provided is accurate and complete. I understand that providing false information may result in the rejection of this application.

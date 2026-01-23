@@ -113,7 +113,7 @@ export function Permits() {
             <Filter className="w-4 h-4 mr-2" />
             Filters
             {statusFilter.length > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-primary-600 text-white text-xs rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-bvi-atlantic-600 text-white text-xs rounded-full">
                 {statusFilter.length}
               </span>
             )}
@@ -146,7 +146,7 @@ export function Permits() {
               <button
                 type="button"
                 onClick={() => setStatusFilter([])}
-                className="mt-3 text-sm text-primary-600 hover:text-primary-700"
+                className="mt-3 text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
               >
                 Clear filters
               </button>

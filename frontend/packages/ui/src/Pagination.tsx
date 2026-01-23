@@ -73,7 +73,7 @@ export function Pagination({
               onClick={() => onPageChange(page)}
               className={`min-w-[40px] h-10 rounded-lg font-medium transition-colors ${
                 page === currentPage
-                  ? 'bg-primary-600 text-white'
+                  ? 'bg-bvi-atlantic-600 text-white'
                   : 'text-neutral-600 hover:bg-neutral-100'
               }`}
               aria-current={page === currentPage ? 'page' : undefined}

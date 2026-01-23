@@ -25,7 +25,7 @@ const variantConfig: Record<AlertVariant, { icon: typeof Info; className: string
   },
   info: {
     icon: Info,
-    className: 'bg-primary-50 border-primary-200 text-primary-800',
+    className: 'bg-bvi-atlantic-50 border-bvi-atlantic-200 text-bvi-atlantic-800',
   },
 };
 

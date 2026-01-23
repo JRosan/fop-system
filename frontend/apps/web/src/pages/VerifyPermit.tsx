@@ -42,8 +42,8 @@ export function VerifyPermit() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4">
-          <Award className="w-8 h-8 text-primary-600" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-bvi-atlantic-100 mb-4">
+          <Award className="w-8 h-8 text-bvi-atlantic-600" />
         </div>
         <h1 className="text-2xl font-bold text-neutral-900">Verify Permit</h1>
         <p className="text-neutral-500 mt-2">
@@ -242,7 +242,7 @@ export function VerifyPermit() {
                     <ul className="space-y-2">
                       {result.permit.conditions.map((condition, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm text-neutral-700">
-                          <span className="text-primary-600 mt-0.5">•</span>
+                          <span className="text-bvi-atlantic-600 mt-0.5">•</span>
                           {condition}
                         </li>
                       ))}

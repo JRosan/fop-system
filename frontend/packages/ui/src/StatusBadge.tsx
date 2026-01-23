@@ -22,7 +22,7 @@ const statusConfig: Record<ApplicationStatus, { label: string; className: string
   },
   SUBMITTED: {
     label: 'Submitted',
-    className: 'bg-primary-100 text-primary-700',
+    className: 'bg-bvi-atlantic-100 text-bvi-atlantic-700',
   },
   UNDER_REVIEW: {
     label: 'Under Review',

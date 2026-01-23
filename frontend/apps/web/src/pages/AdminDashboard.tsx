@@ -67,7 +67,7 @@ export function AdminDashboard() {
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               activeTab === 'overview'
-                ? 'bg-primary-100 text-primary-700'
+                ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700'
                 : 'text-neutral-600 hover:bg-neutral-100'
             }`}
           >
@@ -77,7 +77,7 @@ export function AdminDashboard() {
             onClick={() => setActiveTab('analytics')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               activeTab === 'analytics'
-                ? 'bg-primary-100 text-primary-700'
+                ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700'
                 : 'text-neutral-600 hover:bg-neutral-100'
             }`}
           >
@@ -87,7 +87,7 @@ export function AdminDashboard() {
             onClick={() => setActiveTab('settings')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               activeTab === 'settings'
-                ? 'bg-primary-100 text-primary-700'
+                ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700'
                 : 'text-neutral-600 hover:bg-neutral-100'
             }`}
           >
@@ -102,8 +102,8 @@ export function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="card p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary-100">
-                  <Users className="w-5 h-5 text-primary-600" />
+                <div className="p-2 rounded-lg bg-bvi-atlantic-100">
+                  <Users className="w-5 h-5 text-bvi-atlantic-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-neutral-900">
@@ -182,7 +182,7 @@ export function AdminDashboard() {
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-neutral-900">Application Status</h2>
-                <BarChart3 className="w-5 h-5 text-primary-600" />
+                <BarChart3 className="w-5 h-5 text-bvi-atlantic-600" />
               </div>
               {dashboardData?.applicationsByStatus ? (
                 <div className="space-y-3">
@@ -217,9 +217,9 @@ export function AdminDashboard() {
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-neutral-900 mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50 transition-colors">
-                <div className="p-2 rounded-lg bg-primary-100">
-                  <Users className="w-5 h-5 text-primary-600" />
+              <button className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-bvi-turquoise-300 hover:bg-bvi-atlantic-50 transition-colors">
+                <div className="p-2 rounded-lg bg-bvi-atlantic-100">
+                  <Users className="w-5 h-5 text-bvi-atlantic-600" />
                 </div>
                 <div className="text-left">
                   <p className="font-medium text-neutral-900">Manage Users</p>
@@ -227,7 +227,7 @@ export function AdminDashboard() {
                 </div>
               </button>
 
-              <button className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50 transition-colors">
+              <button className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-bvi-turquoise-300 hover:bg-bvi-atlantic-50 transition-colors">
                 <div className="p-2 rounded-lg bg-blue-100">
                   <Shield className="w-5 h-5 text-blue-600" />
                 </div>
@@ -237,7 +237,7 @@ export function AdminDashboard() {
                 </div>
               </button>
 
-              <button className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50 transition-colors">
+              <button className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-bvi-turquoise-300 hover:bg-bvi-atlantic-50 transition-colors">
                 <div className="p-2 rounded-lg bg-yellow-100">
                   <Settings className="w-5 h-5 text-yellow-600" />
                 </div>

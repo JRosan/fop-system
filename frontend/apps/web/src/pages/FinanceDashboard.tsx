@@ -243,8 +243,8 @@ export function FinanceDashboard() {
 
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary-100">
-              <TrendingUp className="w-5 h-5 text-primary-600" />
+            <div className="p-2 rounded-lg bg-bvi-atlantic-100">
+              <TrendingUp className="w-5 h-5 text-bvi-atlantic-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-neutral-900">
@@ -338,7 +338,7 @@ export function FinanceDashboard() {
             <Filter className="w-4 h-4 mr-2" />
             Filters
             {(statusFilter.length > 0 || methodFilter.length > 0) && (
-              <span className="ml-2 px-2 py-0.5 bg-primary-600 text-white text-xs rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-bvi-atlantic-600 text-white text-xs rounded-full">
                 {statusFilter.length + methodFilter.length}
               </span>
             )}
@@ -380,7 +380,7 @@ export function FinanceDashboard() {
                       onClick={() => toggleMethodFilter(method)}
                       className={`badge cursor-pointer ${
                         methodFilter.includes(method)
-                          ? 'bg-primary-100 text-primary-700'
+                          ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700'
                           : 'bg-neutral-100 text-neutral-400'
                       }`}
                     >
@@ -398,7 +398,7 @@ export function FinanceDashboard() {
                   setStatusFilter([]);
                   setMethodFilter([]);
                 }}
-                className="text-sm text-primary-600 hover:text-primary-700"
+                className="text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
               >
                 Clear all filters
               </button>
@@ -415,7 +415,7 @@ export function FinanceDashboard() {
 
         {isLoading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto" />
+            <div className="animate-spin w-8 h-8 border-4 border-bvi-turquoise-500 border-t-transparent rounded-full mx-auto" />
             <p className="text-neutral-500 mt-2">Loading payments...</p>
           </div>
         ) : !paymentsData?.items?.length ? (
@@ -464,7 +464,7 @@ export function FinanceDashboard() {
                       <td className="px-4 py-3">
                         <Link
                           to={`/applications/${payment.applicationId}`}
-                          className="font-medium text-primary-600 hover:text-primary-700"
+                          className="font-medium text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
                         >
                           {payment.applicationNumber}
                         </Link>

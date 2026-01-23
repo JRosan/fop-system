@@ -8,7 +8,7 @@ import { formatDistanceToNow } from '../utils/date';
 
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-neutral-100 text-neutral-700',
-  SUBMITTED: 'bg-primary-100 text-primary-700',
+  SUBMITTED: 'bg-bvi-atlantic-100 text-bvi-atlantic-700',
   UNDER_REVIEW: 'bg-purple-100 text-purple-700',
   PENDING_DOCUMENTS: 'bg-warning-100 text-warning-700',
   PENDING_PAYMENT: 'bg-pink-100 text-pink-700',
@@ -35,7 +35,7 @@ export function Dashboard() {
       name: 'Total Applications',
       value: data?.totalApplications ?? 0,
       icon: FileText,
-      color: 'bg-primary-100 text-primary-600',
+      color: 'bg-bvi-atlantic-100 text-bvi-atlantic-600',
     },
     {
       name: 'Pending',
@@ -103,9 +103,9 @@ export function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/applications/new"
-            className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50 transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-bvi-turquoise-300 hover:bg-bvi-atlantic-50 transition-colors"
           >
-            <div className="p-2 rounded-lg bg-primary-100 text-primary-600">
+            <div className="p-2 rounded-lg bg-bvi-atlantic-100 text-bvi-atlantic-600">
               <Plus className="w-5 h-5" />
             </div>
             <div>
@@ -115,9 +115,9 @@ export function Dashboard() {
           </Link>
           <Link
             to="/fee-calculator"
-            className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50 transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-bvi-turquoise-300 hover:bg-bvi-atlantic-50 transition-colors"
           >
-            <div className="p-2 rounded-lg bg-secondary-100 text-secondary-600">
+            <div className="p-2 rounded-lg bg-bvi-turquoise-100 text-bvi-turquoise-600">
               <FileText className="w-5 h-5" />
             </div>
             <div>
@@ -127,7 +127,7 @@ export function Dashboard() {
           </Link>
           <Link
             to="/permits"
-            className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-primary-300 hover:bg-primary-50 transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 hover:border-bvi-turquoise-300 hover:bg-bvi-atlantic-50 transition-colors"
           >
             <div className="p-2 rounded-lg bg-success-100 text-success-600">
               <CheckCircle className="w-5 h-5" />
@@ -148,7 +148,7 @@ export function Dashboard() {
           </h2>
           <Link
             to="/applications"
-            className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+            className="text-sm text-bvi-turquoise-600 hover:text-bvi-turquoise-700 flex items-center gap-1"
           >
             View all
             <ArrowRight className="w-4 h-4" />
