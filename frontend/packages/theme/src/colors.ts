@@ -97,6 +97,66 @@ export const colors = {
     expired: '#6b7280',
     cancelled: '#374151',
   },
+
+  // Aviation Modern palette - Marketing landing page
+  aviationModern: {
+    // Midnight Navy - Base trust and authority
+    navy: {
+      50: '#e6eaf0',
+      100: '#c2ccd9',
+      200: '#9aabbf',
+      300: '#728aa5',
+      400: '#547192',
+      500: '#36587f',
+      600: '#2f4f73',
+      700: '#264263',
+      800: '#1d3654',
+      900: '#0A192F', // Primary base
+      950: '#060e1b',
+    },
+    // Precision Cyan - High-tech automation accent
+    cyan: {
+      50: '#e0feff',
+      100: '#b3fdff',
+      200: '#80fbff',
+      300: '#4df9ff',
+      400: '#26f6ff',
+      500: '#00F2FF', // Primary accent
+      600: '#00c2cc',
+      700: '#009199',
+      800: '#006166',
+      900: '#003033',
+      950: '#001a1a',
+    },
+    // Safety Amber - Alerts and warnings
+    amber: {
+      50: '#fff8e6',
+      100: '#ffecb3',
+      200: '#ffe080',
+      300: '#ffd44d',
+      400: '#ffc826',
+      500: '#FFB800', // Primary alert
+      600: '#cc9300',
+      700: '#996e00',
+      800: '#664a00',
+      900: '#332500',
+      950: '#1a1300',
+    },
+    // Cloud White - Clean workspace backgrounds
+    cloud: {
+      50: '#F8FAFC', // Primary background
+      100: '#f1f5f9',
+      200: '#e2e8f0',
+      300: '#cbd5e1',
+      400: '#94a3b8',
+      500: '#64748b',
+      600: '#475569',
+      700: '#334155',
+      800: '#1e293b',
+      900: '#0f172a',
+      950: '#020617',
+    },
+  },
 } as const;
 
 export type Colors = typeof colors;

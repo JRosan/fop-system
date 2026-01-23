@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import { PublicLayout } from './layouts/PublicLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Applications } from './pages/Applications';
 import { NewApplication } from './pages/NewApplication';
@@ -14,14 +15,27 @@ import { PermitDetails } from './pages/PermitDetails';
 import { VerifyPermit } from './pages/VerifyPermit';
 import { Waivers } from './pages/Waivers';
 import { AuditLogs } from './pages/AuditLogs';
+import { Landing } from './pages/Landing';
+import { Features } from './pages/Features';
+import { Pricing } from './pages/Pricing';
+import { Contact } from './pages/Contact';
 import { NotificationContainer } from './components/NotificationContainer';
 
 export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
+        {/* Public Marketing Routes */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/contact" element={<Contact />} />
+        </Route>
+
+        {/* Authenticated App Routes */}
+        <Route path="/app" element={<Layout />}>
+          <Route index element={<Navigate to="/app/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="applications" element={<Applications />} />
           <Route path="applications/new" element={<NewApplication />} />
@@ -37,6 +51,22 @@ export default function App() {
           <Route path="audit" element={<AuditLogs />} />
           <Route path="admin" element={<AdminDashboard />} />
         </Route>
+
+        {/* Legacy URL Redirects for backward compatibility */}
+        <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
+        <Route path="/applications" element={<Navigate to="/app/applications" replace />} />
+        <Route path="/applications/new" element={<Navigate to="/app/applications/new" replace />} />
+        <Route path="/applications/:id" element={<Navigate to="/app/applications/:id" replace />} />
+        <Route path="/permits" element={<Navigate to="/app/permits" replace />} />
+        <Route path="/permits/:id" element={<Navigate to="/app/permits/:id" replace />} />
+        <Route path="/verify" element={<Navigate to="/app/verify" replace />} />
+        <Route path="/operators" element={<Navigate to="/app/operators" replace />} />
+        <Route path="/fee-calculator" element={<Navigate to="/app/fee-calculator" replace />} />
+        <Route path="/review" element={<Navigate to="/app/review" replace />} />
+        <Route path="/finance" element={<Navigate to="/app/finance" replace />} />
+        <Route path="/waivers" element={<Navigate to="/app/waivers" replace />} />
+        <Route path="/audit" element={<Navigate to="/app/audit" replace />} />
+        <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
       </Routes>
       <NotificationContainer />
     </>
