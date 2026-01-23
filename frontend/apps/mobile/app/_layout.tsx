@@ -82,6 +82,13 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
+          name="aircraft/new"
+          options={{
+            title: 'Register Aircraft',
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
           name="permit/[id]"
           options={{
             title: 'Permit Details',

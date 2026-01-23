@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useRouter, useFocusEffect, Stack } from 'expo-router';
 import {
@@ -207,7 +206,7 @@ export default function AircraftListScreen() {
             </Text>
             <TouchableOpacity
               style={styles.addButton}
-              onPress={() => Alert.alert('Add Aircraft', 'Aircraft registration form coming soon. Contact support to add new aircraft.')}
+              onPress={() => router.push('/aircraft/new')}
             >
               <Plus size={20} color="#fff" />
               <Text style={styles.addButtonText}>Add Aircraft</Text>
@@ -241,7 +240,7 @@ export default function AircraftListScreen() {
         {aircraft.length > 0 && (
           <TouchableOpacity
             style={styles.fab}
-            onPress={() => Alert.alert('Add Aircraft', 'Aircraft registration form coming soon. Contact support to add new aircraft.')}
+            onPress={() => router.push('/aircraft/new')}
           >
             <Plus size={24} color="#fff" />
           </TouchableOpacity>
