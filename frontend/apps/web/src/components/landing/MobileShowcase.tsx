@@ -9,18 +9,21 @@ const features = [
     title: 'Instant Field Verification',
     description: 'Scan any permit for real-time validity checks, even with limited connectivity.',
     color: 'turquoise' as const,
+    screenIndex: 0, // Scanner screen
   },
   {
     icon: DollarSign,
     title: 'Capture Every Fee',
     description: 'Log ground services, fuel flow, and hangar fees the moment they occur. Zero leakage, maximum revenue.',
     color: 'gold' as const,
+    screenIndex: 2, // Fees screen
   },
   {
     icon: Bell,
     title: 'Critical Compliance',
     description: 'Receive instant push notifications for insurance expirations and emergency permit approvals.',
     color: 'atlantic' as const,
+    screenIndex: 1, // Verified screen
   },
 ];
 
@@ -263,6 +266,7 @@ export function MobileShowcase() {
             <div className="space-y-4">
               {features.map((feature, index) => {
                 const colors = colorClasses[feature.color];
+                const isLinkedToActiveScreen = feature.screenIndex === activeScreen;
                 return (
                   <AnimatedSection
                     key={feature.title}
@@ -270,14 +274,31 @@ export function MobileShowcase() {
                     direction="right"
                   >
                     <div
-                      className={`group p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-300 ${colors.border}`}
+                      className={`group p-4 rounded-2xl bg-white/5 backdrop-blur-sm border transition-all duration-300 cursor-pointer ${
+                        isLinkedToActiveScreen
+                          ? 'border-bvi-turquoise-500/50 bg-white/10 shadow-lg shadow-bvi-turquoise-500/10'
+                          : 'border-white/10 hover:border-white/20'
+                      }`}
+                      onMouseEnter={() => {
+                        setActiveScreen(feature.screenIndex);
+                        setIsPaused(true);
+                      }}
+                      onMouseLeave={() => {
+                        setIsPaused(false);
+                      }}
+                      onClick={() => setActiveScreen(feature.screenIndex)}
                     >
                       <div className="flex items-start gap-4">
-                        <div className={`flex-shrink-0 w-12 h-12 rounded-xl ${colors.iconBg} flex items-center justify-center`}>
+                        <div className={`flex-shrink-0 w-12 h-12 rounded-xl ${colors.iconBg} flex items-center justify-center transition-transform duration-300 ${isLinkedToActiveScreen ? 'scale-110' : 'group-hover:scale-105'}`}>
                           <feature.icon className={`w-6 h-6 ${colors.iconText}`} />
                         </div>
                         <div>
-                          <h3 className="text-white font-semibold mb-1">{feature.title}</h3>
+                          <h3 className="text-white font-semibold mb-1 flex items-center gap-2">
+                            {feature.title}
+                            {isLinkedToActiveScreen && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-bvi-turquoise-400 animate-pulse" />
+                            )}
+                          </h3>
                           <p className="text-white/60 text-sm leading-relaxed">{feature.description}</p>
                         </div>
                       </div>
