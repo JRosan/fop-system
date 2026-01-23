@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   RefreshControl,
   Alert,
   Share,
+  Linking,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import {
@@ -25,8 +26,11 @@ import {
   Share2,
   Download,
   CreditCard,
+  ExternalLink,
+  Banknote,
 } from 'lucide-react-native';
 import { useInvoiceStore, Invoice, InvoiceLineItem, Payment } from '../../../stores';
+import { paymentService } from '../../../services';
 
 const statusConfig: Record<string, { color: string; bgColor: string; icon: typeof CheckCircle; label: string }> = {
   Draft: { color: '#64748b', bgColor: '#f1f5f9', icon: FileText, label: 'Draft' },
@@ -41,6 +45,7 @@ export default function InvoiceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { currentInvoice, isLoading, error, fetchInvoice, clearCurrentInvoice } = useInvoiceStore();
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -88,10 +93,61 @@ export default function InvoiceDetailScreen() {
   };
 
   const handlePayNow = () => {
+    if (!currentInvoice) return;
+
     Alert.alert(
-      'Pay Invoice',
-      'Online payment integration coming soon. Please contact the BVI Aviation Authority for payment options.',
-      [{ text: 'OK' }]
+      'Payment Options',
+      `Pay ${formatCurrency(currentInvoice.balanceDue)} for invoice ${currentInvoice.invoiceNumber}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Pay Online',
+          onPress: handleOnlinePayment,
+        },
+        {
+          text: 'Other Methods',
+          onPress: showAlternativePaymentOptions,
+        },
+      ]
+    );
+  };
+
+  const handleOnlinePayment = async () => {
+    if (!currentInvoice || isProcessingPayment) return;
+
+    setIsProcessingPayment(true);
+    try {
+      await paymentService.openCheckout(currentInvoice.id);
+    } catch (err) {
+      Alert.alert(
+        'Payment Error',
+        'Unable to open payment page. Please try again or contact support.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const showAlternativePaymentOptions = () => {
+    Alert.alert(
+      'Alternative Payment Methods',
+      'You can pay by:\n\n' +
+        '• Bank Transfer\n' +
+        '  Account: BVI Aviation Authority\n' +
+        '  Bank: First Caribbean International\n\n' +
+        '• Check payable to:\n' +
+        '  "BVI Civil Aviation Department"\n\n' +
+        '• In-person at:\n' +
+        '  Road Town, Tortola\n\n' +
+        `Reference: ${currentInvoice?.invoiceNumber}`,
+      [
+        { text: 'Close' },
+        {
+          text: 'Contact Us',
+          onPress: () => Linking.openURL('tel:+12844943701'),
+        },
+      ]
     );
   };
 
@@ -337,9 +393,19 @@ export default function InvoiceDetailScreen() {
         {/* Actions */}
         <View style={styles.actionsContainer}>
           {currentInvoice.balanceDue.amount > 0 && (
-            <TouchableOpacity style={styles.payButton} onPress={handlePayNow}>
-              <CreditCard size={20} color="#fff" />
-              <Text style={styles.payButtonText}>Pay Now</Text>
+            <TouchableOpacity
+              style={[styles.payButton, isProcessingPayment && styles.payButtonDisabled]}
+              onPress={handlePayNow}
+              disabled={isProcessingPayment}
+            >
+              {isProcessingPayment ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <CreditCard size={20} color="#fff" />
+              )}
+              <Text style={styles.payButtonText}>
+                {isProcessingPayment ? 'Processing...' : 'Pay Now'}
+              </Text>
             </TouchableOpacity>
           )}
 
@@ -645,6 +711,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#00A3B1',
     paddingVertical: 16,
     borderRadius: 12,
+  },
+  payButtonDisabled: {
+    backgroundColor: '#94a3b8',
   },
   payButtonText: {
     color: '#fff',

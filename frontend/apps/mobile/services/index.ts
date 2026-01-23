@@ -1,5 +1,8 @@
 export { apiClient, setTokens, getAccessToken, clearTokens, isAuthenticated } from './api';
 
+export { paymentService } from './payments';
+export type { PaymentIntentRequest, PaymentResult, CheckoutSessionResponse } from './payments';
+
 export {
   initializePushNotifications,
   registerForPushNotifications,

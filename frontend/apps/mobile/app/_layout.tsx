@@ -1,6 +1,11 @@
+import { useEffect, useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { OfflineBanner } from '../components/OfflineBanner';
+import { useOfflineStore } from '../stores/offline';
+import { storage } from '../services/storage';
 
 // BVI Sovereign color tokens
 const BVI_COLORS = {
@@ -9,10 +14,34 @@ const BVI_COLORS = {
   sand: '#F9FBFB',
 };
 
-export default function RootLayout() {
+function RootLayoutContent() {
+  const insets = useSafeAreaInsets();
+  const { loadPersistedState, loadCachedData } = useOfflineStore();
+  const [isStorageReady, setIsStorageReady] = useState(false);
+
+  // Initialize storage and offline store on app start
+  useEffect(() => {
+    async function init() {
+      await storage.waitForInit();
+      loadPersistedState();
+      loadCachedData();
+      setIsStorageReady(true);
+    }
+    init();
+  }, [loadPersistedState, loadCachedData]);
+
+  // Show loading indicator while storage initializes
+  if (!isStorageReady) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: BVI_COLORS.atlantic }}>
+        <ActivityIndicator size="large" color={BVI_COLORS.turquoise} />
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaProvider>
-      <StatusBar style="auto" />
+    <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: BVI_COLORS.atlantic }}>
+      <OfflineBanner />
       <Stack
         screenOptions={{
           headerStyle: {
@@ -119,6 +148,15 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+    </View>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <StatusBar style="light" />
+      <RootLayoutContent />
     </SafeAreaProvider>
   );
 }

@@ -13,3 +13,4 @@ export * from './services/audit';
 export * from './services/tenant';
 export * from './services/subscriptions';
 export * from './services/stripe';
+export * from './services/invoices';
