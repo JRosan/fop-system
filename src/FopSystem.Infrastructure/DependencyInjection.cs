@@ -40,6 +40,7 @@ public static class DependencyInjection
         // Tenant Services
         services.AddScoped<ITenantContext, TenantContext>();
         services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
 
         // Fee Policy Provider
         services.AddScoped<IFeePolicyProvider, FeePolicyProvider>();
@@ -93,6 +94,7 @@ public static class DependencyInjection
         services.AddScoped<TenantSeeder>();
         services.AddScoped<BviaFeeRateSeeder>();
         services.AddScoped<SampleDataSeeder>();
+        services.AddScoped<SubscriptionPlanSeeder>();
 
         return services;
     }

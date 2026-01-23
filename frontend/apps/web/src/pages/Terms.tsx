@@ -2,9 +2,9 @@ import { FileText, CheckCircle, AlertTriangle, Scale, Clock, Ban, Mail } from 'l
 
 export function Terms() {
   return (
-    <div className="pt-20 md:pt-24">
+    <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-bvi-atlantic-600 to-bvi-atlantic-700 py-16 md:py-24">
+      <section className="bg-gradient-to-b from-bvi-atlantic-600 to-bvi-atlantic-700 pt-32 md:pt-40 pb-16 md:pb-24">
         <div className="landing-container">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-bvi-turquoise-500/10 border border-bvi-turquoise-500/20 text-bvi-turquoise-400 text-sm font-medium mb-6">

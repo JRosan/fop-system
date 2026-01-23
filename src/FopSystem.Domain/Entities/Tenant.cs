@@ -1,3 +1,5 @@
+using FopSystem.Domain.Enums;
+
 namespace FopSystem.Domain.Entities;
 
 /// <summary>
@@ -61,6 +63,31 @@ public class Tenant : AggregateRoot<Guid>
     /// Whether this tenant is currently active and can be used.
     /// </summary>
     public bool IsActive { get; private set; } = true;
+
+    /// <summary>
+    /// The tenant's current subscription tier.
+    /// </summary>
+    public SubscriptionTier SubscriptionTier { get; private set; } = SubscriptionTier.Trial;
+
+    /// <summary>
+    /// Whether the tenant is on annual billing (true) or monthly billing (false).
+    /// </summary>
+    public bool IsAnnualBilling { get; private set; } = false;
+
+    /// <summary>
+    /// The date when the current subscription period started.
+    /// </summary>
+    public DateTime? SubscriptionStartDate { get; private set; }
+
+    /// <summary>
+    /// The date when the current subscription period ends.
+    /// </summary>
+    public DateTime? SubscriptionEndDate { get; private set; }
+
+    /// <summary>
+    /// The date when the trial period ends (if on trial).
+    /// </summary>
+    public DateTime? TrialEndDate { get; private set; }
 
     private Tenant() { } // EF Core constructor
 
@@ -190,5 +217,51 @@ public class Tenant : AggregateRoot<Guid>
     {
         IsActive = false;
         SetUpdatedAt();
+    }
+
+    /// <summary>
+    /// Updates the tenant's subscription.
+    /// </summary>
+    public void UpdateSubscription(
+        SubscriptionTier tier,
+        bool isAnnualBilling,
+        DateTime startDate,
+        DateTime endDate)
+    {
+        SubscriptionTier = tier;
+        IsAnnualBilling = isAnnualBilling;
+        SubscriptionStartDate = startDate;
+        SubscriptionEndDate = endDate;
+
+        // Clear trial end date when upgrading from trial
+        if (tier != SubscriptionTier.Trial)
+            TrialEndDate = null;
+
+        SetUpdatedAt();
+    }
+
+    /// <summary>
+    /// Starts a trial period for the tenant.
+    /// </summary>
+    public void StartTrial(DateTime trialEndDate)
+    {
+        SubscriptionTier = SubscriptionTier.Trial;
+        TrialEndDate = trialEndDate;
+        SubscriptionStartDate = DateTime.UtcNow;
+        SubscriptionEndDate = trialEndDate;
+        SetUpdatedAt();
+    }
+
+    /// <summary>
+    /// Checks if the tenant's subscription is currently active.
+    /// </summary>
+    public bool HasActiveSubscription()
+    {
+        if (!IsActive) return false;
+
+        if (SubscriptionTier == SubscriptionTier.Trial)
+            return TrialEndDate.HasValue && TrialEndDate.Value > DateTime.UtcNow;
+
+        return SubscriptionEndDate.HasValue && SubscriptionEndDate.Value > DateTime.UtcNow;
     }
 }

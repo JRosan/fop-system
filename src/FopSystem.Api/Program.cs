@@ -137,6 +137,10 @@ if (app.Environment.IsDevelopment())
         var tenantSeeder = scope.ServiceProvider.GetRequiredService<TenantSeeder>();
         await tenantSeeder.SeedAsync();
 
+        // Seed subscription plans
+        var subscriptionSeeder = scope.ServiceProvider.GetRequiredService<SubscriptionPlanSeeder>();
+        await subscriptionSeeder.SeedAsync();
+
         // Seed BVIAA fee rates
         var feeSeeder = scope.ServiceProvider.GetRequiredService<BviaFeeRateSeeder>();
         await feeSeeder.SeedAsync();
@@ -184,6 +188,7 @@ app.MapFeeConfigurationEndpoints();
 app.MapDashboardEndpoints();
 app.MapBviaRevenueEndpoints();
 app.MapTenantEndpoints();
+app.MapSubscriptionEndpoints();
 
 app.Run();
 

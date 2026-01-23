@@ -1,4 +1,5 @@
 using FopSystem.Domain.Entities;
+using FopSystem.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -57,6 +58,21 @@ public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
         builder.Property(t => t.IsActive)
             .IsRequired()
             .HasDefaultValue(true);
+
+        // Subscription fields
+        builder.Property(t => t.SubscriptionTier)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired()
+            .HasDefaultValue(SubscriptionTier.Trial);
+
+        builder.Property(t => t.IsAnnualBilling)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(t => t.SubscriptionStartDate);
+        builder.Property(t => t.SubscriptionEndDate);
+        builder.Property(t => t.TrialEndDate);
 
         builder.Property(t => t.CreatedAt)
             .IsRequired();

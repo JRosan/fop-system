@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { PublicLayout } from './layouts/PublicLayout';
+import { ScrollToTop } from './components/ScrollToTop';
 import { Dashboard } from './pages/Dashboard';
 import { Applications } from './pages/Applications';
 import { NewApplication } from './pages/NewApplication';
@@ -22,11 +23,13 @@ import { Contact } from './pages/Contact';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { Compliance } from './pages/Compliance';
+import { Subscription } from './pages/Subscription';
 import { NotificationContainer } from './components/NotificationContainer';
 
 export default function App() {
   return (
     <>
+      <ScrollToTop />
       <Routes>
         {/* Public Marketing Routes */}
         <Route element={<PublicLayout />}>
@@ -56,6 +59,7 @@ export default function App() {
           <Route path="waivers" element={<Waivers />} />
           <Route path="audit" element={<AuditLogs />} />
           <Route path="admin" element={<AdminDashboard />} />
+          <Route path="subscription" element={<Subscription />} />
         </Route>
 
         {/* Legacy URL Redirects for backward compatibility */}
@@ -73,6 +77,7 @@ export default function App() {
         <Route path="/waivers" element={<Navigate to="/app/waivers" replace />} />
         <Route path="/audit" element={<Navigate to="/app/audit" replace />} />
         <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
+        <Route path="/subscription" element={<Navigate to="/app/subscription" replace />} />
       </Routes>
       <NotificationContainer />
     </>

@@ -24,8 +24,9 @@ public class FopDbContext : DbContext, IUnitOfWork
     /// </summary>
     public Guid CurrentTenantId => _tenantContext?.HasTenant == true ? _tenantContext.TenantId : Guid.Empty;
 
-    // Tenant entity (not tenant-scoped)
+    // Global entities (not tenant-scoped)
     public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
 
     // Tenant-scoped entities
     public DbSet<FopApplication> Applications => Set<FopApplication>();

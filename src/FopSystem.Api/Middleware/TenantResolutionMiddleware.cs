@@ -23,6 +23,7 @@ public class TenantResolutionMiddleware
         "/scalar",
         "/openapi",
         "/api/tenants", // Tenant management endpoints (SuperAdmin)
+        "/api/subscriptions/plans", // Subscription plans are global (not tenant-specific)
         "/.well-known"
     };
 

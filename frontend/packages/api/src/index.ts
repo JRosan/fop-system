@@ -11,3 +11,4 @@ export * from './services/dashboard';
 export * from './services/waivers';
 export * from './services/audit';
 export * from './services/tenant';
+export * from './services/subscriptions';

@@ -23,6 +23,7 @@ import {
   PanelLeft,
   Moon,
   Sun,
+  CreditCard,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -72,6 +73,7 @@ const navigationGroups: NavGroup[] = [
   {
     title: 'Administration',
     items: [
+      { name: 'Subscription', href: '/subscription', icon: CreditCard, roles: ['ADMIN'] },
       { name: 'Audit Logs', href: '/audit', icon: History, roles: ['ADMIN'] },
       { name: 'Admin', href: '/admin', icon: Settings, roles: ['ADMIN'] },
     ],
