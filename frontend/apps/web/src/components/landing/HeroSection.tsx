@@ -2,9 +2,25 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Play } from 'lucide-react';
 import { FloatingDashboard } from './FloatingDashboard';
 
+// Aerial view of Caribbean airport with ocean and surrounding islands
+// Wide shot capturing turquoise waters, runway, and island landscape
+const HERO_IMAGE_URL = 'https://images.unsplash.com/photo-1570710891163-6d3b5c47248b?auto=format&fit=crop&w=2070&q=80';
+
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen bg-hero-gradient overflow-hidden pt-20">
+    <section className="relative min-h-screen overflow-hidden pt-20">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${HERO_IMAGE_URL})` }}
+      />
+
+      {/* Gradient Overlay - Deep Atlantic fade */}
+      <div className="absolute inset-0 bg-gradient-to-br from-bvi-atlantic-600/95 via-bvi-atlantic-600/85 to-bvi-turquoise-500/70" />
+
+      {/* Secondary gradient for depth */}
+      <div className="absolute inset-0 bg-gradient-to-t from-bvi-atlantic-600 via-transparent to-transparent" />
+
       {/* Background Glow Effects - Caribbean water glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-32 w-96 h-96 bg-bvi-turquoise-500/20 rounded-full blur-[128px] animate-glow-pulse" />
@@ -14,7 +30,7 @@ export function HeroSection() {
 
       {/* Grid Pattern Overlay */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.02]"
         style={{
           backgroundImage: `linear-gradient(rgba(0, 163, 177, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 163, 177, 0.5) 1px, transparent 1px)`,
           backgroundSize: '50px 50px',
