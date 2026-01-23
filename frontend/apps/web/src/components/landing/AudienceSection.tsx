@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ClipboardCheck, PieChart, Plane, ArrowRight } from 'lucide-react';
+import { AnimatedSection } from '../AnimatedSection';
 
 const audiences = [
   {
@@ -72,7 +73,7 @@ export function AudienceSection() {
     <section className="landing-section bg-white">
       <div className="landing-container">
         {/* Section Header */}
-        <div className="text-center mb-16">
+        <AnimatedSection className="text-center mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-bvi-atlantic-600/10 text-bvi-atlantic-600 text-sm font-medium mb-4">
             Built for Everyone
           </span>
@@ -82,49 +83,48 @@ export function AudienceSection() {
           <p className="text-lg text-bvi-granite-500 max-w-2xl mx-auto">
             Purpose-built interfaces and workflows tailored to the unique needs of each stakeholder in the aviation ecosystem.
           </p>
-        </div>
+        </AnimatedSection>
 
         {/* Audience Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {audiences.map((audience) => {
+          {audiences.map((audience, index) => {
             const Icon = audience.icon;
             const colors = colorClasses[audience.color as keyof typeof colorClasses];
             return (
-              <div
-                key={audience.title}
-                className="group flex flex-col rounded-2xl border border-bvi-sand-200 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                {/* Header */}
-                <div className={`${colors.bg} p-6`}>
-                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-white" />
+              <AnimatedSection key={audience.title} delay={index * 150} direction="up">
+                <div className="group flex flex-col rounded-2xl border border-bvi-sand-200 overflow-hidden hover:shadow-xl transition-shadow h-full">
+                  {/* Header */}
+                  <div className={`${colors.bg} p-6`}>
+                    <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-4">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-display font-bold text-white">{audience.title}</h3>
                   </div>
-                  <h3 className="text-xl font-display font-bold text-white">{audience.title}</h3>
-                </div>
 
-                {/* Benefits */}
-                <div className="flex-1 p-6 bg-white">
-                  <ul className="space-y-4">
-                    {audience.benefits.map((benefit) => (
-                      <li key={benefit} className="flex items-start gap-3">
-                        <span className={`w-1.5 h-1.5 rounded-full ${colors.bullet} mt-2 flex-shrink-0`} />
-                        <span className="text-bvi-granite-500">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                  {/* Benefits */}
+                  <div className="flex-1 p-6 bg-white">
+                    <ul className="space-y-4">
+                      {audience.benefits.map((benefit) => (
+                        <li key={benefit} className="flex items-start gap-3">
+                          <span className={`w-1.5 h-1.5 rounded-full ${colors.bullet} mt-2 flex-shrink-0`} />
+                          <span className="text-bvi-granite-500">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                {/* CTA */}
-                <div className="p-6 pt-0">
-                  <Link
-                    to={audience.href}
-                    className={`group/btn w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl ${colors.bgLight} ${colors.text} font-semibold transition-colors ${colors.hover} hover:text-white`}
-                  >
-                    {audience.cta}
-                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                  </Link>
+                  {/* CTA */}
+                  <div className="p-6 pt-0">
+                    <Link
+                      to={audience.href}
+                      className={`group/btn w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl ${colors.bgLight} ${colors.text} font-semibold transition-colors ${colors.hover} hover:text-white`}
+                    >
+                      {audience.cta}
+                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
             );
           })}
         </div>

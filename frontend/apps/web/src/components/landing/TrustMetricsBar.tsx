@@ -1,4 +1,5 @@
 import { Shield, Clock, TrendingUp } from 'lucide-react';
+import { AnimatedSection } from '../AnimatedSection';
 
 const metrics = [
   {
@@ -26,21 +27,23 @@ export function TrustMetricsBar() {
     <section className="bg-bvi-sand-50 border-y border-bvi-sand-200">
       <div className="landing-container py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          {metrics.map((metric) => {
+          {metrics.map((metric, index) => {
             const Icon = metric.icon;
             return (
-              <div key={metric.label} className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-bvi-atlantic-600 flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-6 h-6 text-bvi-turquoise-400" />
-                </div>
-                <div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-mono font-bold text-bvi-atlantic-600">{metric.value}</span>
-                    <span className="text-sm font-semibold text-bvi-granite-500">{metric.label}</span>
+              <AnimatedSection key={metric.label} delay={index * 100} direction="up">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-bvi-atlantic-600 flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-6 h-6 text-bvi-turquoise-400" />
                   </div>
-                  <p className="text-bvi-granite-400 text-sm">{metric.description}</p>
+                  <div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-mono font-bold text-bvi-atlantic-600">{metric.value}</span>
+                      <span className="text-sm font-semibold text-bvi-granite-500">{metric.label}</span>
+                    </div>
+                    <p className="text-bvi-granite-400 text-sm">{metric.description}</p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
             );
           })}
         </div>
