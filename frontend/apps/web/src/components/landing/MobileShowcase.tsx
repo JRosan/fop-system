@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import { QrCode, DollarSign, Bell, ArrowRight, Smartphone } from 'lucide-react';
 import { AnimatedSection } from '../AnimatedSection';
-import { DeviceMockup, QRScannerScreen } from './DeviceMockup';
+import { DeviceMockup, QRScannerScreen, VerifiedScreen } from './DeviceMockup';
 
 const features = [
   {
@@ -41,7 +42,23 @@ const colorClasses = {
   },
 };
 
+const screens = [
+  { id: 'scanner', label: 'Scan', component: QRScannerScreen },
+  { id: 'verified', label: 'Verify', component: VerifiedScreen },
+] as const;
+
 export function MobileShowcase() {
+  const [activeScreen, setActiveScreen] = useState(0);
+
+  // Auto-cycle between screens
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveScreen((prev) => (prev + 1) % screens.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="landing-section relative overflow-hidden bg-gradient-to-br from-bvi-atlantic-700 via-bvi-atlantic-600 to-bvi-turquoise-600">
       {/* Background decorative elements */}
@@ -55,10 +72,56 @@ export function MobileShowcase() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Device Mockup - Left side on desktop */}
           <AnimatedSection direction="left" className="order-2 lg:order-1">
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-6">
               <DeviceMockup>
-                <QRScannerScreen />
+                {/* Screen container with crossfade */}
+                <div className="relative w-full h-full">
+                  {screens.map((screen, index) => {
+                    const ScreenComponent = screen.component;
+                    return (
+                      <div
+                        key={screen.id}
+                        className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                          activeScreen === index ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                        }`}
+                      >
+                        <ScreenComponent />
+                      </div>
+                    );
+                  })}
+                </div>
               </DeviceMockup>
+
+              {/* Screen indicator dots */}
+              <div className="flex items-center gap-3">
+                {screens.map((screen, index) => (
+                  <button
+                    key={screen.id}
+                    onClick={() => setActiveScreen(index)}
+                    className={`group flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${
+                      activeScreen === index
+                        ? 'bg-white/20 backdrop-blur-sm'
+                        : 'bg-transparent hover:bg-white/10'
+                    }`}
+                    aria-label={`View ${screen.label} screen`}
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        activeScreen === index
+                          ? 'bg-bvi-turquoise-400 shadow-lg shadow-bvi-turquoise-400/50'
+                          : 'bg-white/40 group-hover:bg-white/60'
+                      }`}
+                    />
+                    <span
+                      className={`text-xs font-medium transition-colors duration-300 ${
+                        activeScreen === index ? 'text-white' : 'text-white/50 group-hover:text-white/70'
+                      }`}
+                    >
+                      {screen.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </AnimatedSection>
 
