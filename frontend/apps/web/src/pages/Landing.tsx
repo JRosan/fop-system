@@ -4,6 +4,7 @@ import {
   UnifiedRevenueEngine,
   AudienceSection,
   TechnologySection,
+  MobileShowcase,
   CTASection,
 } from '../components/landing';
 
@@ -15,6 +16,7 @@ export function Landing() {
       <UnifiedRevenueEngine />
       <AudienceSection />
       <TechnologySection />
+      <MobileShowcase />
       <CTASection />
     </>
   );
