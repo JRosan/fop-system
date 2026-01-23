@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { MMKV } from 'react-native-mmkv';
-
-const storage = new MMKV({ id: 'biometric-settings' });
+import { storage } from '../services/storage';
 
 // Protected actions that require biometric re-authentication
 export enum ProtectedAction {
@@ -41,8 +39,8 @@ interface BiometricState {
 }
 
 const STORAGE_KEYS = {
-  BIOMETRIC_ENABLED: 'biometric_enabled',
-  PROTECTED_ACTIONS: 'protected_actions',
+  BIOMETRIC_ENABLED: 'biometric:enabled',
+  PROTECTED_ACTIONS: 'biometric:protected_actions',
 };
 
 // Default protected actions

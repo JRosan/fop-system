@@ -1,10 +1,8 @@
 import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
-import { MMKV } from 'react-native-mmkv';
+import { storage } from './storage';
 import { apiClient } from './api';
-
-const storage = new MMKV({ id: 'telemetry-queue' });
 const QUEUE_KEY = 'telemetry_queue';
 const DEVICE_ID_KEY = 'device_id';
 

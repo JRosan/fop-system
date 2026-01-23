@@ -1,8 +1,6 @@
 import { create } from 'zustand';
-import { MMKV } from 'react-native-mmkv';
+import { storage } from '../services/storage';
 import { apiClient } from '../services/api';
-
-const storage = new MMKV({ id: 'offline-sync' });
 
 // Offline command types for field operations
 export interface OfflineServiceLog {

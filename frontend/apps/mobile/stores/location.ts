@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import * as Location from 'expo-location';
-import { MMKV } from 'react-native-mmkv';
-
-const storage = new MMKV({ id: 'location-settings' });
+import { storage } from '../services/storage';
 
 export interface GeoCoordinate {
   latitude: number;

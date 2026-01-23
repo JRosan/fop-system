@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import { MMKV } from 'react-native-mmkv';
-
-const storage = new MMKV();
+import { storage } from '../services/storage';
 const PUSH_TOKEN_KEY = 'push_notification_token';
 const NOTIFICATIONS_ENABLED_KEY = 'notifications_enabled';
 

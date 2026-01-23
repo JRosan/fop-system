@@ -1,8 +1,5 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { MMKV } from 'react-native-mmkv';
-
-// Storage for auth tokens
-const storage = new MMKV();
+import { storage } from './storage';
 const AUTH_TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 

@@ -1,8 +1,6 @@
 import { create } from 'zustand';
-import { MMKV } from 'react-native-mmkv';
+import { storage } from '../services/storage';
 import { apiClient, setTokens, clearTokens } from '../services/api';
-
-const storage = new MMKV();
 const USER_KEY = 'user_data';
 
 export interface User {
