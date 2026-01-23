@@ -108,12 +108,7 @@ export default function ProfileScreen() {
 
   const handleMenuPress = (item: typeof menuItems[0]) => {
     if (item.key === 'notifications') {
-      // Show notification settings in an alert for now
-      Alert.alert(
-        'Notification Settings',
-        'Manage which notifications you receive',
-        [{ text: 'OK' }]
-      );
+      router.push('/notifications');
     } else if (item.href) {
       router.push(item.href as never);
     }

@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as DocumentPicker from 'expo-document-picker';
 import {
   X,
   ChevronLeft,
@@ -24,12 +25,33 @@ import {
   Calendar,
   Upload,
   CreditCard,
+  File,
+  Trash2,
 } from 'lucide-react-native';
 import type {
   ApplicationType,
   FlightPurpose,
 } from '@fop/types';
 import { useApplicationStore, useAuthStore, useAircraftStore } from '../../stores';
+
+// Document info interface
+interface UploadedDocument {
+  type: string;
+  name: string;
+  uri: string;
+  size?: number;
+  mimeType?: string;
+}
+
+// Allowed document types
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/jpg',
+];
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // Wizard Steps
 const TOTAL_STEPS = 7;
@@ -97,7 +119,7 @@ interface WizardState {
   startDate: string;
   endDate: string;
   // Step 6 - Documents
-  uploadedDocuments: string[];
+  uploadedDocuments: UploadedDocument[];
 }
 
 export default function NewApplicationScreen() {
@@ -163,7 +185,10 @@ export default function NewApplicationScreen() {
       case 5:
         return state.startDate.length > 0 && state.endDate.length > 0;
       case 6:
-        return state.uploadedDocuments.length === 4;
+        // Check all required document types are uploaded
+        return requiredDocuments.every((doc) =>
+          state.uploadedDocuments.some((uploaded) => uploaded.type === doc.type)
+        );
       case 7:
         return true;
       default:
@@ -238,15 +263,90 @@ export default function NewApplicationScreen() {
     }
   }, [state, router, user, selectedAircraftId, aircraft, createApplication, createError]);
 
-  const handleDocumentUpload = useCallback((docType: string) => {
-    // TODO: Implement document picker
-    // For now, simulate upload
-    if (!state.uploadedDocuments.includes(docType)) {
-      updateState({
-        uploadedDocuments: [...state.uploadedDocuments, docType],
+  const handleDocumentUpload = useCallback(async (docType: string) => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ALLOWED_MIME_TYPES,
+        copyToCacheDirectory: true,
       });
+
+      if (result.canceled) {
+        return;
+      }
+
+      const file = result.assets[0];
+
+      // Validate file size
+      if (file.size && file.size > MAX_FILE_SIZE) {
+        Alert.alert(
+          'File Too Large',
+          'Please select a file smaller than 10MB.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      // Validate file type
+      if (file.mimeType && !ALLOWED_MIME_TYPES.includes(file.mimeType)) {
+        Alert.alert(
+          'Invalid File Type',
+          'Please select a PDF, JPG, or PNG file.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      // Remove existing document of this type if any
+      const filteredDocs = state.uploadedDocuments.filter((doc) => doc.type !== docType);
+
+      // Add the new document
+      const newDoc: UploadedDocument = {
+        type: docType,
+        name: file.name,
+        uri: file.uri,
+        size: file.size,
+        mimeType: file.mimeType,
+      };
+
+      updateState({
+        uploadedDocuments: [...filteredDocs, newDoc],
+      });
+
+      Alert.alert('Document Uploaded', `${file.name} has been attached.`);
+    } catch (error) {
+      Alert.alert('Upload Failed', 'Could not upload the document. Please try again.');
     }
   }, [state.uploadedDocuments, updateState]);
+
+  const handleRemoveDocument = useCallback((docType: string) => {
+    Alert.alert(
+      'Remove Document',
+      'Are you sure you want to remove this document?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            updateState({
+              uploadedDocuments: state.uploadedDocuments.filter((doc) => doc.type !== docType),
+            });
+          },
+        },
+      ]
+    );
+  }, [state.uploadedDocuments, updateState]);
+
+  const getUploadedDocument = useCallback((docType: string): UploadedDocument | undefined => {
+    return state.uploadedDocuments.find((doc) => doc.type === docType);
+  }, [state.uploadedDocuments]);
+
+  const formatFileSize = (bytes?: number): string => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   const calculateFee = useCallback(() => {
     const baseFee = 150;
@@ -583,35 +683,69 @@ export default function NewApplicationScreen() {
       <Text style={styles.stepDescription}>Upload required documents</Text>
       <View style={styles.documentList}>
         {requiredDocuments.map((doc) => {
-          const isUploaded = state.uploadedDocuments.includes(doc.type);
+          const uploadedDoc = getUploadedDocument(doc.type);
+          const isUploaded = !!uploadedDoc;
           return (
-            <TouchableOpacity
-              key={doc.type}
-              style={[styles.documentItem, isUploaded && styles.documentItemUploaded]}
-              onPress={() => handleDocumentUpload(doc.type)}
-            >
-              <View style={styles.documentInfo}>
-                {isUploaded ? (
-                  <Check size={24} color="#10b981" />
-                ) : (
-                  <Upload size={24} color="#64748b" />
-                )}
-                <View style={styles.documentText}>
-                  <Text style={styles.documentName}>{doc.name}</Text>
-                  <Text style={styles.documentStatus}>
-                    {isUploaded ? 'Uploaded' : 'Tap to upload'}
-                  </Text>
+            <View key={doc.type} style={[styles.documentItem, isUploaded && styles.documentItemUploaded]}>
+              <TouchableOpacity
+                style={styles.documentPressable}
+                onPress={() => handleDocumentUpload(doc.type)}
+              >
+                <View style={styles.documentInfo}>
+                  {isUploaded ? (
+                    <View style={styles.documentIconSuccess}>
+                      <File size={20} color="#10b981" />
+                    </View>
+                  ) : (
+                    <View style={styles.documentIconPending}>
+                      <Upload size={20} color="#64748b" />
+                    </View>
+                  )}
+                  <View style={styles.documentText}>
+                    <Text style={styles.documentName}>{doc.name}</Text>
+                    {isUploaded && uploadedDoc ? (
+                      <View style={styles.uploadedFileInfo}>
+                        <Text style={styles.uploadedFileName} numberOfLines={1}>
+                          {uploadedDoc.name}
+                        </Text>
+                        {uploadedDoc.size && (
+                          <Text style={styles.uploadedFileSize}>
+                            {formatFileSize(uploadedDoc.size)}
+                          </Text>
+                        )}
+                      </View>
+                    ) : (
+                      <Text style={styles.documentStatus}>Tap to select file</Text>
+                    )}
+                  </View>
                 </View>
-              </View>
-              <Text style={[styles.requiredBadge, isUploaded && styles.uploadedBadge]}>
-                {isUploaded ? 'Done' : 'Required'}
-              </Text>
-            </TouchableOpacity>
+                {!isUploaded && (
+                  <Text style={styles.requiredBadge}>Required</Text>
+                )}
+              </TouchableOpacity>
+              {isUploaded && (
+                <View style={styles.documentActions}>
+                  <TouchableOpacity
+                    style={styles.replaceButton}
+                    onPress={() => handleDocumentUpload(doc.type)}
+                  >
+                    <Text style={styles.replaceButtonText}>Replace</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => handleRemoveDocument(doc.type)}
+                  >
+                    <Trash2 size={16} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           );
         })}
       </View>
       <Text style={styles.uploadNote}>
-        All documents must be valid and clearly legible. Supported formats: PDF, JPG, PNG
+        All documents must be valid and clearly legible.{'\n'}
+        Supported formats: PDF, JPG, PNG (max 10MB each)
       </Text>
     </View>
   );
@@ -956,18 +1090,21 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   documentItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
     backgroundColor: '#f8fafc',
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e2e8f0',
+    overflow: 'hidden',
   },
   documentItemUploaded: {
     backgroundColor: '#f0fdf4',
     borderColor: '#86efac',
+  },
+  documentPressable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
   },
   documentInfo: {
     flexDirection: 'row',
@@ -975,21 +1112,73 @@ const styles = StyleSheet.create({
     gap: 12,
     flex: 1,
   },
+  documentIconPending: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#e2e8f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  documentIconSuccess: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#dcfce7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   documentText: {
     flex: 1,
   },
   documentName: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
     color: '#1e293b',
   },
   documentStatus: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#64748b',
     marginTop: 2,
   },
-  requiredBadge: {
+  uploadedFileInfo: {
+    marginTop: 4,
+  },
+  uploadedFileName: {
+    fontSize: 13,
+    color: '#10b981',
+    fontWeight: '500',
+  },
+  uploadedFileSize: {
+    fontSize: 11,
+    color: '#64748b',
+    marginTop: 1,
+  },
+  documentActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  replaceButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#e0f2fe',
+    borderRadius: 6,
+  },
+  replaceButtonText: {
     fontSize: 12,
+    fontWeight: '600',
+    color: '#0284c7',
+  },
+  removeButton: {
+    padding: 6,
+    backgroundColor: '#fef2f2',
+    borderRadius: 6,
+  },
+  requiredBadge: {
+    fontSize: 11,
     fontWeight: '600',
     color: '#dc2626',
     backgroundColor: '#fef2f2',
@@ -1006,6 +1195,7 @@ const styles = StyleSheet.create({
     color: '#64748b',
     marginTop: 16,
     textAlign: 'center',
+    lineHeight: 18,
   },
   reviewSection: {
     paddingVertical: 16,

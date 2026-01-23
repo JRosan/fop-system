@@ -94,6 +94,30 @@ export default function RootLayout() {
             title: 'Permit Details',
           }}
         />
+        <Stack.Screen
+          name="help"
+          options={{
+            title: 'Help & Support',
+          }}
+        />
+        <Stack.Screen
+          name="privacy"
+          options={{
+            title: 'Privacy Policy',
+          }}
+        />
+        <Stack.Screen
+          name="subscription"
+          options={{
+            title: 'Subscription',
+          }}
+        />
+        <Stack.Screen
+          name="notifications"
+          options={{
+            title: 'Notification Settings',
+          }}
+        />
       </Stack>
     </SafeAreaProvider>
   );
