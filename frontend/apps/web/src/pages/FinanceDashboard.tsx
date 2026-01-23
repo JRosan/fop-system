@@ -27,18 +27,18 @@ import { Portal } from '../components/Portal';
 
 // Support both numeric and string enum values from backend (camelCase)
 const statusColors: Record<string | number, string> = {
-  1: 'bg-yellow-100 text-yellow-700',
-  2: 'bg-blue-100 text-blue-700',
-  3: 'bg-success-100 text-success-700',
-  4: 'bg-error-100 text-error-700',
-  5: 'bg-purple-100 text-purple-700',
-  6: 'bg-neutral-100 text-neutral-500',
-  pending: 'bg-yellow-100 text-yellow-700',
-  processing: 'bg-blue-100 text-blue-700',
-  completed: 'bg-success-100 text-success-700',
-  failed: 'bg-error-100 text-error-700',
-  refunded: 'bg-purple-100 text-purple-700',
-  cancelled: 'bg-neutral-100 text-neutral-500',
+  1: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+  2: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  3: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  4: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  5: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  6: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+  processing: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  completed: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  failed: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  refunded: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  cancelled: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
 };
 
 const statusLabels: Record<string | number, string> = {
@@ -191,68 +191,68 @@ export function FinanceDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Finance Dashboard</h1>
-        <p className="text-neutral-500 mt-1">Manage payments and track revenue</p>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Finance Dashboard</h1>
+        <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1">Manage payments and track revenue</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-yellow-100">
-              <Clock className="w-5 h-5 text-yellow-600" />
+            <div className="p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
+              <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-neutral-900">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {dashboardData?.pendingPayments ?? '-'}
               </p>
-              <p className="text-sm text-neutral-500">Pending Payments</p>
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">Pending Payments</p>
             </div>
           </div>
         </div>
 
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-100">
-              <FileText className="w-5 h-5 text-orange-600" />
+            <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/30">
+              <FileText className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-neutral-900">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {dashboardData?.pendingWaivers ?? '-'}
               </p>
-              <p className="text-sm text-neutral-500">Pending Waivers</p>
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">Pending Waivers</p>
             </div>
           </div>
         </div>
 
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-success-100">
-              <DollarSign className="w-5 h-5 text-success-600" />
+            <div className="p-2 rounded-lg bg-success-100 dark:bg-success-900/30">
+              <DollarSign className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-neutral-900">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {dashboardData?.collectedToday
                   ? formatMoney(dashboardData.collectedToday.amount, dashboardData.collectedToday.currency)
                   : '-'}
               </p>
-              <p className="text-sm text-neutral-500">Collected Today</p>
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">Collected Today</p>
             </div>
           </div>
         </div>
 
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-bvi-atlantic-100">
-              <TrendingUp className="w-5 h-5 text-bvi-atlantic-600" />
+            <div className="p-2 rounded-lg bg-bvi-atlantic-100 dark:bg-bvi-atlantic-800">
+              <TrendingUp className="w-5 h-5 text-bvi-atlantic-600 dark:text-bvi-atlantic-300" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-neutral-900">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {dashboardData?.collectedThisMonth
                   ? formatMoney(dashboardData.collectedThisMonth.amount, dashboardData.collectedThisMonth.currency)
                   : '-'}
               </p>
-              <p className="text-sm text-neutral-500">This Month</p>
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">This Month</p>
             </div>
           </div>
         </div>
@@ -261,37 +261,37 @@ export function FinanceDashboard() {
       {/* Pending Payments Quick Action */}
       {pendingPayments && pendingPayments.length > 0 && (
         <div className="card">
-          <div className="p-4 border-b border-neutral-200 bg-yellow-50">
+          <div className="p-4 border-b border-neutral-200 dark:border-bvi-granite-700 bg-yellow-50 dark:bg-yellow-900/20">
             <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-yellow-600" />
-              <h2 className="text-lg font-semibold text-neutral-900">
+              <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
                 Payments Awaiting Verification ({pendingPayments.length})
               </h2>
             </div>
           </div>
-          <div className="divide-y divide-neutral-200">
+          <div className="divide-y divide-neutral-200 dark:divide-bvi-granite-700">
             {pendingPayments.slice(0, 5).map((payment) => {
               const MethodIcon = methodIcons[payment.method] || CreditCard;
               return (
                 <div
                   key={payment.id}
-                  className="p-4 flex items-center justify-between hover:bg-neutral-50"
+                  className="p-4 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-bvi-atlantic-800"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-lg bg-neutral-100">
-                      <MethodIcon className="w-5 h-5 text-neutral-600" />
+                    <div className="p-2 rounded-lg bg-neutral-100 dark:bg-bvi-granite-700">
+                      <MethodIcon className="w-5 h-5 text-neutral-600 dark:text-bvi-granite-300" />
                     </div>
                     <div>
-                      <p className="font-medium text-neutral-900">{payment.applicationNumber}</p>
-                      <p className="text-sm text-neutral-500">{payment.operatorName}</p>
+                      <p className="font-medium text-neutral-900 dark:text-white">{payment.applicationNumber}</p>
+                      <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">{payment.operatorName}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="font-semibold text-neutral-900">
+                      <p className="font-semibold text-neutral-900 dark:text-white">
                         {formatMoney(payment.amount.amount, payment.amount.currency)}
                       </p>
-                      <p className="text-sm text-neutral-500">{methodLabels[payment.method]}</p>
+                      <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">{methodLabels[payment.method]}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
@@ -333,7 +333,7 @@ export function FinanceDashboard() {
           <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn-secondary ${showFilters ? 'bg-neutral-300' : ''}`}
+            className={`btn-secondary ${showFilters ? 'bg-neutral-300 dark:bg-bvi-atlantic-700' : ''}`}
           >
             <Filter className="w-4 h-4 mr-2" />
             Filters
@@ -346,7 +346,7 @@ export function FinanceDashboard() {
         </form>
 
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-neutral-200 space-y-4">
+          <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-bvi-granite-700 space-y-4">
             <div>
               <label className="label">Status</label>
               <div className="flex flex-wrap gap-2">
@@ -359,7 +359,7 @@ export function FinanceDashboard() {
                       className={`badge cursor-pointer ${
                         statusFilter.includes(status)
                           ? statusColors[status]
-                          : 'bg-neutral-100 text-neutral-400'
+                          : 'bg-neutral-100 text-neutral-400 dark:bg-bvi-granite-700 dark:text-bvi-granite-500'
                       }`}
                     >
                       {statusLabels[status]}
@@ -380,8 +380,8 @@ export function FinanceDashboard() {
                       onClick={() => toggleMethodFilter(method)}
                       className={`badge cursor-pointer ${
                         methodFilter.includes(method)
-                          ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700'
-                          : 'bg-neutral-100 text-neutral-400'
+                          ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700 dark:bg-bvi-atlantic-800 dark:text-bvi-atlantic-300'
+                          : 'bg-neutral-100 text-neutral-400 dark:bg-bvi-granite-700 dark:text-bvi-granite-500'
                       }`}
                     >
                       {methodLabels[method]}
@@ -398,7 +398,7 @@ export function FinanceDashboard() {
                   setStatusFilter([]);
                   setMethodFilter([]);
                 }}
-                className="text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
+                className="text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700 dark:text-bvi-turquoise-400 dark:hover:text-bvi-turquoise-300"
               >
                 Clear all filters
               </button>
@@ -409,20 +409,20 @@ export function FinanceDashboard() {
 
       {/* Payments List */}
       <div className="card">
-        <div className="p-4 border-b border-neutral-200">
-          <h2 className="text-lg font-semibold text-neutral-900">All Payments</h2>
+        <div className="p-4 border-b border-neutral-200 dark:border-bvi-granite-700">
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">All Payments</h2>
         </div>
 
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin w-8 h-8 border-4 border-bvi-turquoise-500 border-t-transparent rounded-full mx-auto" />
-            <p className="text-neutral-500 mt-2">Loading payments...</p>
+            <p className="text-neutral-500 dark:text-bvi-granite-400 mt-2">Loading payments...</p>
           </div>
         ) : !paymentsData?.items?.length ? (
           <div className="p-8 text-center">
-            <DollarSign className="w-12 h-12 mx-auto mb-3 text-neutral-400" />
-            <h3 className="text-lg font-medium text-neutral-900">No payments found</h3>
-            <p className="text-neutral-500 mt-1">
+            <DollarSign className="w-12 h-12 mx-auto mb-3 text-neutral-400 dark:text-bvi-granite-500" />
+            <h3 className="text-lg font-medium text-neutral-900 dark:text-white">No payments found</h3>
+            <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1">
               {searchTerm || statusFilter.length || methodFilter.length
                 ? 'Try adjusting your search or filters'
                 : 'Payments will appear here as applications are processed'}
@@ -431,52 +431,52 @@ export function FinanceDashboard() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-neutral-50 border-b border-neutral-200">
+              <thead className="bg-neutral-50 dark:bg-bvi-atlantic-800 border-b border-neutral-200 dark:border-bvi-granite-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600 dark:text-bvi-granite-300">
                     Application
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600 dark:text-bvi-granite-300">
                     Operator
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600 dark:text-bvi-granite-300">
                     Amount
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600 dark:text-bvi-granite-300">
                     Method
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600 dark:text-bvi-granite-300">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-neutral-600 dark:text-bvi-granite-300">
                     Date
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-600">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-neutral-600 dark:text-bvi-granite-300">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-200">
+              <tbody className="divide-y divide-neutral-200 dark:divide-bvi-granite-700">
                 {paymentsData.items.map((payment) => {
                   const MethodIcon = methodIcons[payment.method] || CreditCard;
                   return (
-                    <tr key={payment.id} className="hover:bg-neutral-50">
+                    <tr key={payment.id} className="hover:bg-neutral-50 dark:hover:bg-bvi-atlantic-800">
                       <td className="px-4 py-3">
                         <Link
                           to={`/applications/${payment.applicationId}`}
-                          className="font-medium text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
+                          className="font-medium text-bvi-atlantic-600 hover:text-bvi-atlantic-700 dark:text-bvi-turquoise-400 dark:hover:text-bvi-turquoise-300"
                         >
                           {payment.applicationNumber}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-neutral-600">{payment.operatorName}</td>
-                      <td className="px-4 py-3 font-medium text-neutral-900">
+                      <td className="px-4 py-3 text-neutral-600 dark:text-bvi-granite-300">{payment.operatorName}</td>
+                      <td className="px-4 py-3 font-medium text-neutral-900 dark:text-white">
                         {formatMoney(payment.amount.amount, payment.amount.currency)}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <MethodIcon className="w-4 h-4 text-neutral-400" />
-                          <span className="text-neutral-600">{methodLabels[payment.method]}</span>
+                          <MethodIcon className="w-4 h-4 text-neutral-400 dark:text-bvi-granite-500" />
+                          <span className="text-neutral-600 dark:text-bvi-granite-300">{methodLabels[payment.method]}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -484,7 +484,7 @@ export function FinanceDashboard() {
                           {statusLabels[payment.status]}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-neutral-600">
+                      <td className="px-4 py-3 text-neutral-600 dark:text-bvi-granite-300">
                         {payment.paymentDate ? formatDate(payment.paymentDate) : '-'}
                       </td>
                       <td className="px-4 py-3">
@@ -493,14 +493,14 @@ export function FinanceDashboard() {
                             <>
                               <button
                                 onClick={() => openVerifyModal(payment)}
-                                className="p-1.5 rounded hover:bg-success-100 text-success-600"
+                                className="p-1.5 rounded hover:bg-success-100 dark:hover:bg-success-900/30 text-success-600 dark:text-success-400"
                                 title="Verify Payment"
                               >
                                 <CheckCircle className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => openRejectModal(payment)}
-                                className="p-1.5 rounded hover:bg-error-100 text-error-600"
+                                className="p-1.5 rounded hover:bg-error-100 dark:hover:bg-error-900/30 text-error-600 dark:text-error-400"
                                 title="Reject Payment"
                               >
                                 <XCircle className="w-4 h-4" />
@@ -512,7 +512,7 @@ export function FinanceDashboard() {
                               onClick={() => {
                                 // Download receipt
                               }}
-                              className="p-1.5 rounded hover:bg-neutral-100 text-neutral-600"
+                              className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-bvi-atlantic-800 text-neutral-600 dark:text-bvi-granite-400"
                               title="Download Receipt"
                             >
                               <Download className="w-4 h-4" />
@@ -520,7 +520,7 @@ export function FinanceDashboard() {
                           )}
                           <Link
                             to={`/applications/${payment.applicationId}`}
-                            className="p-1.5 rounded hover:bg-neutral-100 text-neutral-600"
+                            className="p-1.5 rounded hover:bg-neutral-100 dark:hover:bg-bvi-atlantic-800 text-neutral-600 dark:text-bvi-granite-400"
                             title="View Application"
                           >
                             <Eye className="w-4 h-4" />

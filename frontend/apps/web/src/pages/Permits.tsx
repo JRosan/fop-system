@@ -8,14 +8,14 @@ import { formatDate } from '../utils/date';
 
 // Support both numeric and string enum values from backend
 const statusColors: Record<string | number, string> = {
-  1: 'bg-success-100 text-success-700',
-  2: 'bg-neutral-100 text-neutral-500',
-  3: 'bg-error-100 text-error-700',
-  4: 'bg-warning-100 text-warning-700',
-  Active: 'bg-success-100 text-success-700',
-  Expired: 'bg-neutral-100 text-neutral-500',
-  Revoked: 'bg-error-100 text-error-700',
-  Suspended: 'bg-warning-100 text-warning-700',
+  1: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  2: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  3: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  4: 'bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-300',
+  Active: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  Expired: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  Revoked: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  Suspended: 'bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-300',
 };
 
 const statusLabels: Record<string | number, string> = {
@@ -84,8 +84,8 @@ export function Permits() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Permits</h1>
-          <p className="text-neutral-500 mt-1">View and manage issued permits</p>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Permits</h1>
+          <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1">View and manage issued permits</p>
         </div>
       </div>
 
@@ -108,7 +108,7 @@ export function Permits() {
           <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn-secondary ${showFilters ? 'bg-neutral-300' : ''}`}
+            className={`btn-secondary ${showFilters ? 'bg-neutral-300 dark:bg-bvi-atlantic-700' : ''}`}
           >
             <Filter className="w-4 h-4 mr-2" />
             Filters
@@ -122,7 +122,7 @@ export function Permits() {
 
         {/* Filter Panel */}
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-neutral-200">
+          <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-bvi-granite-700">
             <div>
               <label className="label">Status</label>
               <div className="flex flex-wrap gap-2">
@@ -134,7 +134,7 @@ export function Permits() {
                     className={`badge cursor-pointer ${
                       statusFilter.includes(status as any)
                         ? statusColors[status]
-                        : 'bg-neutral-100 text-neutral-500'
+                        : 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400'
                     }`}
                   >
                     {statusLabels[status]}
@@ -146,7 +146,7 @@ export function Permits() {
               <button
                 type="button"
                 onClick={() => setStatusFilter([])}
-                className="mt-3 text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
+                className="mt-3 text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700 dark:text-bvi-turquoise-400 dark:hover:text-bvi-turquoise-300"
               >
                 Clear filters
               </button>
@@ -157,22 +157,22 @@ export function Permits() {
 
       {/* Error State */}
       {error && (
-        <div className="card p-4 bg-error-50 border-error-200">
-          <p className="text-error-700">Failed to load permits. Please try again.</p>
+        <div className="card p-4 bg-error-50 border-error-200 dark:bg-error-900/20 dark:border-error-800">
+          <p className="text-error-700 dark:text-error-300">Failed to load permits. Please try again.</p>
         </div>
       )}
 
       {/* Loading State */}
       {isLoading && (
-        <div className="card divide-y divide-neutral-200">
+        <div className="card divide-y divide-neutral-200 dark:divide-bvi-granite-700">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="p-4 animate-pulse">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                  <div className="h-5 w-32 bg-neutral-200 rounded" />
-                  <div className="h-4 w-48 bg-neutral-200 rounded" />
+                  <div className="h-5 w-32 bg-neutral-200 dark:bg-bvi-granite-700 rounded" />
+                  <div className="h-4 w-48 bg-neutral-200 dark:bg-bvi-granite-700 rounded" />
                 </div>
-                <div className="h-6 w-20 bg-neutral-200 rounded-full" />
+                <div className="h-6 w-20 bg-neutral-200 dark:bg-bvi-granite-700 rounded-full" />
               </div>
             </div>
           ))}
@@ -184,31 +184,31 @@ export function Permits() {
         <>
           {data.items.length === 0 ? (
             <div className="card p-8 text-center">
-              <Award className="w-12 h-12 mx-auto mb-3 text-neutral-400" />
-              <h3 className="text-lg font-medium text-neutral-900">
+              <Award className="w-12 h-12 mx-auto mb-3 text-neutral-400 dark:text-bvi-granite-500" />
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
                 {searchTerm || statusFilter.length ? 'No permits found' : 'No permits yet'}
               </h3>
-              <p className="text-neutral-500 mt-1 mb-4">
+              <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1 mb-4">
                 {searchTerm || statusFilter.length
                   ? 'Try adjusting your search or filters'
                   : 'Permits will appear here after applications are approved'}
               </p>
             </div>
           ) : (
-            <div className="card divide-y divide-neutral-200">
+            <div className="card divide-y divide-neutral-200 dark:divide-bvi-granite-700">
               {data.items.map((permit) => (
                 <div
                   key={permit.id}
-                  className="flex items-center justify-between p-4 hover:bg-neutral-50 transition-colors"
+                  className="flex items-center justify-between p-4 hover:bg-neutral-50 dark:hover:bg-bvi-atlantic-800 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3">
-                      <p className="font-medium text-neutral-900">{permit.permitNumber}</p>
-                      <span className="badge bg-neutral-100 text-neutral-600">
+                      <p className="font-medium text-neutral-900 dark:text-white">{permit.permitNumber}</p>
+                      <span className="badge bg-neutral-100 text-neutral-600 dark:bg-bvi-granite-700 dark:text-bvi-granite-300">
                         {typeLabels[permit.type]}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-neutral-500">
+                    <div className="flex items-center gap-4 mt-1 text-sm text-neutral-500 dark:text-bvi-granite-400">
                       <span>{permit.operatorName}</span>
                       <span>{permit.aircraftRegistration}</span>
                       <span>
@@ -221,10 +221,10 @@ export function Permits() {
                     <span className={`badge ${statusColors[permit.status]}`}>{statusLabels[permit.status]}</span>
                     <Link
                       to={`/permits/${permit.id}`}
-                      className="p-2 rounded-lg hover:bg-neutral-100"
+                      className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-bvi-atlantic-800"
                       title="View details"
                     >
-                      <ExternalLink className="w-4 h-4 text-neutral-400" />
+                      <ExternalLink className="w-4 h-4 text-neutral-400 dark:text-bvi-granite-500" />
                     </Link>
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export function Permits() {
           {/* Pagination */}
           {data.totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">
                 Showing {(page - 1) * pageSize + 1} to{' '}
                 {Math.min(page * pageSize, data.totalCount)} of {data.totalCount} permits
               </p>
@@ -243,17 +243,17 @@ export function Permits() {
                 <button
                   onClick={() => handlePageChange(page - 1)}
                   disabled={!data.hasPreviousPage}
-                  className="p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-lg text-neutral-600 dark:text-bvi-granite-300 hover:bg-neutral-100 dark:hover:bg-bvi-atlantic-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <span className="px-3 py-1 text-sm">
+                <span className="px-3 py-1 text-sm text-neutral-700 dark:text-bvi-granite-300">
                   Page {page} of {data.totalPages}
                 </span>
                 <button
                   onClick={() => handlePageChange(page + 1)}
                   disabled={!data.hasNextPage}
-                  className="p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-lg text-neutral-600 dark:text-bvi-granite-300 hover:bg-neutral-100 dark:hover:bg-bvi-atlantic-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>

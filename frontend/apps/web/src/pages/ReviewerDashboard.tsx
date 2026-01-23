@@ -22,35 +22,35 @@ import { Portal } from '../components/Portal';
 
 // Support both numeric and string enum values from backend (camelCase and PascalCase)
 const statusColors: Record<string | number, string> = {
-  1: 'bg-neutral-100 text-neutral-600',
-  2: 'bg-blue-100 text-blue-700',
-  3: 'bg-yellow-100 text-yellow-700',
-  4: 'bg-orange-100 text-orange-700',
-  5: 'bg-purple-100 text-purple-700',
-  6: 'bg-success-100 text-success-700',
-  7: 'bg-error-100 text-error-700',
-  8: 'bg-neutral-100 text-neutral-500',
-  9: 'bg-neutral-100 text-neutral-500',
+  1: 'bg-neutral-100 text-neutral-600 dark:bg-bvi-granite-700 dark:text-bvi-granite-300',
+  2: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  3: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+  4: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  5: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  6: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  7: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  8: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  9: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
   // camelCase (response data)
-  draft: 'bg-neutral-100 text-neutral-600',
-  submitted: 'bg-blue-100 text-blue-700',
-  underReview: 'bg-yellow-100 text-yellow-700',
-  pendingDocuments: 'bg-orange-100 text-orange-700',
-  pendingPayment: 'bg-purple-100 text-purple-700',
-  approved: 'bg-success-100 text-success-700',
-  rejected: 'bg-error-100 text-error-700',
-  expired: 'bg-neutral-100 text-neutral-500',
-  cancelled: 'bg-neutral-100 text-neutral-500',
+  draft: 'bg-neutral-100 text-neutral-600 dark:bg-bvi-granite-700 dark:text-bvi-granite-300',
+  submitted: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  underReview: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+  pendingDocuments: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  pendingPayment: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  approved: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  rejected: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  expired: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  cancelled: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
   // PascalCase (filter values)
-  Draft: 'bg-neutral-100 text-neutral-600',
-  Submitted: 'bg-blue-100 text-blue-700',
-  UnderReview: 'bg-yellow-100 text-yellow-700',
-  PendingDocuments: 'bg-orange-100 text-orange-700',
-  PendingPayment: 'bg-purple-100 text-purple-700',
-  Approved: 'bg-success-100 text-success-700',
-  Rejected: 'bg-error-100 text-error-700',
-  Expired: 'bg-neutral-100 text-neutral-500',
-  Cancelled: 'bg-neutral-100 text-neutral-500',
+  Draft: 'bg-neutral-100 text-neutral-600 dark:bg-bvi-granite-700 dark:text-bvi-granite-300',
+  Submitted: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  UnderReview: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+  PendingDocuments: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  PendingPayment: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  Approved: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  Rejected: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  Expired: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  Cancelled: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
 };
 
 const statusLabels: Record<string | number, string> = {
@@ -257,64 +257,64 @@ export function ReviewerDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Reviewer Dashboard</h1>
-        <p className="text-neutral-500 mt-1">Review and process permit applications</p>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Reviewer Dashboard</h1>
+        <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1">Review and process permit applications</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-100">
-              <ClipboardCheck className="w-5 h-5 text-blue-600" />
+            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+              <ClipboardCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-neutral-900">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {dashboardData?.pendingReview ?? '-'}
               </p>
-              <p className="text-sm text-neutral-500">Pending Review</p>
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">Pending Review</p>
             </div>
           </div>
         </div>
 
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-yellow-100">
-              <Clock className="w-5 h-5 text-yellow-600" />
+            <div className="p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
+              <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-neutral-900">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {dashboardData?.underReview ?? '-'}
               </p>
-              <p className="text-sm text-neutral-500">Under Review</p>
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">Under Review</p>
             </div>
           </div>
         </div>
 
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-100">
-              <FileSearch className="w-5 h-5 text-orange-600" />
+            <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/30">
+              <FileSearch className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-neutral-900">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {dashboardData?.pendingDocuments ?? '-'}
               </p>
-              <p className="text-sm text-neutral-500">Pending Documents</p>
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">Pending Documents</p>
             </div>
           </div>
         </div>
 
         <div className="card p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-success-100">
-              <CheckCircle className="w-5 h-5 text-success-600" />
+            <div className="p-2 rounded-lg bg-success-100 dark:bg-success-900/30">
+              <CheckCircle className="w-5 h-5 text-success-600 dark:text-success-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-neutral-900">
+              <p className="text-2xl font-bold text-neutral-900 dark:text-white">
                 {dashboardData?.completedToday ?? '-'}
               </p>
-              <p className="text-sm text-neutral-500">Completed Today</p>
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">Completed Today</p>
             </div>
           </div>
         </div>
@@ -323,7 +323,7 @@ export function ReviewerDashboard() {
       {/* Filter Buttons */}
       <div className="card p-4">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-neutral-700">Filter by status:</span>
+          <span className="text-sm font-medium text-neutral-700 dark:text-bvi-granite-300">Filter by status:</span>
           <div className="flex flex-wrap gap-2">
             {(['Submitted', 'UnderReview', 'PendingPayment', 'PendingDocuments'] as string[]).map(
               (status) => (
@@ -333,7 +333,7 @@ export function ReviewerDashboard() {
                   className={`badge cursor-pointer transition-colors ${
                     statusFilter.includes(status)
                       ? statusColors[status]
-                      : 'bg-neutral-100 text-neutral-400'
+                      : 'bg-neutral-100 text-neutral-400 dark:bg-bvi-granite-700 dark:text-bvi-granite-500'
                   }`}
                 >
                   {statusLabels[status]}
@@ -346,47 +346,47 @@ export function ReviewerDashboard() {
 
       {/* Applications List */}
       <div className="card">
-        <div className="p-4 border-b border-neutral-200">
-          <h2 className="text-lg font-semibold text-neutral-900">Applications for Review</h2>
+        <div className="p-4 border-b border-neutral-200 dark:border-bvi-granite-700">
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Applications for Review</h2>
         </div>
 
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin w-8 h-8 border-4 border-bvi-turquoise-500 border-t-transparent rounded-full mx-auto" />
-            <p className="text-neutral-500 mt-2">Loading applications...</p>
+            <p className="text-neutral-500 dark:text-bvi-granite-400 mt-2">Loading applications...</p>
           </div>
         ) : !applicationsData?.items.length ? (
           <div className="p-8 text-center">
-            <ClipboardCheck className="w-12 h-12 mx-auto mb-3 text-neutral-400" />
-            <h3 className="text-lg font-medium text-neutral-900">No applications to review</h3>
-            <p className="text-neutral-500 mt-1">
+            <ClipboardCheck className="w-12 h-12 mx-auto mb-3 text-neutral-400 dark:text-bvi-granite-500" />
+            <h3 className="text-lg font-medium text-neutral-900 dark:text-white">No applications to review</h3>
+            <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1">
               All caught up! Check back later for new submissions.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-neutral-200">
+          <div className="divide-y divide-neutral-200 dark:divide-bvi-granite-700">
             {applicationsData.items.map((application) => (
               <div
                 key={application.id}
-                className="p-4 hover:bg-neutral-50 transition-colors"
+                className="p-4 hover:bg-neutral-50 dark:hover:bg-bvi-atlantic-800 transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3 mb-1">
                       <Link
                         to={`/applications/${application.id}`}
-                        className="font-medium text-neutral-900 hover:text-bvi-atlantic-600"
+                        className="font-medium text-neutral-900 dark:text-white hover:text-bvi-atlantic-600 dark:hover:text-bvi-turquoise-400"
                       >
                         {application.applicationNumber}
                       </Link>
                       <span className={`badge ${statusColors[application.status]}`}>
                         {statusLabels[application.status]}
                       </span>
-                      <span className="badge bg-neutral-100 text-neutral-600">
+                      <span className="badge bg-neutral-100 text-neutral-600 dark:bg-bvi-granite-700 dark:text-bvi-granite-300">
                         {typeLabels[application.type]}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-neutral-500">
+                    <div className="flex items-center gap-4 text-sm text-neutral-500 dark:text-bvi-granite-400">
                       <span>{application.operatorName}</span>
                       <span>{application.aircraftRegistration}</span>
                       {application.submittedAt && (
@@ -422,7 +422,7 @@ export function ReviewerDashboard() {
                     {(application.status === 3 || application.status === 'underReview' || application.status === 5 || application.status === 'pendingPayment') && (
                       <button
                         onClick={() => openRejectModal(application)}
-                        className="btn-secondary text-sm py-1.5 px-3 text-error-600 hover:bg-error-50"
+                        className="btn-secondary text-sm py-1.5 px-3 text-error-600 hover:bg-error-50 dark:hover:bg-error-900/30"
                       >
                         <XCircle className="w-4 h-4 mr-1" />
                         Reject
@@ -430,7 +430,7 @@ export function ReviewerDashboard() {
                     )}
 
                     {(application.status === 4 || application.status === 'pendingDocuments') && (
-                      <span className="flex items-center gap-1 text-sm text-orange-600">
+                      <span className="flex items-center gap-1 text-sm text-orange-600 dark:text-orange-400">
                         <AlertTriangle className="w-4 h-4" />
                         Awaiting Documents
                       </span>
@@ -438,10 +438,10 @@ export function ReviewerDashboard() {
 
                     <Link
                       to={`/applications/${application.id}`}
-                      className="p-2 rounded-lg hover:bg-neutral-100"
+                      className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-bvi-atlantic-800"
                       title="View Details"
                     >
-                      <ChevronRight className="w-5 h-5 text-neutral-400" />
+                      <ChevronRight className="w-5 h-5 text-neutral-400 dark:text-bvi-granite-500" />
                     </Link>
                   </div>
                 </div>
@@ -454,25 +454,25 @@ export function ReviewerDashboard() {
       {/* Recent Assigned Applications */}
       {dashboardData?.assignedApplications && dashboardData.assignedApplications.length > 0 && (
         <div className="card">
-          <div className="p-4 border-b border-neutral-200">
-            <h2 className="text-lg font-semibold text-neutral-900">Your Assigned Applications</h2>
+          <div className="p-4 border-b border-neutral-200 dark:border-bvi-granite-700">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Your Assigned Applications</h2>
           </div>
-          <div className="divide-y divide-neutral-200">
+          <div className="divide-y divide-neutral-200 dark:divide-bvi-granite-700">
             {dashboardData.assignedApplications.map((app) => (
               <Link
                 key={app.id}
                 to={`/applications/${app.id}`}
-                className="flex items-center justify-between p-4 hover:bg-neutral-50 transition-colors"
+                className="flex items-center justify-between p-4 hover:bg-neutral-50 dark:hover:bg-bvi-atlantic-800 transition-colors"
               >
                 <div>
-                  <p className="font-medium text-neutral-900">{app.applicationNumber}</p>
-                  <p className="text-sm text-neutral-500">{app.operatorName}</p>
+                  <p className="font-medium text-neutral-900 dark:text-white">{app.applicationNumber}</p>
+                  <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">{app.operatorName}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`badge ${statusColors[app.status as ApplicationStatus]}`}>
                     {statusLabels[app.status as ApplicationStatus]}
                   </span>
-                  <ChevronRight className="w-5 h-5 text-neutral-400" />
+                  <ChevronRight className="w-5 h-5 text-neutral-400 dark:text-bvi-granite-500" />
                 </div>
               </Link>
             ))}

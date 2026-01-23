@@ -8,24 +8,24 @@ import { formatDate, formatMoney } from '../utils/date';
 
 // Support both numeric and string enum values from backend
 const statusColors: Record<string | number, string> = {
-  1: 'bg-neutral-100 text-neutral-700',
-  2: 'bg-bvi-atlantic-100 text-bvi-atlantic-700',
-  3: 'bg-purple-100 text-purple-700',
-  4: 'bg-warning-100 text-warning-700',
-  5: 'bg-pink-100 text-pink-700',
-  6: 'bg-success-100 text-success-700',
-  7: 'bg-error-100 text-error-700',
-  8: 'bg-neutral-100 text-neutral-500',
-  9: 'bg-neutral-100 text-neutral-500',
-  Draft: 'bg-neutral-100 text-neutral-700',
-  Submitted: 'bg-bvi-atlantic-100 text-bvi-atlantic-700',
-  UnderReview: 'bg-purple-100 text-purple-700',
-  PendingDocuments: 'bg-warning-100 text-warning-700',
-  PendingPayment: 'bg-pink-100 text-pink-700',
-  Approved: 'bg-success-100 text-success-700',
-  Rejected: 'bg-error-100 text-error-700',
-  Expired: 'bg-neutral-100 text-neutral-500',
-  Cancelled: 'bg-neutral-100 text-neutral-500',
+  1: 'bg-neutral-100 text-neutral-700 dark:bg-bvi-granite-700 dark:text-bvi-granite-200',
+  2: 'bg-bvi-atlantic-100 text-bvi-atlantic-700 dark:bg-bvi-atlantic-800 dark:text-bvi-atlantic-300',
+  3: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  4: 'bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-300',
+  5: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
+  6: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  7: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  8: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  9: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  Draft: 'bg-neutral-100 text-neutral-700 dark:bg-bvi-granite-700 dark:text-bvi-granite-200',
+  Submitted: 'bg-bvi-atlantic-100 text-bvi-atlantic-700 dark:bg-bvi-atlantic-800 dark:text-bvi-atlantic-300',
+  UnderReview: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  PendingDocuments: 'bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-300',
+  PendingPayment: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
+  Approved: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-300',
+  Rejected: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-300',
+  Expired: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
+  Cancelled: 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400',
 };
 
 const statusLabels: Record<string | number, string> = {
@@ -112,8 +112,8 @@ export function Applications() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Applications</h1>
-          <p className="text-neutral-500 mt-1">Manage your FOP applications</p>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Applications</h1>
+          <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1">Manage your FOP applications</p>
         </div>
         <Link to="/applications/new" className="btn-primary">
           <Plus className="w-4 h-4 mr-2" />
@@ -140,7 +140,7 @@ export function Applications() {
           <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn-secondary ${showFilters ? 'bg-neutral-300' : ''}`}
+            className={`btn-secondary ${showFilters ? 'bg-neutral-300 dark:bg-bvi-atlantic-700' : ''}`}
           >
             <Filter className="w-4 h-4 mr-2" />
             Filters
@@ -154,7 +154,7 @@ export function Applications() {
 
         {/* Filter Panel */}
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-neutral-200">
+          <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-bvi-granite-700">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="label">Status</label>
@@ -168,7 +168,7 @@ export function Applications() {
                         className={`badge cursor-pointer ${
                           statusFilter.includes(status)
                             ? statusColors[status]
-                            : 'bg-neutral-100 text-neutral-500'
+                            : 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400'
                         }`}
                       >
                         {statusLabels[status]}
@@ -187,8 +187,8 @@ export function Applications() {
                       onClick={() => toggleType(type)}
                       className={`badge cursor-pointer ${
                         typeFilter.includes(type)
-                          ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700'
-                          : 'bg-neutral-100 text-neutral-500'
+                          ? 'bg-bvi-atlantic-100 text-bvi-atlantic-700 dark:bg-bvi-atlantic-800 dark:text-bvi-atlantic-300'
+                          : 'bg-neutral-100 text-neutral-500 dark:bg-bvi-granite-700 dark:text-bvi-granite-400'
                       }`}
                     >
                       {typeLabels[type]}
@@ -204,7 +204,7 @@ export function Applications() {
                   setStatusFilter([]);
                   setTypeFilter([]);
                 }}
-                className="mt-3 text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700"
+                className="mt-3 text-sm text-bvi-atlantic-600 hover:text-bvi-atlantic-700 dark:text-bvi-turquoise-400 dark:hover:text-bvi-turquoise-300"
               >
                 Clear all filters
               </button>
@@ -215,22 +215,22 @@ export function Applications() {
 
       {/* Error State */}
       {error && (
-        <div className="card p-4 bg-error-50 border-error-200">
-          <p className="text-error-700">Failed to load applications. Please try again.</p>
+        <div className="card p-4 bg-error-50 border-error-200 dark:bg-error-900/20 dark:border-error-800">
+          <p className="text-error-700 dark:text-error-300">Failed to load applications. Please try again.</p>
         </div>
       )}
 
       {/* Loading State */}
       {isLoading && (
-        <div className="card divide-y divide-neutral-200">
+        <div className="card divide-y divide-neutral-200 dark:divide-bvi-granite-700">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="p-4 animate-pulse">
               <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                  <div className="h-5 w-32 bg-neutral-200 rounded" />
-                  <div className="h-4 w-48 bg-neutral-200 rounded" />
+                  <div className="h-5 w-32 bg-neutral-200 dark:bg-bvi-granite-700 rounded" />
+                  <div className="h-4 w-48 bg-neutral-200 dark:bg-bvi-granite-700 rounded" />
                 </div>
-                <div className="h-6 w-24 bg-neutral-200 rounded-full" />
+                <div className="h-6 w-24 bg-neutral-200 dark:bg-bvi-granite-700 rounded-full" />
               </div>
             </div>
           ))}
@@ -242,13 +242,13 @@ export function Applications() {
         <>
           {data.items.length === 0 ? (
             <div className="card p-8 text-center">
-              <FileText className="w-12 h-12 mx-auto mb-3 text-neutral-400" />
-              <h3 className="text-lg font-medium text-neutral-900">
+              <FileText className="w-12 h-12 mx-auto mb-3 text-neutral-400 dark:text-bvi-granite-500" />
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
                 {searchTerm || statusFilter.length || typeFilter.length
                   ? 'No applications found'
                   : 'No applications yet'}
               </h3>
-              <p className="text-neutral-500 mt-1 mb-4">
+              <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1 mb-4">
                 {searchTerm || statusFilter.length || typeFilter.length
                   ? 'Try adjusting your search or filters'
                   : 'Get started by creating your first FOP application'}
@@ -261,30 +261,30 @@ export function Applications() {
               )}
             </div>
           ) : (
-            <div className="card divide-y divide-neutral-200">
+            <div className="card divide-y divide-neutral-200 dark:divide-bvi-granite-700">
               {data.items.map((application) => (
                 <Link
                   key={application.id}
                   to={`/applications/${application.id}`}
-                  className="flex items-center justify-between p-4 hover:bg-neutral-50 transition-colors"
+                  className="flex items-center justify-between p-4 hover:bg-neutral-50 dark:hover:bg-bvi-atlantic-800 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3">
-                      <p className="font-medium text-neutral-900">
+                      <p className="font-medium text-neutral-900 dark:text-white">
                         {application.applicationNumber}
                       </p>
-                      <span className="badge bg-neutral-100 text-neutral-600">
+                      <span className="badge bg-neutral-100 text-neutral-600 dark:bg-bvi-granite-700 dark:text-bvi-granite-300">
                         {typeLabels[application.type]}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-neutral-500">
+                    <div className="flex items-center gap-4 mt-1 text-sm text-neutral-500 dark:text-bvi-granite-400">
                       <span>{application.operatorName}</span>
                       <span>{application.aircraftRegistration}</span>
                       <span>{formatDate(application.createdAt)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 ml-4">
-                    <span className="text-sm font-medium text-neutral-900">
+                    <span className="text-sm font-medium text-neutral-900 dark:text-white">
                       {formatMoney(application.calculatedFee.amount, application.calculatedFee.currency)}
                     </span>
                     <span className={`badge ${statusColors[application.status]}`}>
@@ -299,7 +299,7 @@ export function Applications() {
           {/* Pagination */}
           {data.totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">
                 Showing {(page - 1) * pageSize + 1} to{' '}
                 {Math.min(page * pageSize, data.totalCount)} of {data.totalCount} applications
               </p>
@@ -307,17 +307,17 @@ export function Applications() {
                 <button
                   onClick={() => handlePageChange(page - 1)}
                   disabled={!data.hasPreviousPage}
-                  className="p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-lg text-neutral-600 dark:text-bvi-granite-300 hover:bg-neutral-100 dark:hover:bg-bvi-atlantic-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <span className="px-3 py-1 text-sm">
+                <span className="px-3 py-1 text-sm text-neutral-700 dark:text-bvi-granite-300">
                   Page {page} of {data.totalPages}
                 </span>
                 <button
                   onClick={() => handlePageChange(page + 1)}
                   disabled={!data.hasNextPage}
-                  className="p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-lg text-neutral-600 dark:text-bvi-granite-300 hover:bg-neutral-100 dark:hover:bg-bvi-atlantic-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>

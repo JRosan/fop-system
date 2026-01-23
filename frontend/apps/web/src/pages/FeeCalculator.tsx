@@ -42,8 +42,8 @@ export function FeeCalculator() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Fee Calculator</h1>
-        <p className="text-neutral-500 mt-1">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Fee Calculator</h1>
+        <p className="text-neutral-500 dark:text-bvi-granite-400 mt-1">
           Estimate the fees for your Foreign Operator Permit application
         </p>
       </div>
@@ -61,8 +61,8 @@ export function FeeCalculator() {
                     key={option.value}
                     className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-colors ${
                       applicationType === option.value
-                        ? 'border-bvi-turquoise-500 bg-bvi-atlantic-50'
-                        : 'border-neutral-200 hover:border-neutral-300'
+                        ? 'border-bvi-turquoise-500 bg-bvi-atlantic-50 dark:bg-bvi-atlantic-900'
+                        : 'border-neutral-200 dark:border-bvi-granite-700 hover:border-neutral-300 dark:hover:border-bvi-granite-600'
                     }`}
                   >
                     <input
@@ -74,8 +74,8 @@ export function FeeCalculator() {
                       className="mt-1"
                     />
                     <div>
-                      <p className="font-medium text-neutral-900">{option.label}</p>
-                      <p className="text-sm text-neutral-500">{option.description}</p>
+                      <p className="font-medium text-neutral-900 dark:text-white">{option.label}</p>
+                      <p className="text-sm text-neutral-500 dark:text-bvi-granite-400">{option.description}</p>
                     </div>
                   </label>
                 ))}
@@ -97,7 +97,7 @@ export function FeeCalculator() {
                   onChange={(e) => setSeatCount(parseInt(e.target.value) || 0)}
                   className="input"
                 />
-                <p className="text-xs text-neutral-500 mt-1">Number of passenger seats</p>
+                <p className="text-xs text-neutral-500 dark:text-bvi-granite-400 mt-1">Number of passenger seats</p>
               </div>
               <div>
                 <label htmlFor="mtowKg" className="label">
@@ -112,7 +112,7 @@ export function FeeCalculator() {
                   onChange={(e) => setMtowKg(parseInt(e.target.value) || 0)}
                   className="input"
                 />
-                <p className="text-xs text-neutral-500 mt-1">Maximum takeoff weight</p>
+                <p className="text-xs text-neutral-500 dark:text-bvi-granite-400 mt-1">Maximum takeoff weight</p>
               </div>
             </div>
 
@@ -125,20 +125,20 @@ export function FeeCalculator() {
 
         {/* Results */}
         <div className="card p-6">
-          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Fee Breakdown</h2>
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Fee Breakdown</h2>
 
           {error && (
-            <div className="p-4 bg-error-50 border border-error-200 rounded-lg mb-4">
-              <p className="text-error-700">Failed to calculate fee. Please try again.</p>
+            <div className="p-4 bg-error-50 border border-error-200 dark:bg-error-900/20 dark:border-error-800 rounded-lg mb-4">
+              <p className="text-error-700 dark:text-error-300">Failed to calculate fee. Please try again.</p>
             </div>
           )}
 
           {feeResult ? (
             <>
               {/* Total */}
-              <div className="text-center p-6 bg-bvi-atlantic-50 rounded-lg mb-6">
-                <p className="text-sm text-bvi-atlantic-600 mb-1">Estimated Total Fee</p>
-                <p className="text-4xl font-bold text-bvi-atlantic-700">
+              <div className="text-center p-6 bg-bvi-atlantic-50 dark:bg-bvi-atlantic-900 rounded-lg mb-6">
+                <p className="text-sm text-bvi-atlantic-600 dark:text-bvi-turquoise-400 mb-1">Estimated Total Fee</p>
+                <p className="text-4xl font-bold text-bvi-atlantic-700 dark:text-bvi-turquoise-300">
                   {formatMoney(feeResult.totalFee.amount, feeResult.totalFee.currency)}
                 </p>
               </div>
@@ -148,10 +148,10 @@ export function FeeCalculator() {
                 {feeResult.breakdown.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between py-2 border-b border-neutral-200 last:border-0"
+                    className="flex items-center justify-between py-2 border-b border-neutral-200 dark:border-bvi-granite-700 last:border-0"
                   >
-                    <span className="text-neutral-600">{item.description}</span>
-                    <span className="font-medium text-neutral-900">
+                    <span className="text-neutral-600 dark:text-bvi-granite-400">{item.description}</span>
+                    <span className="font-medium text-neutral-900 dark:text-white">
                       {formatMoney(item.amount.amount, item.amount.currency)}
                     </span>
                   </div>
@@ -159,45 +159,45 @@ export function FeeCalculator() {
               </div>
 
               {/* Summary */}
-              <div className="mt-6 pt-4 border-t border-neutral-200">
+              <div className="mt-6 pt-4 border-t border-neutral-200 dark:border-bvi-granite-700">
                 <dl className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <dt className="text-neutral-500">Base Fee</dt>
-                    <dd className="font-medium">
+                    <dt className="text-neutral-500 dark:text-bvi-granite-400">Base Fee</dt>
+                    <dd className="font-medium text-neutral-900 dark:text-white">
                       {formatMoney(feeResult.baseFee.amount, feeResult.baseFee.currency)}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-neutral-500">Seat Fee ({seatCount} seats)</dt>
-                    <dd className="font-medium">
+                    <dt className="text-neutral-500 dark:text-bvi-granite-400">Seat Fee ({seatCount} seats)</dt>
+                    <dd className="font-medium text-neutral-900 dark:text-white">
                       {formatMoney(feeResult.seatFee.amount, feeResult.seatFee.currency)}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-neutral-500">Weight Fee ({mtowKg.toLocaleString()} kg)</dt>
-                    <dd className="font-medium">
+                    <dt className="text-neutral-500 dark:text-bvi-granite-400">Weight Fee ({mtowKg.toLocaleString()} kg)</dt>
+                    <dd className="font-medium text-neutral-900 dark:text-white">
                       {formatMoney(feeResult.weightFee.amount, feeResult.weightFee.currency)}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-neutral-500">Permit Multiplier</dt>
-                    <dd className="font-medium">{feeResult.multiplier}x</dd>
+                    <dt className="text-neutral-500 dark:text-bvi-granite-400">Permit Multiplier</dt>
+                    <dd className="font-medium text-neutral-900 dark:text-white">{feeResult.multiplier}x</dd>
                   </div>
                 </dl>
               </div>
             </>
           ) : (
-            <div className="text-center py-12 text-neutral-500">
+            <div className="text-center py-12 text-neutral-500 dark:text-bvi-granite-400">
               <Calculator className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>Enter your aircraft details to calculate the permit fee</p>
             </div>
           )}
 
           {/* Info */}
-          <div className="mt-6 p-4 bg-neutral-50 rounded-lg">
+          <div className="mt-6 p-4 bg-neutral-50 dark:bg-bvi-atlantic-800 rounded-lg">
             <div className="flex gap-2">
-              <Info className="w-5 h-5 text-neutral-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-neutral-600">
+              <Info className="w-5 h-5 text-neutral-400 dark:text-bvi-granite-500 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-neutral-600 dark:text-bvi-granite-300">
                 <p className="font-medium mb-1">Fee Calculation Formula</p>
                 <p>(Base + Seats x Per-Seat Rate + Weight x Per-Kg Rate) x Multiplier</p>
                 <p className="mt-2">

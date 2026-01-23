@@ -12,6 +12,10 @@ export const apiClient: AxiosInstance = axios.create({
 
 let authToken: string | null = null;
 let tenantId: string | null = null;
+let tenantCode: string | null = null;
+
+// Default tenant code for development (BVI)
+const DEFAULT_TENANT_CODE = 'BVI';
 
 export function setAuthToken(token: string): void {
   authToken = token;
@@ -29,6 +33,14 @@ export function clearTenantId(): void {
   tenantId = null;
 }
 
+export function setTenantCode(code: string): void {
+  tenantCode = code;
+}
+
+export function clearTenantCode(): void {
+  tenantCode = null;
+}
+
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (authToken) {
@@ -36,6 +48,11 @@ apiClient.interceptors.request.use(
     }
     if (tenantId) {
       config.headers['X-Tenant-Id'] = tenantId;
+    } else if (tenantCode) {
+      config.headers['X-Tenant-Code'] = tenantCode;
+    } else {
+      // Use default tenant code for development
+      config.headers['X-Tenant-Code'] = DEFAULT_TENANT_CODE;
     }
     return config;
   },
