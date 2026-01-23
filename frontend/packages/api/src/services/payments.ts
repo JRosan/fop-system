@@ -105,9 +105,9 @@ export const paymentsApi = {
     return data;
   },
 
-  async verifyBankTransfer(paymentId: string, transactionReference: string, notes?: string): Promise<PaymentResult> {
-    const { data } = await apiClient.post(`/payments/${paymentId}/verify`, {
-      transactionReference,
+  async verifyBankTransfer(applicationId: string, verifiedBy: string, notes?: string): Promise<{ message: string }> {
+    const { data } = await apiClient.post(`/payments/${applicationId}/verify`, {
+      verifiedBy,
       notes,
     });
     return data;

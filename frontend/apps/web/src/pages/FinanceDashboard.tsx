@@ -124,8 +124,8 @@ export function FinanceDashboard() {
 
   // Verify payment mutation
   const verifyMutation = useMutation({
-    mutationFn: ({ paymentId, reference, notes }: { paymentId: string; reference: string; notes?: string }) =>
-      paymentsApi.verifyBankTransfer(paymentId, reference, notes),
+    mutationFn: ({ applicationId, transactionRef, notes }: { applicationId: string; transactionRef: string; notes?: string }) =>
+      paymentsApi.verifyBankTransfer(applicationId, 'Finance Officer', `Transaction Ref: ${transactionRef}${notes ? ` - ${notes}` : ''}`),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['payments'] });
       queryClient.invalidateQueries({ queryKey: ['pendingPayments'] });
@@ -614,8 +614,8 @@ export function FinanceDashboard() {
                 type="button"
                 onClick={() =>
                   verifyMutation.mutate({
-                    paymentId: selectedPayment.id,
-                    reference: transactionReference,
+                    applicationId: selectedPayment.applicationId,
+                    transactionRef: transactionReference,
                     notes: verifyNotes || undefined,
                   })
                 }
